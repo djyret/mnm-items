@@ -517,7 +517,7 @@ textarea { resize: vertical; }
 
 /* ---------- Förråd ---------- */
 .forrad { display: grid; grid-template-columns: 290px 1fr; gap: 1.4rem; align-items: start; }
-.filters { position: sticky; top: 1rem; max-height: calc(100vh - 2rem); overflow: auto; }
+.filters { position: sticky; top: 1rem; }
 .min-row { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.35rem; }
 .min-row__key { flex: 0 0 auto; min-width: 6.5em; font-size: 0.95rem; }
 .min-row input { width: 4.5em; flex: 0 0 auto; }
@@ -759,3 +759,4 @@ body {
 @media (max-width: 900px) {
   body { background-attachment: scroll; background-size: auto 100vh; }
 }
+.class-picker--wide { grid-template-columns: repeat(auto-fill, minmax(42px, 1fr)); max-width: 520px; }

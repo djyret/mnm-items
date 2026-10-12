@@ -11,13 +11,14 @@ export function ClassIcon({ code, size = 40 }: { code: string | null | undefined
 }
 
 /** Rutnät med klassikoner att välja en klass i. Klick på vald klass avmarkerar. */
-export function ClassPicker({ classes, value, onChange }: {
+export function ClassPicker({ classes, value, onChange, wide = false }: {
   classes: string[]
   value: string
   onChange: (v: string) => void
+  wide?: boolean
 }) {
   return (
-    <div className="class-picker">
+    <div className={`class-picker${wide ? ' class-picker--wide' : ''}`}>
       {classes.map((c) => (
         <button
           key={c}

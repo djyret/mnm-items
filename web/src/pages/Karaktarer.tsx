@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ClassIcon } from '../components/ClassIcon'
+import { ClassIcon, ClassPicker } from '../components/ClassIcon'
 import { CLASSES } from '../lib/constants'
 import { useStore } from '../lib/store'
 import { supabase } from '../lib/supabase'
@@ -31,11 +31,10 @@ function CharForm({ initial, onSave, onCancel }: {
     >
       <label className="field"><span>Namn</span><input required value={d.name} onChange={(e) => set('name', e.target.value)} /></label>
       <label className="field"><span>Spelare</span><input value={d.player ?? ''} onChange={(e) => set('player', e.target.value || null)} placeholder="Vem spelar den?" /></label>
-      <label className="field">
-        <span>Klass</span>
-        <input list="class-list" value={d.class ?? ''} onChange={(e) => set('class', e.target.value.toUpperCase() || null)} placeholder="t.ex. ELE" />
-        <datalist id="class-list">{Object.entries(CLASSES).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</datalist>
-      </label>
+      <div className="field field--wide">
+        <span>Klass{d.class ? `: ${CLASSES[d.class] || d.class}` : ' – klicka på en ikon'}</span>
+        <ClassPicker classes={Object.keys(CLASSES)} value={d.class ?? ''} onChange={(v) => set('class', v || null)} wide />
+      </div>
       <label className="field"><span>Ras</span><input value={d.race ?? ''} onChange={(e) => set('race', e.target.value || null)} placeholder="t.ex. Gnome" /></label>
       <label className="field field--narrow"><span>Level</span><input inputMode="numeric" value={d.level ?? ''} onChange={(e) => set('level', e.target.value ? Number(e.target.value) || null : null)} /></label>
       <label className="check"><input type="checkbox" checked={d.is_main} onChange={(e) => set('is_main', e.target.checked)} /> Main</label>
