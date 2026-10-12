@@ -788,3 +788,22 @@ body {
 .chip--nodrop.is-active { border-color: var(--danger); color: #ffd2c9; background: linear-gradient(180deg, #5a2a22, #2f1612); }
 .chip--warn { color: #ffd2c9; border-color: var(--danger); margin-left: 0.4rem; }
 .warn { display: block; margin-top: 0.4rem; color: #f2c4bb; }
+
+/* ---------- Itemram: järnram + sten ur en bild (9-slice) ---------- */
+.tooltip {
+  border-style: solid;
+  border-width: 13px 9px 11px;
+  border-image: url('/bilder/item-ram.webp') 60 38 50 37 fill / 13px 9px 11px stretch;
+  outline: none;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.55));
+}
+.tooltip__title {
+  background: linear-gradient(180deg, rgba(20, 20, 18, 0.55), rgba(20, 20, 18, 0.25));
+  border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.tooltip__body { background: none; }
+.tooltip--compact { border-width: 11px 8px 9px; border-image-width: 11px 8px 9px; }
