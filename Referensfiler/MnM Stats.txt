@@ -1,0 +1,66 @@
+Primary Stats
+You chose your character's stats when you create it, and have to live with the decision thereafter. There is no one perfect way to set up an individual character class. Much of it depends on your playing style, your preferences and the decision you make as to how you want your character to make his or her way through the world. Below are the basic descriptions of how the stats affect the characters.
+
+Strength (STR)
+Allows you to carry more weight. Also increases melee and ranged weapon damage and shield block amounts.
+
+1 STR = 2 Weight
+
+Stamina (STA)
+Increases health and reduces chance to be dazed in combat.
+
+1 STA = 1 HP ( need testing seems to scale better late game )
+
+Agility (AGI)
+Provides damage mitigation.
+
+Dexterity (DEX)
+Increases hit rate, on hit weapon effect frequency and provides a bonus to channeling for spellcasters.
+
+Wisdom (WIS)
+Increases mana pool size (if WIS is higher than INT) and increases healing done on healing spells.
+
+Based on the main stat of a class, Wisdom gives Mana at a rate of 4 Mana per 1 Wisdom.
+
+Intelligence (INT)
+Increases mana pool size (if INT is higher than WIS) and increases damage done on offensive damage spells.
+
+Charisma (CHA)
+Reduces the purchase price of items at merchants, and increases the sale price. Also improves the commerce skill and reduces the break rate of charm. At this time Charisma dont seem to effect Vendor prices. Also commerce skill dont work atm. ( state Beta 05.06.2026 )
+
+Secondary Stats
+Armor Class (AC)
+Determined by the armors the character is wearing. Mitigate the incoming physical damages.
+
+Hit Points (HP)
+Sometimes known as "health", a character's HP determines how much damage you can sustain before dying.
+
+Max (cap): None
+
+Hit points can be increased directly through +HP gear, or indirectly through +STA gear, or temporarily through HP enhancing spells.
+
+Mana (Mana)
+Determined by the highest stat between INT and WIS. Is used for casting spells.
+
+Resists
+Need Info
+
+The eight resistance types are:
+
+Cold
+Corruption
+Disease
+Electricity
+Fire
+Magic
+Poison
+Holy
+Weight (WT)
+A character's weight describes how much mass from items and coins they are carrying or have equipped.
+
+Tertiary statistics
+Damage Per Second (DPS)
+Need Info
+
+Weapon Ratio
+Simple Ratio: (DMG / DLY) = Ratio Example: (18 / 27) = 0.666 DPS This ratio is reasonably useful for most players, especially lower level players. You can use this simple ratio to compare weapons.

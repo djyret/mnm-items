@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.env
+.env.*
+supabase/.temp/
+supabase/.branches/
+
+# Råbilder (stora) – webbens bilder ligger i web/public/bilder
+/Bilder/
