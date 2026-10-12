@@ -6,13 +6,14 @@ import { useStore } from '../lib/store'
 import { Money } from './Money'
 import { ItemIcon } from './ItemTooltip'
 
+// Chattrutan rymmer 255 tecken; 250 lämnar plats för "/auc " före inklistringen
 const SETTINGS_KEY = 'mnm:wts'
 
 function loadSettings() {
   try {
-    return { prefix: 'WTS', suffix: '- PST', maxLen: 255, ...JSON.parse(localStorage.getItem(SETTINGS_KEY) ?? '{}') }
+    return { prefix: 'WTS', suffix: '- PST', maxLen: 250, ...JSON.parse(localStorage.getItem(SETTINGS_KEY) ?? '{}') }
   } catch {
-    return { prefix: 'WTS', suffix: '- PST', maxLen: 255 }
+    return { prefix: 'WTS', suffix: '- PST', maxLen: 250 }
   }
 }
 
@@ -45,7 +46,7 @@ export function WtsGenerator({ onClose }: { onClose: () => void }) {
   }
 
   const chosen = forSale.filter((i) => picked.has(i.id))
-  const lines = buildWts(chosen, { ...opt, maxLen: Math.max(40, Number(opt.maxLen) || 255) })
+  const lines = buildWts(chosen, { ...opt, maxLen: Math.max(40, Number(opt.maxLen) || 250) })
   const missingLinks = chosen.filter((i) => !i.game_link).length
 
   async function copy(idx: number) {
