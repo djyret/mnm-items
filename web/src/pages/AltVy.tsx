@@ -4,7 +4,7 @@ import { ClassIcon } from '../components/ClassIcon'
 import { ItemCard } from '../components/ItemCard'
 import { LoanRequest } from '../components/LoanRequest'
 import { CLASSES, SLOTS, slotIcon } from '../lib/constants'
-import { canUse, isNoDrop, itemScore } from '../lib/items'
+import { canUse, itemScore } from '../lib/items'
 import { useStore } from '../lib/store'
 
 /** Allt i förrådet en viss karaktär kan bära, grupperat per slot. */
@@ -32,7 +32,6 @@ export function AltVy() {
       if (i.status === 'sald') return false
       if (!canUse(i, char)) return false
       const own = i.holder_id === char.id || i.lent_to_id === char.id
-      if (!own && isNoDrop(i)) return false // NODROP på annan karaktär går inte att få
       if (!own && i.status === 'reserverad') return false
       return true
     })
@@ -83,7 +82,7 @@ export function AltVy() {
         {char?.class && (
           <p className="note">
             Visar items för {CLASSES[char.class] || char.class}
-            {char.race ? ` (${char.race})` : ''} – sorterat på AC + stats. NODROP-items på andra karaktärer är bortfiltrerade.
+            {char.race ? ` (${char.race})` : ''} – sorterat på AC + stats.
           </p>
         )}
       </div>

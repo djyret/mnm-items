@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom'
 import { STATUS_LABELS } from '../lib/constants'
-import { isNoDrop } from '../lib/items'
 import { useStore } from '../lib/store'
 import { imageUrl } from '../lib/supabase'
 import type { Item } from '../lib/types'
@@ -69,7 +68,6 @@ export function ItemCard({ item, own = false, selected, onSelect }: {
           {item.status === 'sald'
             ? item.sold_price_cp != null && <Money cp={item.sold_price_cp} />
             : item.price_cp != null && <span title="Riktpris"><Money cp={item.price_cp} /></span>}
-          {isNoDrop(item) && <span className="badge badge--nodrop" title="Kan inte tradeas">NODROP</span>}
           <span className={`badge badge--${item.status}`}>
             {STATUS_LABELS[item.status]}
             {target ? ` → ${target}` : ''}

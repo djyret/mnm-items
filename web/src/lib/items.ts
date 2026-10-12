@@ -48,9 +48,6 @@ export function parsedToDraft(p: ParsedItem, base: ItemDraft): ItemDraft {
   }
 }
 
-export const isNoDrop = (i: Pick<Item, 'flags'>) =>
-  i.flags.some((f) => f === 'NODROP' || f === 'NO DROP' || f === 'NOTRADE')
-
 /** Kan karaktären bära itemet? Okänd klass/ras räknas som ja. */
 export function canUse(item: Pick<Item, 'classes' | 'races'>, c: Character): boolean {
   const cls = c.class?.toUpperCase()

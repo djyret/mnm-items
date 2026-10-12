@@ -461,7 +461,6 @@ textarea { resize: vertical; }
 .badge--utlanad { color: var(--lent); }
 .badge--reserverad { color: var(--reserved); }
 .badge--sald { color: var(--sold); text-decoration: line-through; }
-.badge--nodrop { color: var(--danger); }
 .badge--main { color: var(--gold); margin-left: 0.4rem; vertical-align: middle; }
 
 /* ---------- Förråd ---------- */
@@ -788,7 +787,6 @@ body {
 }
 .chip:hover { color: var(--text); border-color: var(--iron-light); }
 .chip.is-active { color: #fff3d6; background: linear-gradient(180deg, #4a3a24, #2a2016); border-color: var(--bronze-light); }
-.chip--nodrop.is-active { border-color: var(--danger); color: #ffd2c9; background: linear-gradient(180deg, #5a2a22, #2f1612); }
 .chip--warn { color: #ffd2c9; border-color: var(--danger); margin-left: 0.4rem; }
 .warn { display: block; margin-top: 0.4rem; color: #f2c4bb; }
 

@@ -66,7 +66,6 @@ const AMNEN: Amne[] = [
       <>Klicka på <B>Låna ut</B>.</>,
       <>När itemet kommer tillbaka: öppna itemet igen och klicka på <B>Tillbaka till …</B></>,
     ],
-    tips: <>Items med <span className="badge badge--nodrop">NODROP</span> går inte att ge bort i spelet, därför går de inte att låna ut här heller.</>,
   },
   {
     id: 'flytta',
@@ -224,10 +223,6 @@ export function Hjalp() {
               <dd>{text}</dd>
             </div>
           ))}
-          <div>
-            <dt><span className="badge badge--nodrop">NODROP</span></dt>
-            <dd>Kan inte ges bort eller säljas i spelet.</dd>
-          </div>
         </dl>
         <p className="note">
           Ser du något du inte förstår? Fråga i gruppen – och tryck på <Link to="/hjalp">Hjälp</Link> igen när du vill.

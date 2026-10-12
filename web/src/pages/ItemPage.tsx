@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { HolderBadge, NoDropBadge, StatusBadge } from '../components/Badges'
+import { HolderBadge, StatusBadge } from '../components/Badges'
 import { ItemFields, OwnershipFields } from '../components/ItemForm'
 import { ItemTooltip } from '../components/ItemTooltip'
 import { Money, PriceInput } from '../components/Money'
 import { formatPrice } from '../lib/money'
 import { STATUS_LABELS } from '../lib/constants'
-import { compressImage, cropIcon, deleteImages, isNoDrop, logEvent, parseImage, uploadImage } from '../lib/items'
+import { compressImage, cropIcon, deleteImages, logEvent, parseImage, uploadImage } from '../lib/items'
 import { useStore } from '../lib/store'
 import { imageUrl, supabase } from '../lib/supabase'
 import type { Item, ItemDraft, ItemEvent } from '../lib/types'
@@ -165,7 +165,6 @@ export function ItemPage() {
               <div className="card__meta">
                 <HolderBadge item={item} />
                 <StatusBadge item={item} />
-                <NoDropBadge item={item} />
               </div>
               {item.status === 'sald' && (
                 <p className="price-line">
@@ -201,8 +200,8 @@ export function ItemPage() {
                     </div>
                   ) : (
                     <div className="quick__row">
-                      <select value={lendTo} onChange={(e) => setLendTo(e.target.value)} disabled={isNoDrop(item)}>
-                        <option value="">{isNoDrop(item) ? 'NODROP – kan inte lånas ut' : 'Låna ut till…'}</option>
+                      <select value={lendTo} onChange={(e) => setLendTo(e.target.value)}>
+                        <option value="">Låna ut till…</option>
                         {others.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                       </select>
                       <button className="btn" disabled={!lendTo || busy} onClick={lend}>Låna ut</button>

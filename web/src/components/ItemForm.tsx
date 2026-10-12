@@ -123,7 +123,7 @@ export function ItemFields({ draft, onChange }: Props) {
             <button
               key={f}
               type="button"
-              className={`chip${draft.flags.includes(f) ? ' is-active' : ''}${f === 'NODROP' ? ' chip--nodrop' : ''}`}
+              className={`chip${draft.flags.includes(f) ? ' is-active' : ''}`}
               aria-pressed={draft.flags.includes(f)}
               onClick={() => set('flags', toggle(draft.flags, f))}
             >

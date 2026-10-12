@@ -3,7 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { ClassPicker } from '../components/ClassIcon'
 import { ItemCard } from '../components/ItemCard'
 import { CLASSES, SLOTS, STATUSES, STATUS_LABELS, STAT_LABELS, statLabel, weaponRatio } from '../lib/constants'
-import { isNoDrop, itemScore } from '../lib/items'
+import { itemScore } from '../lib/items'
 import { useStore } from '../lib/store'
 import type { Item } from '../lib/types'
 
@@ -24,7 +24,6 @@ export function Forrad() {
   const cls = params.get('klass') ?? ''
   const holder = params.get('karaktar') ?? ''
   const status = params.get('status') ?? 'aktiva'
-  const tradeOnly = params.get('trade') === '1'
   const sort = (params.get('sort') ?? 'nyast') as Sort
   const mins = parseMins(params.get('min'))
 
@@ -59,7 +58,6 @@ export function Forrad() {
       if (holder && i.holder_id !== holder && i.lent_to_id !== holder) return false
       if (status === 'aktiva' && i.status === 'sald') return false
       if (status !== 'aktiva' && status !== 'alla' && i.status !== status) return false
-      if (tradeOnly && isNoDrop(i)) return false
       for (const [k, v] of mins) {
         const val = k === 'AC' ? i.ac : i.stats[k]
         if ((val ?? 0) < v) return false
@@ -77,7 +75,7 @@ export function Forrad() {
       out.sort(by((i) => i.stats[k] ?? -999))
     }
     return out
-  }, [items, q, slot, cls, holder, status, tradeOnly, mins, sort])
+  }, [items, q, slot, cls, holder, status, mins, sort])
 
   const activeFilters = [...params.keys()].filter((k) => k !== 'sort').length
 
@@ -114,10 +112,6 @@ export function Forrad() {
             <option value="alla">Alla</option>
             {STATUSES.map((s) => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
           </select>
-        </label>
-        <label className="check">
-          <input type="checkbox" checked={tradeOnly} onChange={(e) => update('trade', e.target.checked ? '1' : null)} />
-          Bara tradebara (dölj NODROP)
         </label>
 
         <div className="field">

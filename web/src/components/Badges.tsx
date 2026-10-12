@@ -1,5 +1,4 @@
 import { STATUS_LABELS } from '../lib/constants'
-import { isNoDrop } from '../lib/items'
 import { useStore } from '../lib/store'
 import type { Item } from '../lib/types'
 
@@ -25,6 +24,3 @@ export function HolderBadge({ item }: { item: Item }) {
   return <span className="badge badge--holder">{holder ? holder.name : 'Ingen ägare'}</span>
 }
 
-export function NoDropBadge({ item }: { item: Item }) {
-  return isNoDrop(item) ? <span className="badge badge--nodrop" title="Kan inte tradeas">NODROP</span> : null
-}

@@ -86,7 +86,7 @@ export const STATUS_LABELS: Record<Status, string> = {
 
 export const STATUSES = Object.keys(STATUS_LABELS) as Status[]
 
-export const KNOWN_FLAGS = ['MAGIC', 'UNIQUE', 'NODROP', 'LORE', 'NORENT', 'QUEST']
+export const KNOWN_FLAGS = ['MAGIC', 'UNIQUE', 'LORE', 'NORENT', 'QUEST']
 
 export function statLabel(key: string): string {
   return STAT_LABELS[key] ?? key.replace(/_/g, ' ')
