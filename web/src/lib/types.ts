@@ -32,6 +32,7 @@ export interface Item {
   status: Status
   lent_to_id: string | null
   sold_to: string | null
+  price_cp: number | null
   notes: string | null
   created_at: string
   updated_at: string

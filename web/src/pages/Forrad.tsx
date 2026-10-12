@@ -7,7 +7,7 @@ import { isNoDrop, itemScore } from '../lib/items'
 import { useStore } from '../lib/store'
 import type { Item } from '../lib/types'
 
-type Sort = 'nyast' | 'namn' | 'ac' | 'poang' | 'ratio' | `stat:${string}`
+type Sort = 'nyast' | 'namn' | 'ac' | 'poang' | 'ratio' | 'pris' | `stat:${string}`
 
 function parseMins(s: string | null): [string, number][] {
   if (!s) return []
@@ -70,6 +70,7 @@ export function Forrad() {
     if (sort === 'namn') out.sort((a, b) => a.name.localeCompare(b.name, 'sv'))
     else if (sort === 'ac') out.sort(by((i) => i.ac ?? -999))
     else if (sort === 'poang') out.sort(by(itemScore))
+    else if (sort === 'pris') out.sort(by((i) => i.price_cp ?? -1))
     else if (sort === 'ratio') out.sort(by((i) => weaponRatio(i.stats) ?? -1))
     else if (sort.startsWith('stat:')) {
       const k = sort.slice(5)
@@ -154,6 +155,7 @@ export function Forrad() {
             <option value="ac">AC</option>
             <option value="poang">Bäst totalt (AC + stats)</option>
             <option value="ratio">Vapenratio (DMG/DLY)</option>
+            <option value="pris">Pris (högst först)</option>
             {allStats.map((s) => <option key={s} value={`stat:${s}`}>{statLabel(s)}</option>)}
           </select>
         </label>

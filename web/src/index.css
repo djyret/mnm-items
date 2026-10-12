@@ -807,3 +807,29 @@ body {
 }
 .tooltip__body { background: none; }
 .tooltip--compact { border-width: 11px 8px 9px; border-image-width: 11px 8px 9px; }
+
+/* ---------- Pengar: platinum, guld, silver, koppar ---------- */
+.coin {
+  display: inline-block;
+  width: 0.85em;
+  height: 0.85em;
+  border-radius: 50%;
+  vertical-align: -0.08em;
+  margin-left: 0.15em;
+  box-shadow: inset 0 -1px 1px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.6), 0 1px 1px #000;
+}
+.coin--p { background: radial-gradient(circle at 35% 30%, #eaf6ff, #8cc4ef 45%, #3d6f9e); }
+.coin--g { background: radial-gradient(circle at 35% 30%, #fff1b8, #e3b54a 45%, #9a6f1c); }
+.coin--s { background: radial-gradient(circle at 35% 30%, #ffffff, #c7c7c7 45%, #808080); }
+.coin--c { background: radial-gradient(circle at 35% 30%, #ffd2a8, #c27a3e 45%, #7a4317); }
+.money { display: inline-flex; gap: 0.45em; align-items: center; font-weight: 600; color: #f0e4c8; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.money__part { display: inline-flex; align-items: center; }
+.card__tags .money { font-size: 0.9rem; margin-right: 0.2rem; }
+.price-line { margin: 0.6rem 0 0; font-size: 1.05rem; color: var(--text-dim); }
+
+.price-input { display: flex; gap: 4px; }
+.price-input__coin { position: relative; display: flex; align-items: center; }
+.price-input__coin input { width: 4.2em; padding-right: 1.5em; text-align: right; }
+.price-input__coin .coin { position: absolute; right: 0.45em; margin: 0; pointer-events: none; }
+.quick__row--sell .price-input { flex: 0 0 auto; }
+.quick__row--sell .price-input__coin input { width: 3.9em; flex: none; }

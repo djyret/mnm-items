@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { CLASSES, KNOWN_FLAGS, SLOTS, STATUSES, STATUS_LABELS, slotIcon, statLabel } from '../lib/constants'
 import { ClassIcon } from './ClassIcon'
+import { PriceInput } from './Money'
 import { useStore } from '../lib/store'
 import type { ItemDraft } from '../lib/types'
 
@@ -257,6 +258,10 @@ export function OwnershipFields({ draft, onChange }: Props) {
           <input value={draft.sold_to ?? ''} onChange={(e) => set('sold_to', e.target.value || null)} placeholder="Namn eller pris" />
         </label>
       )}
+      <div className="field">
+        <span>{draft.status === 'sald' ? 'Såld för' : 'Pris (begärt)'}</span>
+        <PriceInput value={draft.price_cp} onChange={(v) => set('price_cp', v)} />
+      </div>
       <label className="field field--wide">
         <span>Anteckning</span>
         <input value={draft.notes ?? ''} onChange={(e) => set('notes', e.target.value || null)} />

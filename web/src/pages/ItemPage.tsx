@@ -3,6 +3,8 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { HolderBadge, NoDropBadge, StatusBadge } from '../components/Badges'
 import { ItemFields, OwnershipFields } from '../components/ItemForm'
 import { ItemTooltip } from '../components/ItemTooltip'
+import { Money, PriceInput } from '../components/Money'
+import { formatPrice } from '../lib/money'
 import { STATUS_LABELS } from '../lib/constants'
 import { compressImage, cropIcon, deleteImages, isNoDrop, logEvent, parseImage, uploadImage } from '../lib/items'
 import { useStore } from '../lib/store'
@@ -31,6 +33,7 @@ export function ItemPage() {
   const [lendTo, setLendTo] = useState('')
   const [moveTo, setMoveTo] = useState('')
   const [soldTo, setSoldTo] = useState('')
+  const [soldPrice, setSoldPrice] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -77,9 +80,16 @@ export function ItemPage() {
     ).then(() => setMoveTo(''))
 
   const sell = () =>
-    patch({ status: 'sald', sold_to: soldTo || null, lent_to_id: null }, [item.id, 'sald', { from_id: item.holder_id, note: soldTo || null }]).then(() =>
-      setSoldTo(''),
-    )
+    patch(
+      { status: 'sald', sold_to: soldTo || null, lent_to_id: null, price_cp: soldPrice ?? item.price_cp },
+      [item.id, 'sald', {
+        from_id: item.holder_id,
+        note: [soldTo, soldPrice ?? item.price_cp ? formatPrice(soldPrice ?? item.price_cp) : ''].filter(Boolean).join(' – ') || null,
+      }],
+    ).then(() => {
+      setSoldTo('')
+      setSoldPrice(null)
+    })
 
   async function saveEdit() {
     if (!draft) return
@@ -148,6 +158,11 @@ export function ItemPage() {
                 <StatusBadge item={item} />
                 <NoDropBadge item={item} />
               </div>
+              {item.price_cp != null && (
+                <p className="price-line">
+                  {item.status === 'sald' ? 'Såld för' : 'Pris'}: <Money cp={item.price_cp} />
+                </p>
+              )}
               {item.notes && <p className="note">{item.notes}</p>}
 
               {item.status !== 'sald' && (
@@ -173,8 +188,9 @@ export function ItemPage() {
                     </select>
                     <button className="btn" disabled={!moveTo || busy} onClick={move}>Flytta</button>
                   </div>
-                  <div className="quick__row">
-                    <input placeholder="Såld till / pris (valfritt)" value={soldTo} onChange={(e) => setSoldTo(e.target.value)} />
+                  <div className="quick__row quick__row--sell">
+                    <input placeholder="Såld till (valfritt)" value={soldTo} onChange={(e) => setSoldTo(e.target.value)} />
+                    <PriceInput value={soldPrice ?? item.price_cp} onChange={setSoldPrice} />
                     <button className="btn" disabled={busy} onClick={sell}>Markera såld</button>
                   </div>
                   <div className="quick__row">

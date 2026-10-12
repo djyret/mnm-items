@@ -5,6 +5,7 @@ import { useStore } from '../lib/store'
 import { imageUrl } from '../lib/supabase'
 import type { Item } from '../lib/types'
 import { ItemTooltip } from './ItemTooltip'
+import { Money } from './Money'
 
 export function PersonIcon() {
   return (
@@ -36,6 +37,7 @@ export function ItemCard({ item, own = false }: { item: Item; own?: boolean }) {
           Från: <b>{holder?.name ?? '—'}</b>
         </span>
         <span className="card__tags">
+          {item.price_cp != null && <Money cp={item.price_cp} />}
           {isNoDrop(item) && <span className="badge badge--nodrop" title="Kan inte tradeas">NODROP</span>}
           <span className={`badge badge--${item.status}`}>
             {STATUS_LABELS[item.status]}
