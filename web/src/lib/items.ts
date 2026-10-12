@@ -22,6 +22,7 @@ export const emptyDraft = (): ItemDraft => ({
   lent_to_id: null,
   sold_to: null,
   price_cp: null,
+  game_link: null,
   notes: null,
 })
 

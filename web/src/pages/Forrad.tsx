@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { ClassPicker } from '../components/ClassIcon'
 import { ItemCard } from '../components/ItemCard'
+import { WtsGenerator } from '../components/WtsGenerator'
 import { CLASSES, SLOTS, STATUSES, STATUS_LABELS, STAT_LABELS, statLabel, weaponRatio } from '../lib/constants'
 import { isNoDrop, itemScore } from '../lib/items'
 import { useStore } from '../lib/store'
@@ -18,6 +19,7 @@ export function Forrad() {
   const { items, characters, loading } = useStore()
   const [params, setParams] = useSearchParams()
   const [newStat, setNewStat] = useState('')
+  const [wtsOpen, setWtsOpen] = useState(false)
 
   const q = params.get('q') ?? ''
   const slot = params.get('slot') ?? ''
@@ -167,8 +169,12 @@ export function Forrad() {
       <section className="results">
         <div className="results__head">
           <span>{loading ? 'Laddar…' : `${filtered.length} av ${items.length} items`}</span>
-          <Link to="/ny" className="btn btn--primary">+ Lägg till item</Link>
+          <span className="results__actions">
+            <button type="button" className="btn" onClick={() => setWtsOpen((o) => !o)}>Skapa WTS-text</button>
+            <Link to="/ny" className="btn btn--primary">+ Lägg till item</Link>
+          </span>
         </div>
+        {wtsOpen && <WtsGenerator onClose={() => setWtsOpen(false)} />}
         {!loading && items.length === 0 && (
           <div className="panel empty">
             <p>Förrådet är tomt.</p>

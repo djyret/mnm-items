@@ -33,6 +33,7 @@ export interface Item {
   lent_to_id: string | null
   sold_to: string | null
   price_cp: number | null
+  game_link: string | null
   notes: string | null
   created_at: string
   updated_at: string

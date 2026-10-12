@@ -904,3 +904,47 @@ body {
 .sales-table tfoot .money { font-size: 1.2rem; }
 .sale-item { display: inline-flex; align-items: center; gap: 0.6rem; text-decoration: none; color: #f0e4c8; font-weight: 600; }
 .sale-item .item-icon--sm { width: 36px; height: 36px; }
+
+/* ---------- WTS-generator ---------- */
+.results__actions { display: inline-flex; gap: 0.5rem; flex-wrap: wrap; }
+.wts__head { display: flex; justify-content: space-between; align-items: flex-start; }
+.wts__head .panel-title { flex: 1; }
+.wts__grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.2rem; }
+.wts__listhead { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.4rem; color: var(--text-dim); font-style: italic; }
+.wts__listhead span { flex: 1; }
+.wts__list { list-style: none; margin: 0; padding: 0; max-height: 340px; overflow-y: auto; }
+.wts__row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.3rem 0.4rem;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  cursor: pointer;
+}
+.wts__row:hover { background: rgba(224, 184, 114, 0.05); }
+.wts__row.is-active { border-color: rgba(224, 184, 114, 0.35); background: rgba(224, 184, 114, 0.07); }
+.wts__row input {
+  appearance: none;
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 1px solid #77736a;
+  background: #0f0d0a;
+  box-shadow: inset 0 1px 3px #000;
+  cursor: pointer;
+}
+.wts__row input:checked { border-color: var(--bronze-light); background: var(--check) center / 13px no-repeat, linear-gradient(180deg, #5d4527, #33261a); }
+.wts__row .item-icon--sm { width: 34px; height: 34px; }
+.wts__name { flex: 1; min-width: 0; display: flex; flex-direction: column; font-weight: 600; color: #f0e4c8; }
+.wts__name small { font-weight: 400; color: var(--text-dim); }
+.wts__opts { display: grid; grid-template-columns: 1fr 1fr 130px; gap: 0.6rem; }
+.wts__out { margin-bottom: 0.7rem; }
+.wts__outhead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem; color: var(--text-dim); font-size: 0.9rem; }
+.wts__out textarea { font-family: Consolas, 'Courier New', monospace; font-size: 0.85rem; resize: vertical; }
+code { font-family: Consolas, monospace; color: var(--gold); }
+@media (max-width: 900px) {
+  .wts__grid { grid-template-columns: 1fr; }
+  .wts__opts { grid-template-columns: 1fr 1fr; }
+}

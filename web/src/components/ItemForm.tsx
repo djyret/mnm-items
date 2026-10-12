@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { CLASSES, KNOWN_FLAGS, SLOTS, STATUSES, STATUS_LABELS, slotIcon, statLabel } from '../lib/constants'
 import { ClassIcon } from './ClassIcon'
 import { PriceInput } from './Money'
+import { extractGameLink, nameFromGameLink } from '../lib/gamelink'
 import { useStore } from '../lib/store'
 import type { ItemDraft } from '../lib/types'
 
@@ -199,6 +200,19 @@ export function ItemFields({ draft, onChange }: Props) {
         </div>
       </fieldset>
 
+      <label className="field field--wide">
+        <span>
+          Spellänk {draft.game_link ? '✓ ' + (nameFromGameLink(draft.game_link) ?? '') : '– klistra in itemlänken från spelets chatt'}
+        </span>
+        <input
+          value={draft.game_link ?? ''}
+          placeholder='<link="item|…">…[Itemnamn]…</link>'
+          onChange={(e) => set('game_link', extractGameLink(e.target.value) ?? (e.target.value.trim() || null))}
+        />
+        {draft.game_link && !extractGameLink(draft.game_link) && (
+          <small className="warn">Ser inte ut som en itemlänk från spelet – den ska innehålla &lt;link="item|…"&gt;.</small>
+        )}
+      </label>
       <label className="field field--wide">
         <span>Effect</span>
         <input value={draft.effect ?? ''} onChange={(e) => set('effect', e.target.value || null)} />
