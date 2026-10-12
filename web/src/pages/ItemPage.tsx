@@ -94,7 +94,13 @@ export function ItemPage() {
   async function saveEdit() {
     if (!draft) return
     const { image_path: _i, icon_path: _c, ...rest } = draft
-    const ok = await patch(rest, [item!.id, 'redigerad', {}])
+    const becameSold = rest.status === 'sald' && item!.status !== 'sald'
+    const ok = await patch(
+      rest,
+      becameSold
+        ? [item!.id, 'sald', { from_id: item!.holder_id, note: [rest.sold_to, rest.price_cp ? formatPrice(rest.price_cp) : ''].filter(Boolean).join(' – ') || null }]
+        : [item!.id, 'redigerad', {}],
+    )
     if (ok) setEditing(false)
   }
 

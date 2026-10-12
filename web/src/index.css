@@ -833,3 +833,71 @@ body {
 .price-input__coin input, .quick__row .price-input__coin input { flex: none; width: 100%; }
 .quick__row--sell { align-items: flex-end; margin-top: 0.3rem; padding-top: 0.6rem; border-top: 1px solid rgba(169, 129, 74, 0.2); }
 .quick__row--sell .price-input { flex: 1 1 100%; max-width: 420px; }
+
+/* ---------- Menyknappar som färdiga bilder ---------- */
+.nav { gap: 0.5rem; }
+.menu-img {
+  position: relative;
+  display: block;
+  width: clamp(150px, 15vw, 210px);
+  aspect-ratio: 560 / 132;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.6));
+  transition: transform 0.12s, filter 0.12s;
+}
+.menu-img img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.menu-img__on { opacity: 0; transition: opacity 0.15s; }
+.menu-img:hover { transform: translateY(-1px); filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.6)) brightness(1.15); }
+.menu-img.active .menu-img__on { opacity: 1; }
+.menu-img.active { filter: drop-shadow(0 0 10px rgba(224, 170, 80, 0.35)) drop-shadow(0 4px 6px rgba(0, 0, 0, 0.6)); }
+@media (max-width: 900px) {
+  .nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 460px; width: 100%; }
+  .menu-img { width: 100%; }
+  .nav .menu-img:last-child { grid-column: 1 / -1; justify-self: center; width: calc(50% - 0.25rem); }
+}
+
+/* ---------- Sålda items ---------- */
+.sales-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 1rem; margin-bottom: 1rem; }
+.stat-box { display: flex; flex-direction: column; gap: 0.25rem; margin: 0; }
+.stat-box__label { font-family: var(--font-title); font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); }
+.stat-box__value { font-size: 1.7rem; line-height: 1.2; }
+.stat-box--total .stat-box__value { font-size: 2.2rem; }
+.stat-box__sub { color: var(--text-dim); font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.seller-list { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.seller {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.35rem 0.75rem 0.35rem 0.4rem;
+  font: inherit;
+  color: var(--text);
+  background: #1a1916;
+  border: 1px solid #4f4b44;
+  border-radius: 2px;
+  cursor: pointer;
+}
+.seller:hover { border-color: var(--iron-light); }
+.seller.is-active { border-color: var(--bronze-light); background: linear-gradient(180deg, #4a3a24, #2a2016); box-shadow: 0 0 8px rgba(224, 160, 80, 0.3); }
+.seller__name { font-family: var(--font-title); font-weight: 700; font-variant: small-caps; font-size: 1.05rem; }
+.seller__n { color: var(--text-dim); font-size: 0.85rem; }
+
+.sales-table-wrap { overflow-x: auto; }
+.sales-table { width: 100%; border-collapse: collapse; }
+.sales-table th {
+  text-align: left;
+  font-family: var(--font-title);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid var(--bronze-dark);
+}
+.sales-table td { padding: 0.45rem 0.6rem; border-bottom: 1px solid rgba(169, 129, 74, 0.14); vertical-align: middle; }
+.sales-table tbody tr:hover { background: rgba(224, 184, 114, 0.05); }
+.sales-table .num { text-align: right; white-space: nowrap; }
+.sales-table .date { white-space: nowrap; color: var(--text-dim); font-variant-numeric: tabular-nums; }
+.sales-table tfoot td { border-bottom: none; border-top: 2px solid var(--bronze-dark); font-family: var(--font-title); font-weight: 700; color: var(--gold); padding-top: 0.7rem; }
+.sales-table tfoot .money { font-size: 1.2rem; }
+.sale-item { display: inline-flex; align-items: center; gap: 0.6rem; text-decoration: none; color: #f0e4c8; font-weight: 600; }
+.sale-item .item-icon--sm { width: 36px; height: 36px; }

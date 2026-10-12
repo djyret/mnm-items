@@ -6,13 +6,17 @@ import { Forrad } from './pages/Forrad'
 import { ItemPage } from './pages/ItemPage'
 import { Karaktarer } from './pages/Karaktarer'
 import { NyItem } from './pages/NyItem'
+import { Salda } from './pages/Salda'
 
+/** Menyknapparna är färdiga bilder (järn = vanlig, guld = aktiv sida). */
 const NAV: [string, string, string][] = [
-  ['/', 'Förråd', 'kista'],
-  ['/ny', 'Lägg till', 'rulle'],
-  ['/karaktarer', 'Karaktärer', 'hjalm'],
-  ['/alt', 'Alt-vy', 'ryggsack'],
+  ['/', 'Förråd', 'forrad'],
+  ['/ny', 'Lägg till', 'lagg-till'],
+  ['/karaktarer', 'Karaktärer', 'karaktarer'],
+  ['/alt', 'Alt-vy', 'alt-vy'],
+  ['/salda', 'Sålda items', 'salda'],
 ]
+const MENU = `${import.meta.env.BASE_URL}ikoner/meny/`
 
 function Shell() {
   const { error } = useStore()
@@ -26,9 +30,9 @@ function Shell() {
           </NavLink>
           <nav className="nav">
             {NAV.map(([to, label, icon]) => (
-              <NavLink key={to} to={to} end={to === '/'} className="menu-btn">
-                <span className="menu-btn__icon"><img src={`${import.meta.env.BASE_URL}ikoner/${icon}.webp`} alt="" /></span>
-                <span className="menu-btn__label">{label}</span>
+              <NavLink key={to} to={to} end={to === '/'} className="menu-img" aria-label={label} title={label}>
+                <img className="menu-img__off" src={`${MENU}${icon}.webp`} alt="" />
+                <img className="menu-img__on" src={`${MENU}${icon}-aktiv.webp`} alt="" />
               </NavLink>
             ))}
           </nav>
@@ -42,6 +46,7 @@ function Shell() {
           <Route path="/item/:id" element={<ItemPage />} />
           <Route path="/karaktarer" element={<Karaktarer />} />
           <Route path="/alt" element={<AltVy />} />
+          <Route path="/salda" element={<Salda />} />
         </Routes>
       </main>
       <footer className="site-foot">
