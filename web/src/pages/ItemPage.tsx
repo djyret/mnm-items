@@ -182,7 +182,7 @@ export function ItemPage() {
                     Spara riktpris
                   </button>
                   {item.price_cp != null && (
-                    <button className="btn btn--ghost btn--small" disabled={busy}
+                    <button className="btn btn--danger btn--small" disabled={busy}
                       onClick={() => patch({ price_cp: null }, [item.id, 'redigerad', { note: 'Riktpris borttaget' }])}>
                       Ta bort
                     </button>

@@ -134,7 +134,7 @@ export function LoanRequest({ alt, items, onClear }: { alt: Character; items: It
       {byHolder.length > 1 && (
         <div className="loan__per">
           {byHolder.map(([name, list]) => (
-            <button key={name} type="button" className="chip" onClick={() => copy(name, `${head}\n\n${holderBlock(name, list, mode)}`)}>
+            <button key={name} type="button" className="btn btn--small" onClick={() => copy(name, `${head}\n\n${holderBlock(name, list, mode)}`)}>
               {copied === name ? 'Kopierat!' : `Kopiera bara till ${name} (${list.length})`}
             </button>
           ))}
@@ -145,7 +145,7 @@ export function LoanRequest({ alt, items, onClear }: { alt: Character; items: It
           <span className="note">Eller kopiera en bild i taget och klistra in den i Discord:</span>
           <div className="loan__per">
             {withPics.map((i) => (
-              <button key={i.id} type="button" className="chip" onClick={() => copyPic(i)}>
+              <button key={i.id} type="button" className="btn btn--small" onClick={() => copyPic(i)}>
                 {copied === `bild:${i.id}` ? 'Bild kopierad!' : `Kopiera bild: ${i.name}`}
               </button>
             ))}

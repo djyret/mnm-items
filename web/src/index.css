@@ -1026,3 +1026,117 @@ code { font-family: Consolas, monospace; color: var(--gold); }
 .price-line__guide { color: var(--text-dim); font-size: 0.95rem; }
 .price-warn { flex: 1 1 100%; margin: 0; font-weight: 600; }
 .loan__pics { margin-top: 0.8rem; }
+
+
+/* =====================================================================
+   Enhetliga knappar och val (2026-10-12)
+   Allt klickbart: järnram + stenyta. Vald/aktiv = guldram. Fara = röd yta.
+   ===================================================================== */
+:root { --ctl-h: 2.6rem; }
+
+/* Samma höjd på fält, rullgardiner och knappar som står bredvid varandra */
+input:not([type='checkbox']), select { min-height: var(--ctl-h); }
+.btn { min-height: var(--ctl-h); padding-top: 0.3rem; padding-bottom: 0.35rem; }
+.btn--small { min-height: 2.15rem; padding: 0.2rem 0.8rem 0.25rem; font-size: 0.86rem; }
+.quick__row, .guide__row, .actions { align-items: stretch; }
+.quick__row .btn, .guide__row .btn { flex: 0 0 auto; }
+.guide__row { align-items: flex-end; }
+
+/* Sekundär knapp: samma ram, mörkare yta – inte längre en platt svart låda */
+.btn--ghost {
+  --frame-metal: var(--iron-metal);
+  --frame-rivet: var(--rivet);
+  --face: linear-gradient(rgba(10, 9, 7, 0.55), rgba(10, 9, 7, 0.65)), var(--stone) center / 260px auto;
+  color: #d6cfbf;
+  font-weight: 700;
+}
+.btn--ghost:hover { color: #fff; }
+.btn--danger { --frame-metal: linear-gradient(180deg, #9a5446 0%, #6a2f24 50%, #4f2018 100%); }
+
+/* Val-brickor (flaggor, size, bildläge …): liten järnram, guld när vald */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0.2rem 0.7rem;
+  font-variant: small-caps;
+  text-transform: none;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  color: #e6dfd0;
+  text-shadow: 0 1px 1px #000;
+  border: 2px solid transparent;
+  border-radius: 2px;
+  background:
+    linear-gradient(rgba(40, 40, 36, 0.55), rgba(22, 22, 20, 0.7)) padding-box,
+    var(--stone) center / 220px auto padding-box,
+    var(--iron-metal) border-box;
+  box-shadow: inset 0 0 0 1px #0d0c0a, 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+.chip:hover { color: #fff; filter: brightness(1.15); border-color: transparent; }
+.chip.is-active {
+  color: #fff3d6;
+  background:
+    linear-gradient(rgba(110, 85, 45, 0.45), rgba(55, 40, 20, 0.6)) padding-box,
+    var(--stone) center / 220px auto padding-box,
+    var(--gold-metal) border-box;
+  box-shadow: inset 0 0 0 1px #0d0c0a, 0 0 8px rgba(224, 160, 80, 0.35);
+}
+.chip--warn { background: linear-gradient(rgba(140, 40, 28, 0.6), rgba(80, 20, 14, 0.7)) padding-box, var(--iron-metal) border-box; }
+
+/* Ikonval (slot, klass): samma järnram/guldram som knapparna */
+.icon-picker__btn, .class-picker__btn {
+  border: 2px solid transparent;
+  border-radius: 2px;
+  background:
+    radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.05), transparent 70%), #1a1916;
+  background-clip: padding-box;
+  box-shadow: inset 0 0 0 1px #0d0c0a;
+  outline: 2px solid transparent;
+  position: relative;
+}
+.icon-picker__btn::before, .class-picker__btn::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  z-index: -1;
+  border-radius: 2px;
+  background: var(--iron-metal);
+}
+.icon-picker__btn, .class-picker__btn { isolation: isolate; }
+.icon-picker__btn.is-active, .class-picker__btn.is-active {
+  background: linear-gradient(180deg, rgba(110, 85, 45, 0.55), rgba(45, 33, 18, 0.8)), #1a1916;
+  background-clip: padding-box;
+  box-shadow: inset 0 0 0 1px #0d0c0a, 0 0 10px rgba(224, 160, 80, 0.45);
+}
+.icon-picker__btn.is-active::before, .class-picker__btn.is-active::before { background: var(--gold-metal); }
+.class-picker__btn { padding: 1px; }
+.class-picker__btn .class-icon { border: none; }
+
+/* Säljare-knappar på Försäljning */
+.seller {
+  border: 2px solid transparent;
+  background:
+    linear-gradient(rgba(40, 40, 36, 0.55), rgba(22, 22, 20, 0.7)) padding-box,
+    var(--stone) center / 260px auto padding-box,
+    var(--iron-metal) border-box;
+  box-shadow: inset 0 0 0 1px #0d0c0a, 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+.seller:hover { border-color: transparent; filter: brightness(1.12); }
+.seller.is-active {
+  background:
+    linear-gradient(rgba(110, 85, 45, 0.45), rgba(55, 40, 20, 0.6)) padding-box,
+    var(--stone) center / 260px auto padding-box,
+    var(--gold-metal) border-box;
+}
+
+/* Hjälpens ämnesrutor och karaktärsrader följer samma guldmarkering vid hover */
+.help-tile:hover { filter: brightness(1.08); }
+
+/* Myntrutorna får krympa så de håller sig inom ramen */
+.price-input { grid-template-columns: repeat(4, minmax(0, 1fr)); width: 100%; }
+.price-input__label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.guide__row .price-input { flex: 1 1 320px; max-width: 420px; }
+
+/* Två formulär efter varandra (itemfält + var finns det) */
+.form + .form { margin-top: 0.9rem; }

@@ -123,7 +123,7 @@ export function Karaktarer() {
                   <div className="actions">
                     <Link className="btn" to={`/alt?karaktar=${c.id}`}>Vad kan {c.name} använda?</Link>
                     <button className="btn btn--ghost" onClick={() => setEditing(c.id)}>Redigera</button>
-                    <button className="btn btn--ghost btn--danger-text" onClick={() => remove(c)}>Ta bort</button>
+                    <button className="btn btn--danger" onClick={() => remove(c)}>Ta bort</button>
                   </div>
                 </>
               )}
