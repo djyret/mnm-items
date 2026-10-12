@@ -939,7 +939,7 @@ body {
 .wts__row .item-icon--sm { width: 34px; height: 34px; }
 .wts__name { flex: 1; min-width: 0; display: flex; flex-direction: column; font-weight: 600; color: #f0e4c8; }
 .wts__name small { font-weight: 400; color: var(--text-dim); }
-.wts__opts { display: grid; grid-template-columns: 1fr 1fr 130px; gap: 0.6rem; }
+.wts__opts { display: grid; grid-template-columns: 1fr 1fr 110px 110px; gap: 0.6rem; }
 .wts__out { margin-bottom: 0.7rem; }
 .wts__outhead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem; color: var(--text-dim); font-size: 0.9rem; }
 .wts__out textarea { font-family: Consolas, 'Courier New', monospace; font-size: 0.85rem; resize: vertical; }

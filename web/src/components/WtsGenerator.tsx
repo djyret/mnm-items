@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { buildWts } from '../lib/gamelink'
+import { buildWts, gameLength } from '../lib/gamelink'
 import { imageUrl } from '../lib/supabase'
 import { isNoDrop } from '../lib/items'
 import { useStore } from '../lib/store'
@@ -11,9 +11,9 @@ const SETTINGS_KEY = 'mnm:wts'
 
 function loadSettings() {
   try {
-    return { prefix: 'WTS', suffix: '- PST', maxLen: 250, ...JSON.parse(localStorage.getItem(SETTINGS_KEY) ?? '{}') }
+    return { prefix: 'WTS', suffix: '- PST', maxLen: 250, maxLinks: 3, ...JSON.parse(localStorage.getItem(SETTINGS_KEY) ?? '{}') }
   } catch {
-    return { prefix: 'WTS', suffix: '- PST', maxLen: 250 }
+    return { prefix: 'WTS', suffix: '- PST', maxLen: 250, maxLinks: 3 }
   }
 }
 
@@ -46,7 +46,11 @@ export function WtsGenerator({ onClose }: { onClose: () => void }) {
   }
 
   const chosen = forSale.filter((i) => picked.has(i.id))
-  const lines = buildWts(chosen, { ...opt, maxLen: Math.max(40, Number(opt.maxLen) || 250) })
+  const lines = buildWts(chosen, {
+    ...opt,
+    maxLen: Math.max(40, Number(opt.maxLen) || 250),
+    maxLinks: Math.max(1, Number(opt.maxLinks) || 3),
+  })
   const missingLinks = chosen.filter((i) => !i.game_link).length
 
   async function copy(idx: number) {
@@ -115,6 +119,11 @@ export function WtsGenerator({ onClose }: { onClose: () => void }) {
               <span>Max tecken/rad</span>
               <input inputMode="numeric" value={opt.maxLen} onChange={(e) => setOption({ maxLen: e.target.value.replace(/\D/g, '') })} />
             </label>
+            <label className="field field--narrow">
+              <span>Max länkar/rad</span>
+              <input inputMode="numeric" value={opt.maxLinks} onChange={(e) => setOption({ maxLinks: e.target.value.replace(/\D/g, '') })} />
+            </label>
+
           </div>
 
           {missingLinks > 0 && (
@@ -132,7 +141,7 @@ export function WtsGenerator({ onClose }: { onClose: () => void }) {
                 <div className="wts__outhead">
                   <span>
                     {lines.length > 1 ? `Rad ${idx + 1} av ${lines.length} · ` : ''}
-                    {line.length} tecken
+                    ≈ {gameLength(line)} av 255 tecken
                   </span>
                   <button type="button" className="btn btn--primary btn--small" onClick={() => copy(idx)}>
                     {copied === idx ? 'Kopierat!' : 'Kopiera'}

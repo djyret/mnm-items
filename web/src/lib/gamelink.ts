@@ -31,12 +31,34 @@ export function chatPrice(cp: number | null | undefined): string {
 export interface WtsOptions {
   prefix: string
   suffix: string
+  /** Max tecken per rad som spelet räknar dem (chattrutan rymmer 255). */
   maxLen: number
+  /** Max itemlänkar per rad – säkerhetsmarginal, gear med stats gav 3–4 i test. */
+  maxLinks: number
+}
+
+const linkCount = (line: string) => (line.match(/<link=/g) ?? []).length
+
+/**
+ * Uppskattad längd som spelets chattruta räknar.
+ * Vanlig text = 1 per tecken. En itemlänk ≈ 22 + 2 × längden av "[Namn]".
+ * Anpassat till test i spelet 2026-10-12: 255 vanliga tecken ryms;
+ * 3 men inte 4 × [Bloodied Vileguards] (64 st/länk); 7 men inte 8 × [Wood] (34 st/länk).
+ */
+export const LINK_BASE = 22
+export function gameLength(line: string): number {
+  let len = 0
+  const rest = line.replace(/<link=[^>]*>[\s\S]*?<\/link>/g, (link) => {
+    const name = link.replace(/<[^>]+>/g, '')
+    len += LINK_BASE + 2 * name.length
+    return ''
+  })
+  return len + rest.replace(/<[^>]+>/g, '').length
 }
 
 /**
  * Bygger en eller flera chattrader: "WTS [A] 75s, [B] 1g 50s - PST".
- * Delar upp på flera rader om en rad skulle bli längre än maxLen.
+ * Ny rad när den uppskattade längden i spelet skulle passera maxLen, eller länkarna bli fler än maxLinks.
  */
 export function buildWts(items: Pick<Item, 'name' | 'game_link' | 'price_cp'>[], opt: WtsOptions): string[] {
   const parts = items.map((i) => [chatItem(i), chatPrice(i.price_cp)].filter(Boolean).join(' '))
@@ -46,7 +68,8 @@ export function buildWts(items: Pick<Item, 'name' | 'game_link' | 'price_cp'>[],
   let cur: string[] = []
   const render = (ps: string[]) => `${head} ${ps.join(', ')}${tail}`.trim()
   for (const p of parts) {
-    if (cur.length && render([...cur, p]).length > opt.maxLen) {
+    const next = render([...cur, p])
+    if (cur.length && (gameLength(next) > opt.maxLen || linkCount(next) > opt.maxLinks)) {
       lines.push(render(cur))
       cur = []
     }
