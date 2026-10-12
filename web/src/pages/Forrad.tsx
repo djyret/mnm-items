@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
+import { ClassPicker } from '../components/ClassIcon'
 import { ItemCard } from '../components/ItemCard'
 import { CLASSES, SLOTS, STATUSES, STATUS_LABELS, STAT_LABELS, statLabel, weaponRatio } from '../lib/constants'
 import { isNoDrop, itemScore } from '../lib/items'
@@ -46,11 +47,8 @@ export function Forrad() {
     items.forEach((i) => i.slots.forEach((x) => s.add(x)))
     return [...s]
   }, [items])
-  const allClasses = useMemo(() => {
-    const s = new Set(Object.keys(CLASSES))
-    items.forEach((i) => i.classes.forEach((x) => x !== 'ALL' && s.add(x)))
-    return [...s].sort()
-  }, [items])
+  // Bara spelets 18 klasser – felavlästa koder i datat ska inte bli egna val
+  const allClasses = Object.keys(CLASSES)
 
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase()
@@ -97,13 +95,10 @@ export function Forrad() {
             {allSlots.map((s) => <option key={s}>{s}</option>)}
           </select>
         </label>
-        <label className="field">
-          <span>Kan användas av klass</span>
-          <select value={cls} onChange={(e) => update('klass', e.target.value || null)}>
-            <option value="">Alla</option>
-            {allClasses.map((c) => <option key={c} value={c}>{c}{CLASSES[c] ? ` – ${CLASSES[c]}` : ''}</option>)}
-          </select>
-        </label>
+        <div className="field">
+          <span>Kan användas av klass{cls ? `: ${CLASSES[cls] || cls}` : ''}</span>
+          <ClassPicker classes={allClasses} value={cls} onChange={(v) => update('klass', v || null)} />
+        </div>
         <label className="field">
           <span>Karaktär</span>
           <select value={holder} onChange={(e) => update('karaktar', e.target.value || null)}>

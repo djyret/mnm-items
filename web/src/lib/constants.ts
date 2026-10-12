@@ -2,9 +2,9 @@ import type { Status } from './types'
 
 /** Klasskoder sedda i spelet. Listan i filtren kompletteras med det som finns i databasen. */
 export const CLASSES: Record<string, string> = {
-  ARC: '',
+  ARC: 'Archer',
   BRD: 'Bard',
-  BST: '',
+  BST: 'Beastmaster',
   CLR: 'Cleric',
   DRU: 'Druid',
   ELE: 'Elementalist',
@@ -24,9 +24,21 @@ export const CLASSES: Record<string, string> = {
 
 /** Slots i samma ordning som karaktärsfönstret. */
 export const SLOTS = [
-  'HEAD', 'FACE', 'EAR', 'NECK', 'SHOULDERS', 'ARMS', 'BACK', 'WRIST', 'HANDS',
-  'FINGER', 'CHEST', 'WAIST', 'LEGS', 'FEET', 'PRIMARY', 'SECONDARY', 'RANGE', 'AMMO',
+  'HEAD', 'FACE', 'NECK', 'EAR', 'SHOULDERS', 'CHEST', 'BACK', 'SHIRT', 'WRIST',
+  'HANDS', 'FINGER', 'WAIST', 'LEGS', 'FEET', 'PRIMARY', 'SECONDARY', 'RANGE', 'AMMO',
 ]
+
+const ICONS = `${import.meta.env.BASE_URL}ikoner/`
+const SLOT_ICONS = new Set([...SLOTS, 'BACKPACK', 'BAG', 'BELT'])
+
+export function classIcon(code: string): string | null {
+  return CLASSES[code] !== undefined ? `${ICONS}klass/${code}.webp` : null
+}
+
+export function slotIcon(slot: string | undefined): string {
+  const s = slot === 'ARMS' ? 'SHIRT' : slot
+  return `${ICONS}slot/${s && SLOT_ICONS.has(s) ? s : 'INVENTORY'}.webp`
+}
 
 /** Visningsordning och etiketter för stats. Okända nycklar visas sist. */
 export const STAT_LABELS: Record<string, string> = {

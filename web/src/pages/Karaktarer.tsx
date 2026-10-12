@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { ClassIcon } from '../components/ClassIcon'
 import { CLASSES } from '../lib/constants'
 import { useStore } from '../lib/store'
 import { supabase } from '../lib/supabase'
@@ -102,6 +103,9 @@ export function Karaktarer() {
                 <CharForm initial={c} onSave={(d) => save(c.id, d)} onCancel={() => setEditing(null)} />
               ) : (
                 <>
+                  <div className="char__head">
+                    <ClassIcon code={c.class} size={64} />
+                    <div>
                   <div className="char__name">
                     {c.name} {c.is_main && <span className="badge badge--main">Main</span>}
                   </div>
@@ -109,6 +113,8 @@ export function Karaktarer() {
                     {[c.level && `Level ${c.level}`, c.race, c.class && (CLASSES[c.class] || c.class)].filter(Boolean).join(' · ') || 'Klass och ras ej angivna'}
                   </div>
                   {c.player && <div className="char__info">Spelas av {c.player}</div>}
+                    </div>
+                  </div>
                   {c.notes && <p className="note">{c.notes}</p>}
                   <div className="char__stats">
                     <Link to={`/?karaktar=${c.id}`}><b>{held.length}</b> items</Link>

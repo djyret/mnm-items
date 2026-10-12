@@ -667,3 +667,95 @@ textarea { resize: vertical; }
   .menu-btn__icon { width: 36px; height: 36px; }
   .menu-btn__label { font-size: 0.95rem; padding: 0 0.5rem; }
 }
+
+/* ---------- Klassikoner ---------- */
+.class-icon {
+  flex: 0 0 auto;
+  display: inline-grid;
+  place-items: center;
+  background: radial-gradient(circle at 50% 45%, rgba(255, 230, 180, 0.08), transparent 70%), #1a1916;
+  border: 1px solid #0d0c0a;
+  box-shadow: inset 0 0 0 1px #77736a, inset 0 0 8px rgba(0, 0, 0, 0.9);
+  overflow: hidden;
+}
+.class-icon img { width: 88%; height: 88%; object-fit: contain; filter: drop-shadow(0 1px 2px #000); }
+.class-icon span { font-family: var(--font-title); font-size: 0.65rem; color: #8b867c; }
+
+.class-picker { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
+.class-picker__btn {
+  padding: 2px;
+  border: 1px solid transparent;
+  background: none;
+  cursor: pointer;
+  opacity: 0.75;
+  transition: opacity 0.1s, transform 0.1s;
+}
+.class-picker__btn .class-icon { width: 100% !important; height: auto !important; aspect-ratio: 1; }
+.class-picker__btn:hover { opacity: 1; transform: translateY(-1px); }
+.class-picker__btn.is-active { opacity: 1; border-color: var(--bronze-light); box-shadow: 0 0 8px rgba(224, 160, 80, 0.5); }
+
+.char__head { display: flex; gap: 0.9rem; align-items: center; }
+
+/* Karaktärslista i Alt-vy, som "Characters"-menyn i förslaget */
+.char-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr)); gap: 0.55rem; }
+.char-row {
+  display: flex;
+  align-items: stretch;
+  gap: 5px;
+  padding: 5px;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  border: 1px solid #111;
+  border-radius: 2px;
+  background:
+    var(--rivet) 2px 2px / 8px no-repeat,
+    var(--rivet) calc(100% - 2px) 2px / 8px no-repeat,
+    var(--rivet) 2px calc(100% - 2px) / 8px no-repeat,
+    var(--rivet) calc(100% - 2px) calc(100% - 2px) / 8px no-repeat,
+    var(--iron-metal);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 3px 8px rgba(0, 0, 0, 0.55);
+}
+.char-row__icon { display: flex; }
+.char-row__label {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0.15rem 0.7rem;
+  background: linear-gradient(rgba(70, 72, 64, 0.25), rgba(30, 30, 27, 0.35)), var(--stone) center / 260px auto;
+  border: 1px solid #0d0c0a;
+  box-shadow: inset 0 0 0 1px #77736a, inset 0 0 10px rgba(0, 0, 0, 0.55);
+  text-shadow: 0 1px 2px #000;
+}
+.char-row__name { font-family: var(--font-title); font-weight: 700; font-variant: small-caps; font-size: 1.1rem; color: #f1ece1; }
+.char-row__sub { font-size: 0.85rem; color: #d6cfbf; }
+.char-row:hover { filter: brightness(1.15); }
+.char-row.is-active {
+  background:
+    var(--rivet-gold) 2px 2px / 8px no-repeat,
+    var(--rivet-gold) calc(100% - 2px) 2px / 8px no-repeat,
+    var(--rivet-gold) 2px calc(100% - 2px) / 8px no-repeat,
+    var(--rivet-gold) calc(100% - 2px) calc(100% - 2px) / 8px no-repeat,
+    var(--gold-metal);
+}
+
+.slot-group__title { display: flex; align-items: center; gap: 0.55rem; }
+.slot-group__title img { width: 34px; height: 34px; object-fit: contain; filter: drop-shadow(0 1px 2px #000); }
+.item-icon img.item-icon__slot { object-fit: contain; padding: 12%; opacity: 0.45; filter: grayscale(0.4); }
+
+/* Tavernabakgrund bakom hela sidan */
+body {
+  background:
+    radial-gradient(ellipse 55% 70% at 50% 45%, rgba(18, 15, 11, 0.55), transparent 80%),
+    url('/bilder/bakgrund.webp') center top / cover fixed,
+    var(--bg);
+}
+.hero {
+  background:
+    linear-gradient(180deg, rgba(10, 8, 6, 0.5) 0%, rgba(18, 15, 11, 0.8) 80%, rgba(18, 15, 11, 0.95) 100%),
+    url('/bilder/lagereld.webp') center 32% / cover no-repeat;
+}
+@media (max-width: 900px) {
+  body { background-attachment: scroll; background-size: auto 100vh; }
+}

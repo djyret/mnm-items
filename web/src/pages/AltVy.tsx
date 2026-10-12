@@ -1,7 +1,8 @@
 import { useMemo } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
+import { ClassIcon } from '../components/ClassIcon'
 import { ItemCard } from '../components/ItemCard'
-import { CLASSES, SLOTS } from '../lib/constants'
+import { CLASSES, SLOTS, slotIcon } from '../lib/constants'
 import { canUse, isNoDrop, itemScore } from '../lib/items'
 import { useStore } from '../lib/store'
 
@@ -42,15 +43,25 @@ export function AltVy() {
     <div className="page">
       <h1 className="page-title">Vad kan min alt använda?</h1>
       <div className="panel alt-pick">
-        <label className="field">
-          <span>Karaktär</span>
-          <select value={charId} onChange={(e) => setParams(e.target.value ? { karaktar: e.target.value } : {}, { replace: true })}>
-            <option value="">— Välj karaktär —</option>
-            {characters.map((c) => (
-              <option key={c.id} value={c.id}>{c.name}{c.class ? ` (${c.class})` : ''}</option>
-            ))}
-          </select>
-        </label>
+        <h2 className="panel-title">Välj karaktär</h2>
+        <div className="char-list">
+          {characters.map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              className={`char-row${c.id === charId ? ' is-active' : ''}`}
+              onClick={() => setParams({ karaktar: c.id }, { replace: true })}
+            >
+              <span className="char-row__icon"><ClassIcon code={c.class} size={40} /></span>
+              <span className="char-row__label">
+                <span className="char-row__name">{c.name}</span>
+                <span className="char-row__sub">
+                  {[c.class && (CLASSES[c.class] || c.class), c.level && `lvl ${c.level}`].filter(Boolean).join(' · ') || 'Ingen klass'}
+                </span>
+              </span>
+            </button>
+          ))}
+        </div>
         {char && !char.class && (
           <p className="note">
             {char.name} saknar klass, så alla items visas. <Link to="/karaktarer">Ange klass</Link> för en bättre lista.
@@ -68,7 +79,10 @@ export function AltVy() {
 
       {groups.map(([slot, list]) => (
         <section key={slot} className="slot-group">
-          <h2 className="slot-group__title">{slot} <small>{list.length}</small></h2>
+          <h2 className="slot-group__title">
+            <img src={slotIcon(slot)} alt="" />
+            {slot} <small>{list.length}</small>
+          </h2>
           <div className="grid">
             {list.map((i) => <ItemCard key={i.id} item={i} own={i.holder_id === char!.id} />)}
           </div>

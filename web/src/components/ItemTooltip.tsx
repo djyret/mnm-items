@@ -1,4 +1,4 @@
-import { STAT_GROUPS, STAT_HELP, statLabel, weaponRatio } from '../lib/constants'
+import { STAT_GROUPS, STAT_HELP, slotIcon, statLabel, weaponRatio } from '../lib/constants'
 import type { ItemDraft } from '../lib/types'
 
 const fmt = (v: number) => (v > 0 ? `+${v}` : `${v}`)
@@ -7,7 +7,9 @@ const fmt = (v: number) => (v > 0 ? `+${v}` : `${v}`)
 export function ItemIcon({ src, slot, size = 'md' }: { src?: string | null; slot?: string; size?: 'sm' | 'md' }) {
   return (
     <div className={`item-icon item-icon--${size}`}>
-      {src ? <img src={src} alt="" loading="lazy" /> : <span>{(slot ?? 'Item').slice(0, 4)}</span>}
+      {src
+        ? <img src={src} alt="" loading="lazy" />
+        : <img className="item-icon__slot" src={slotIcon(slot)} alt="" title={slot} loading="lazy" />}
     </div>
   )
 }
