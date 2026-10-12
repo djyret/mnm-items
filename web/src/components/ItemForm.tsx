@@ -84,7 +84,7 @@ function ClassMultiPicker({ value, onChange }: { value: string[]; onChange: (v: 
             className={`icon-picker__btn${!all && value.includes(c) ? ' is-active' : ''}`}
             title={`${c} – ${CLASSES[c]}`}
             aria-pressed={!all && value.includes(c)}
-            onClick={() => onChange(toggle(value.filter((v) => v !== 'ALL'), c))}
+            onClick={() => onChange(toggle(value.filter((v) => v !== 'ALL'), c).sort())}
           >
             <ClassIcon code={c} size={30} />
           </button>

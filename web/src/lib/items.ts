@@ -42,7 +42,7 @@ export function parsedToDraft(p: ParsedItem, base: ItemDraft): ItemDraft {
     description: p.description,
     weight: p.weight,
     size: p.size ? p.size.toUpperCase() : null,
-    classes: up(p.classes),
+    classes: up(p.classes).sort(),
     races: up(p.races),
     extra_lines: p.extra_lines,
   }
