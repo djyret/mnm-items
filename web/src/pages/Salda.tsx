@@ -69,7 +69,7 @@ export function Salda() {
 
   return (
     <div className="page">
-      <h1 className="page-title">Sålda items</h1>
+      <h1 className="page-title">Försäljning</h1>
 
       <div className="sales-summary">
         <div className="panel stat-box stat-box--total">

@@ -14,8 +14,8 @@ const NAV: [string, string, string][] = [
   ['/', 'Förråd', 'forrad'],
   ['/ny', 'Lägg till', 'lagg-till'],
   ['/karaktarer', 'Karaktärer', 'karaktarer'],
-  ['/alt', 'Alt-vy', 'alt-vy'],
-  ['/salda', 'Sålda items', 'salda'],
+  ['/alt', 'Alts', 'alt-vy'],
+  ['/salda', 'Försäljning', 'salda'],
   ['/hjalp', 'Hjälp', 'hjalp'],
 ]
 const MENU = `${import.meta.env.BASE_URL}ikoner/meny/`

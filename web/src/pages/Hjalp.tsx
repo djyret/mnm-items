@@ -90,7 +90,7 @@ const AMNEN: Amne[] = [
       <>Under <B>Markera såld</B> finns fyra rutor: <B>Platinum</B>, <B>Guld</B>, <B>Silver</B> och <B>Koppar</B>. Skriv priset i rätt ruta. Exempel: 75 silver – skriv <B>75</B> i silverrutan.</>,
       <>Skriv gärna vem som köpte i rutan <B>Såld till</B> (behövs inte).</>,
       <>Klicka på <B>Markera såld</B>.</>,
-      <>Vill du se allt ni sålt och hur mycket det blivit? Klicka på <Knapp namn="Sålda items" bild="salda" /></>,
+      <>Vill du se allt ni sålt och hur mycket det blivit? Klicka på <Knapp namn="Försäljning" bild="salda" /></>,
     ],
     tips: <>100 koppar = 1 silver. 100 silver = 1 guld. 100 guld = 1 platinum. Sidan räknar om åt dig.</>,
   },
@@ -100,7 +100,7 @@ const AMNEN: Amne[] = [
     bild: `${ICON}ryggsack.webp`,
     kort: 'Se allt i förrådet som passar en viss karaktär.',
     steg: [
-      <>Klicka på <Knapp namn="Alt-vy" bild="alt-vy" /></>,
+      <>Klicka på <Knapp namn="Alts" bild="alt-vy" /></>,
       <>Klicka på karaktären du vill kolla.</>,
       <>Nu visas allt som karaktären kan använda, sorterat efter var det sitter (huvud, fötter …). Bästa först.</>,
     ],
