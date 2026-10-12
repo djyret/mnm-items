@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { ItemFields, OwnershipFields } from '../components/ItemForm'
 import { ItemTooltip } from '../components/ItemTooltip'
 import { compressImage, cropIcon, emptyDraft, logEvent, parseImage, parsedToDraft, uploadImage } from '../lib/items'
-import { extractGameLink, nameFromGameLink } from '../lib/gamelink'
 import { useStore } from '../lib/store'
 import { supabase } from '../lib/supabase'
 import type { ItemDraft } from '../lib/types'
@@ -74,14 +73,6 @@ export function NyItem() {
       if (file) {
         e.preventDefault()
         handleFile(file)
-        return
-      }
-      // Itemlänk från spelets chatt – fyll i spellänk (och namn om det saknas)
-      const link = extractGameLink(e.clipboardData?.getData('text') ?? '')
-      if (link && !(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)) {
-        e.preventDefault()
-        setDraft((d) => ({ ...d, game_link: link, name: d.name || nameFromGameLink(link) || '' }))
-        setPhase((p) => (p === 'tom' ? 'klar' : p))
       }
     }
     window.addEventListener('paste', onPaste)
@@ -155,7 +146,6 @@ export function NyItem() {
           <div className="dropzone__big">Klistra in screenshot med <kbd>Ctrl</kbd>+<kbd>V</kbd></div>
           <div>…eller dra hit en bild, eller klicka för att välja fil</div>
           <small>Tips: <kbd>Win</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> i spelet, markera statsrutan, sedan Ctrl+V här.</small>
-          <small>Itemlänken från spelets chatt kan också klistras in här – före eller efter bilden.</small>
           <input
             ref={fileInput}
             type="file"

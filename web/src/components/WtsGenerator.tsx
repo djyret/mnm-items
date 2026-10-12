@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { buildWts, gameLength } from '../lib/gamelink'
+import { buildWts } from '../lib/gamelink'
 import { imageUrl } from '../lib/supabase'
 import { isNoDrop } from '../lib/items'
 import { useStore } from '../lib/store'
@@ -11,9 +11,9 @@ const SETTINGS_KEY = 'mnm:wts'
 
 function loadSettings() {
   try {
-    return { prefix: 'WTS', suffix: '- PST', maxLen: 250, maxLinks: 3, ...JSON.parse(localStorage.getItem(SETTINGS_KEY) ?? '{}') }
+    return { prefix: 'WTS', suffix: '- PST', maxLen: 250, ...JSON.parse(localStorage.getItem(SETTINGS_KEY) ?? '{}') }
   } catch {
-    return { prefix: 'WTS', suffix: '- PST', maxLen: 250, maxLinks: 3 }
+    return { prefix: 'WTS', suffix: '- PST', maxLen: 250 }
   }
 }
 
@@ -49,9 +49,7 @@ export function WtsGenerator({ onClose }: { onClose: () => void }) {
   const lines = buildWts(chosen, {
     ...opt,
     maxLen: Math.max(40, Number(opt.maxLen) || 250),
-    maxLinks: Math.max(1, Number(opt.maxLinks) || 3),
   })
-  const missingLinks = chosen.filter((i) => !i.game_link).length
 
   async function copy(idx: number) {
     try {
@@ -94,7 +92,6 @@ export function WtsGenerator({ onClose }: { onClose: () => void }) {
                     {i.name}
                     <small>
                       {charById(i.holder_id)?.name ?? '—'}
-                      {!i.game_link && ' · ingen spellänk'}
                     </small>
                   </span>
                   {i.price_cp != null ? <Money cp={i.price_cp} /> : <small className="note">inget pris</small>}
@@ -119,19 +116,10 @@ export function WtsGenerator({ onClose }: { onClose: () => void }) {
               <span>Max tecken/rad</span>
               <input inputMode="numeric" value={opt.maxLen} onChange={(e) => setOption({ maxLen: e.target.value.replace(/\D/g, '') })} />
             </label>
-            <label className="field field--narrow">
-              <span>Max länkar/rad</span>
-              <input inputMode="numeric" value={opt.maxLinks} onChange={(e) => setOption({ maxLinks: e.target.value.replace(/\D/g, '') })} />
-            </label>
+
 
           </div>
 
-          {missingLinks > 0 && (
-            <p className="note">
-              {missingLinks} av de valda saknar spellänk och skrivs som vanlig text [Namn]. Klistra in länken under
-              Redigera på itemet för att få klickbara länkar i chatten.
-            </p>
-          )}
 
           {lines.length === 0 ? (
             <p className="note">Välj items i listan.</p>
@@ -141,7 +129,7 @@ export function WtsGenerator({ onClose }: { onClose: () => void }) {
                 <div className="wts__outhead">
                   <span>
                     {lines.length > 1 ? `Rad ${idx + 1} av ${lines.length} · ` : ''}
-                    ≈ {gameLength(line)} av 255 tecken
+                    {line.length} av 255 tecken
                   </span>
                   <button type="button" className="btn btn--primary btn--small" onClick={() => copy(idx)}>
                     {copied === idx ? 'Kopierat!' : 'Kopiera'}
@@ -152,7 +140,10 @@ export function WtsGenerator({ onClose }: { onClose: () => void }) {
             ))
           )}
           {copied === -1 && <p className="alert">Kunde inte kopiera automatiskt – markera texten och tryck Ctrl+C.</p>}
-          <p className="note">Klistra in i spelet med Ctrl+V efter <code>/auc</code> eller <code>/ooc</code>.</p>
+          <p className="note">
+            Klistra in i spelet med Ctrl+V efter <code>/auc</code> eller <code>/ooc</code>. Spelet godtar inte inklistrade
+            itemlänkar – vill du ha klickbara länkar, lägg in dem i chatten inne i spelet.
+          </p>
         </div>
       </div>
     </div>
