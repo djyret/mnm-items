@@ -34,7 +34,10 @@ export function ItemPage() {
   const [moveTo, setMoveTo] = useState('')
   const [soldTo, setSoldTo] = useState('')
   const [soldPrice, setSoldPrice] = useState<number | null>(null)
+  const [guide, setGuide] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => setGuide(item?.price_cp ?? null), [item?.price_cp])
 
   useEffect(() => {
     if (!id) return
@@ -81,7 +84,7 @@ export function ItemPage() {
 
   const sell = () =>
     patch(
-      { status: 'sald', sold_to: soldTo || null, lent_to_id: null, price_cp: soldPrice ?? item.price_cp },
+      { status: 'sald', sold_to: soldTo || null, lent_to_id: null, sold_price_cp: soldPrice ?? item.price_cp },
       [item.id, 'sald', {
         from_id: item.holder_id,
         note: [soldTo, soldPrice ?? item.price_cp ? formatPrice(soldPrice ?? item.price_cp) : ''].filter(Boolean).join(' – ') || null,
@@ -98,7 +101,7 @@ export function ItemPage() {
     const ok = await patch(
       rest,
       becameSold
-        ? [item!.id, 'sald', { from_id: item!.holder_id, note: [rest.sold_to, rest.price_cp ? formatPrice(rest.price_cp) : ''].filter(Boolean).join(' – ') || null }]
+        ? [item!.id, 'sald', { from_id: item!.holder_id, note: [rest.sold_to, (rest.sold_price_cp ?? rest.price_cp) ? formatPrice((rest.sold_price_cp ?? rest.price_cp)!) : ''].filter(Boolean).join(' – ') || null }]
         : [item!.id, 'redigerad', {}],
     )
     if (ok) setEditing(false)
@@ -164,11 +167,29 @@ export function ItemPage() {
                 <StatusBadge item={item} />
                 <NoDropBadge item={item} />
               </div>
-              {item.price_cp != null && (
+              {item.status === 'sald' && (
                 <p className="price-line">
-                  {item.status === 'sald' ? 'Såld för' : 'Pris'}: <Money cp={item.price_cp} />
+                  Såld för: {item.sold_price_cp != null ? <Money cp={item.sold_price_cp} /> : 'inget pris angivet'}
+                  {item.price_cp != null && <span className="price-line__guide"> · riktpris <Money cp={item.price_cp} /></span>}
                 </p>
               )}
+
+              <div className="guide">
+                <span className="guide__label">Riktpris – vad den brukar gå för</span>
+                <div className="guide__row">
+                  <PriceInput value={guide} onChange={setGuide} />
+                  <button className="btn btn--small" disabled={busy || guide === item.price_cp}
+                    onClick={() => patch({ price_cp: guide }, [item.id, 'redigerad', { note: guide == null ? 'Riktpris borttaget' : `Riktpris ${formatPrice(guide)}` }])}>
+                    Spara riktpris
+                  </button>
+                  {item.price_cp != null && (
+                    <button className="btn btn--ghost btn--small" disabled={busy}
+                      onClick={() => patch({ price_cp: null }, [item.id, 'redigerad', { note: 'Riktpris borttaget' }])}>
+                      Ta bort
+                    </button>
+                  )}
+                </div>
+              </div>
               {item.notes && <p className="note">{item.notes}</p>}
 
               {item.status !== 'sald' && (
@@ -195,7 +216,13 @@ export function ItemPage() {
                     <button className="btn" disabled={!moveTo || busy} onClick={move}>Flytta</button>
                   </div>
                   <div className="quick__row quick__row--sell">
-                    <PriceInput value={soldPrice ?? item.price_cp} onChange={setSoldPrice} />
+                    <span className="guide__label">
+                      Såld för{item.price_cp != null ? ' – tomt = riktpriset' : ''}
+                    </span>
+                    <PriceInput value={soldPrice} onChange={setSoldPrice} />
+                    {soldPrice != null && item.price_cp != null && soldPrice < item.price_cp && (
+                      <span className="warn price-warn">Under riktpriset ({formatPrice(item.price_cp)})!</span>
+                    )}
                     <input placeholder="Såld till (valfritt)" value={soldTo} onChange={(e) => setSoldTo(e.target.value)} />
                     <button className="btn" disabled={busy} onClick={sell}>Markera såld</button>
                   </div>
@@ -211,7 +238,7 @@ export function ItemPage() {
               )}
               {item.status === 'sald' && (
                 <button className="btn btn--ghost" disabled={busy}
-                  onClick={() => patch({ status: 'ledig', sold_to: null }, [item.id, 'status', { note: 'Ångrade försäljning' }])}>
+                  onClick={() => patch({ status: 'ledig', sold_to: null, sold_price_cp: null }, [item.id, 'status', { note: 'Ångrade försäljning' }])}>
                   Ångra såld
                 </button>
               )}

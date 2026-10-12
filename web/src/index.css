@@ -1019,3 +1019,11 @@ code { font-family: Consolas, monospace; color: var(--gold); }
   color: #f0e4c8;
   font-weight: 600;
 }
+
+/* ---------- Riktpris ---------- */
+.guide { margin-top: 0.9rem; padding-top: 0.7rem; border-top: 1px solid rgba(169, 129, 74, 0.2); }
+.guide__label { display: block; flex: 1 1 100%; font-family: var(--font-title); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.3rem; }
+.guide__row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 0.5rem; }
+.guide__row .price-input { flex: 1 1 300px; }
+.price-line__guide { color: var(--text-dim); font-size: 0.95rem; }
+.price-warn { flex: 1 1 100%; margin: 0; font-weight: 600; }

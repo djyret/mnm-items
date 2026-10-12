@@ -66,7 +66,9 @@ export function ItemCard({ item, own = false, selected, onSelect }: {
           Från: <b>{holder?.name ?? '—'}</b>
         </span>
         <span className="card__tags">
-          {item.price_cp != null && <Money cp={item.price_cp} />}
+          {item.status === 'sald'
+            ? item.sold_price_cp != null && <Money cp={item.sold_price_cp} />
+            : item.price_cp != null && <span title="Riktpris"><Money cp={item.price_cp} /></span>}
           {isNoDrop(item) && <span className="badge badge--nodrop" title="Kan inte tradeas">NODROP</span>}
           <span className={`badge badge--${item.status}`}>
             {STATUS_LABELS[item.status]}

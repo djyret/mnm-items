@@ -32,7 +32,10 @@ export interface Item {
   status: Status
   lent_to_id: string | null
   sold_to: string | null
+  /** Riktpris – vad itemet brukar gå för */
   price_cp: number | null
+  /** Faktiskt försäljningspris */
+  sold_price_cp: number | null
   game_link: string | null
   notes: string | null
   created_at: string

@@ -51,8 +51,8 @@ export function Salda() {
   )
 
   const shown = seller ? sales.filter((s) => s.sellerId === seller) : sales
-  const total = shown.reduce((sum, s) => sum + (s.item.price_cp ?? 0), 0)
-  const withoutPrice = shown.filter((s) => s.item.price_cp == null).length
+  const total = shown.reduce((sum, s) => sum + (s.item.sold_price_cp ?? 0), 0)
+  const withoutPrice = shown.filter((s) => s.item.sold_price_cp == null).length
 
   // Summa per säljare (alltid över alla försäljningar)
   const perSeller = useMemo(() => {
@@ -60,12 +60,12 @@ export function Salda() {
     for (const s of sales) {
       const k = s.sellerId ?? ''
       const cur = m.get(k) ?? { cp: 0, n: 0 }
-      m.set(k, { cp: cur.cp + (s.item.price_cp ?? 0), n: cur.n + 1 })
+      m.set(k, { cp: cur.cp + (s.item.sold_price_cp ?? 0), n: cur.n + 1 })
     }
     return [...m.entries()].sort((a, b) => b[1].cp - a[1].cp)
   }, [sales])
 
-  const best = shown.reduce<Sale | null>((b, s) => ((s.item.price_cp ?? 0) > (b?.item.price_cp ?? 0) ? s : b), null)
+  const best = shown.reduce<Sale | null>((b, s) => ((s.item.sold_price_cp ?? 0) > (b?.item.sold_price_cp ?? 0) ? s : b), null)
 
   return (
     <div className="page">
@@ -88,7 +88,7 @@ export function Salda() {
         </div>
         <div className="panel stat-box">
           <span className="stat-box__label">Dyraste försäljning</span>
-          <span className="stat-box__value">{best ? <Money cp={best.item.price_cp} /> : '—'}</span>
+          <span className="stat-box__value">{best ? <Money cp={best.item.sold_price_cp} /> : '—'}</span>
           <span className="stat-box__sub">{best ? best.item.name : 'Inget sålt än'}</span>
         </div>
       </div>
@@ -99,7 +99,7 @@ export function Salda() {
           <div className="seller-list">
             <button type="button" className={`seller${seller === '' ? ' is-active' : ''}`} onClick={() => setSeller('')}>
               <span className="seller__name">Alla</span>
-              <Money cp={sales.reduce((s, x) => s + (x.item.price_cp ?? 0), 0)} />
+              <Money cp={sales.reduce((s, x) => s + (x.item.sold_price_cp ?? 0), 0)} />
               <span className="seller__n">{sales.length} st</span>
             </button>
             {perSeller.map(([id, v]) => {
@@ -152,7 +152,7 @@ export function Salda() {
                     </td>
                     <td>{charById(s.sellerId)?.name ?? '—'}</td>
                     <td>{s.item.sold_to ?? '—'}</td>
-                    <td className="num">{s.item.price_cp != null ? <Money cp={s.item.price_cp} /> : <span className="note">inget pris</span>}</td>
+                    <td className="num">{s.item.sold_price_cp != null ? <Money cp={s.item.sold_price_cp} /> : <span className="note">inget pris</span>}</td>
                   </tr>
                 ))}
               </tbody>

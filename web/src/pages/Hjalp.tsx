@@ -87,12 +87,12 @@ const AMNEN: Amne[] = [
     steg: [
       <>Sälj itemet i spelet som vanligt.</>,
       <>Öppna itemet här (klicka på det i <Knapp namn="Förråd" bild="forrad" />).</>,
-      <>Under <B>Markera såld</B> finns fyra rutor: <B>Platinum</B>, <B>Guld</B>, <B>Silver</B> och <B>Koppar</B>. Skriv priset i rätt ruta. Exempel: 75 silver – skriv <B>75</B> i silverrutan.</>,
+      <>Vid <B>Såld för</B> finns fyra rutor: <B>Platinum</B>, <B>Guld</B>, <B>Silver</B> och <B>Koppar</B>. Skriv priset du fick i rätt ruta. Exempel: 75 silver – skriv <B>75</B> i silverrutan. Lämnar du rutorna tomma används riktpriset.</>,
       <>Skriv gärna vem som köpte i rutan <B>Såld till</B> (behövs inte).</>,
       <>Klicka på <B>Markera såld</B>.</>,
       <>Vill du se allt ni sålt och hur mycket det blivit? Klicka på <Knapp namn="Försäljning" bild="salda" /></>,
     ],
-    tips: <>100 koppar = 1 silver. 100 silver = 1 guld. 100 guld = 1 platinum. Sidan räknar om åt dig.</>,
+    tips: <>Vet du vad ett item brukar gå för? Skriv det vid <B>Riktpris</B> och tryck <B>Spara riktpris</B> – då ser alla det, och sidan varnar om någon säljer billigare. 100 koppar = 1 silver, 100 silver = 1 guld, 100 guld = 1 platinum.</>,
   },
   {
     id: 'alt',

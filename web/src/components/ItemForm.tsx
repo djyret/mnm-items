@@ -255,13 +255,19 @@ export function OwnershipFields({ draft, onChange }: Props) {
       {draft.status === 'sald' && (
         <label className="field">
           <span>Såld till</span>
-          <input value={draft.sold_to ?? ''} onChange={(e) => set('sold_to', e.target.value || null)} placeholder="Namn eller pris" />
+          <input value={draft.sold_to ?? ''} onChange={(e) => set('sold_to', e.target.value || null)} placeholder="Köparens namn" />
         </label>
       )}
       <div className="field">
-        <span>{draft.status === 'sald' ? 'Såld för' : 'Pris (begärt)'}</span>
+        <span>Riktpris – vad den brukar gå för</span>
         <PriceInput value={draft.price_cp} onChange={(v) => set('price_cp', v)} />
       </div>
+      {draft.status === 'sald' && (
+        <div className="field">
+          <span>Såld för</span>
+          <PriceInput value={draft.sold_price_cp} onChange={(v) => set('sold_price_cp', v)} />
+        </div>
+      )}
       <label className="field field--wide">
         <span>Anteckning</span>
         <input value={draft.notes ?? ''} onChange={(e) => set('notes', e.target.value || null)} />
