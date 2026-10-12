@@ -1025,3 +1025,4 @@ code { font-family: Consolas, monospace; color: var(--gold); }
 .guide__row .price-input { flex: 1 1 300px; }
 .price-line__guide { color: var(--text-dim); font-size: 0.95rem; }
 .price-warn { flex: 1 1 100%; margin: 0; font-weight: 600; }
+.loan__pics { margin-top: 0.8rem; }

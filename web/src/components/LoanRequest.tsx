@@ -2,17 +2,37 @@ import { useMemo, useState } from 'react'
 import { CLASSES } from '../lib/constants'
 import { logEvent } from '../lib/items'
 import { useStore } from '../lib/store'
-import { supabase } from '../lib/supabase'
+import { imageUrl, supabase } from '../lib/supabase'
 import type { Character, Item } from '../lib/types'
 
 const pretty = (slot: string | undefined) => (slot ? slot.charAt(0) + slot.slice(1).toLowerCase() : '')
 
-/** Ett stycke per ägare: vem som ska plocka ut vad ur banken. */
-function holderBlock(holderName: string, list: Item[]): string {
+/**
+ * Ett stycke per ägare: vem som ska plocka ut vad ur banken.
+ * Med bilder läggs en direktlänk till screenshoten efter varje item – Discord visar då bilden under meddelandet.
+ */
+function holderBlock(holderName: string, list: Item[], withImages: boolean): string {
   return [
     `**${holderName}** – kan du plocka ut ur banken:`,
-    ...list.map((i) => `- ${i.name}${i.slots.length ? ` (${i.slots.map(pretty).join('/')})` : ''}`),
+    ...list.map((i) => {
+      const line = `- ${i.name}${i.slots.length ? ` (${i.slots.map(pretty).join('/')})` : ''}`
+      const url = withImages ? imageUrl(i.image_path) : null
+      return url ? `${line} ${url}` : line
+    }),
   ].join('\n')
+}
+
+/** Webbläsarens urklipp tar bara PNG – konvertera screenshoten. */
+async function copyImage(url: string) {
+  const blob = await (await fetch(url)).blob()
+  const bmp = await createImageBitmap(blob)
+  const canvas = document.createElement('canvas')
+  canvas.width = bmp.width
+  canvas.height = bmp.height
+  canvas.getContext('2d')!.drawImage(bmp, 0, 0)
+  bmp.close()
+  const png = await new Promise<Blob>((res, rej) => canvas.toBlob((b) => (b ? res(b) : rej(new Error('png'))), 'image/png'))
+  await navigator.clipboard.write([new ClipboardItem({ 'image/png': png })])
 }
 
 /** Lånebegäran till Discord för valda items, grupperat per ägare. */
@@ -21,6 +41,7 @@ export function LoanRequest({ alt, items, onClear }: { alt: Character; items: It
   const [copied, setCopied] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [done, setDone] = useState<string | null>(null)
+  const [withImages, setWithImages] = useState(true)
 
   const byHolder = useMemo(() => {
     const m = new Map<string, Item[]>()
@@ -36,7 +57,18 @@ export function LoanRequest({ alt, items, onClear }: { alt: Character; items: It
       ? ` (${[alt.class && (CLASSES[alt.class] || alt.class), alt.level && `lvl ${alt.level}`].filter(Boolean).join(', ')})`
       : ''
   }`
-  const full = [head, ...byHolder.map(([name, list]) => holderBlock(name, list))].join('\n\n')
+  const full = [head, ...byHolder.map(([name, list]) => holderBlock(name, list, withImages))].join('\n\n')
+  const withPics = items.filter((i) => i.image_path)
+
+  async function copyPic(item: Item) {
+    try {
+      await copyImage(imageUrl(item.image_path)!)
+      setCopied(`bild:${item.id}`)
+      setTimeout(() => setCopied(null), 1500)
+    } catch {
+      setCopied('fel')
+    }
+  }
 
   async function copy(key: string, text: string) {
     try {
@@ -70,6 +102,11 @@ export function LoanRequest({ alt, items, onClear }: { alt: Character; items: It
       </div>
       <p className="note">Kopiera och klistra in i Discord. Varje person ser vad hen ska plocka ut.</p>
 
+      <label className="check">
+        <input type="checkbox" checked={withImages} onChange={(e) => setWithImages(e.target.checked)} />
+        Ta med bilder (Discord visar bilden på itemets stats under meddelandet)
+      </label>
+
       <div className="loan__out">
         <div className="loan__outhead">
           <span>Hela meddelandet</span>
@@ -83,10 +120,22 @@ export function LoanRequest({ alt, items, onClear }: { alt: Character; items: It
       {byHolder.length > 1 && (
         <div className="loan__per">
           {byHolder.map(([name, list]) => (
-            <button key={name} type="button" className="chip" onClick={() => copy(name, `${head}\n\n${holderBlock(name, list)}`)}>
+            <button key={name} type="button" className="chip" onClick={() => copy(name, `${head}\n\n${holderBlock(name, list, withImages)}`)}>
               {copied === name ? 'Kopierat!' : `Kopiera bara till ${name} (${list.length})`}
             </button>
           ))}
+        </div>
+      )}
+      {withPics.length > 0 && (
+        <div className="loan__pics">
+          <span className="note">Eller kopiera en bild i taget och klistra in den i Discord:</span>
+          <div className="loan__per">
+            {withPics.map((i) => (
+              <button key={i.id} type="button" className="chip" onClick={() => copyPic(i)}>
+                {copied === `bild:${i.id}` ? 'Bild kopierad!' : `Kopiera bild: ${i.name}`}
+              </button>
+            ))}
+          </div>
         </div>
       )}
       {copied === 'fel' && <p className="alert">Kunde inte kopiera automatiskt – markera texten och tryck Ctrl+C.</p>}
