@@ -7,6 +7,7 @@ import { ItemPage } from './pages/ItemPage'
 import { Karaktarer } from './pages/Karaktarer'
 import { NyItem } from './pages/NyItem'
 import { Salda } from './pages/Salda'
+import { Hjalp } from './pages/Hjalp'
 
 /** Menyknapparna är färdiga bilder (järn = vanlig, guld = aktiv sida). */
 const NAV: [string, string, string][] = [
@@ -15,6 +16,7 @@ const NAV: [string, string, string][] = [
   ['/karaktarer', 'Karaktärer', 'karaktarer'],
   ['/alt', 'Alt-vy', 'alt-vy'],
   ['/salda', 'Sålda items', 'salda'],
+  ['/hjalp', 'Hjälp', 'hjalp'],
 ]
 const MENU = `${import.meta.env.BASE_URL}ikoner/meny/`
 
@@ -47,6 +49,7 @@ function Shell() {
           <Route path="/karaktarer" element={<Karaktarer />} />
           <Route path="/alt" element={<AltVy />} />
           <Route path="/salda" element={<Salda />} />
+          <Route path="/hjalp" element={<Hjalp />} />
         </Routes>
       </main>
       <footer className="site-foot">
