@@ -39,6 +39,8 @@
 
 * { box-sizing: border-box; }
 html, body { margin: 0; }
+/* Reservera alltid plats för rullisten så sidan inte hoppar i sidled */
+html { scrollbar-gutter: stable; }
 body { overflow-x: hidden; }
 
 body {
@@ -711,7 +713,8 @@ body {
 .hero {
   --img-w: clamp(780px, 100vw, 1400px);
   --lift: calc(var(--img-w) * 0.04);
-  --side: max(0px, calc((100vw - var(--img-w)) / 2));
+  /* Procent i gradienterna = elementets bredd (utan rullist), inte fönstrets */
+  --side: max(0px, calc((100% - var(--img-w)) / 2));
   --fade: min(160px, var(--side));
   position: relative;
   background: url('/bilder/header.webp') center calc(0px - var(--lift)) / var(--img-w) auto no-repeat;
