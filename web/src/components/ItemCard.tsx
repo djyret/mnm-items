@@ -17,7 +17,13 @@ export function PersonIcon() {
 }
 
 /** Itemkort i bronsram: namn, tooltip och fotrad med ägare och status. */
-export function ItemCard({ item, own = false }: { item: Item; own?: boolean }) {
+export function ItemCard({ item, own = false, selected, onSelect }: {
+  item: Item
+  own?: boolean
+  /** Visa kryssruta när onSelect finns */
+  selected?: boolean
+  onSelect?: (id: string) => void
+}) {
   const { charById } = useStore()
   const holder = charById(item.holder_id)
   const target =
@@ -28,8 +34,31 @@ export function ItemCard({ item, own = false }: { item: Item; own?: boolean }) {
         : null
 
   return (
-    <Link to={`/item/${item.id}`} className={`frame card${own ? ' card--own' : ''}`}>
-      <div className="frame__title">{item.name}</div>
+    <Link to={`/item/${item.id}`} className={`frame card${own ? ' card--own' : ''}${selected ? ' card--selected' : ''}`}>
+      <div className="frame__title">
+        {item.name}
+        {onSelect && (
+          <span
+            role="checkbox"
+            aria-checked={!!selected}
+            aria-label={`Välj ${item.name}`}
+            tabIndex={0}
+            className={`card__check${selected ? ' is-on' : ''}`}
+            title={selected ? 'Vald – klicka för att ta bort' : 'Välj för lån'}
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              onSelect(item.id)
+            }}
+            onKeyDown={(e) => {
+              if (e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault()
+                onSelect(item.id)
+              }
+            }}
+          />
+        )}
+      </div>
       <ItemTooltip item={item} compact iconUrl={imageUrl(item.icon_path)} />
       <div className="card__foot">
         <span className="card__from">

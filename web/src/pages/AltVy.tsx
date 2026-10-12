@@ -1,7 +1,8 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { ClassIcon } from '../components/ClassIcon'
 import { ItemCard } from '../components/ItemCard'
+import { LoanRequest } from '../components/LoanRequest'
 import { CLASSES, SLOTS, slotIcon } from '../lib/constants'
 import { canUse, isNoDrop, itemScore } from '../lib/items'
 import { useStore } from '../lib/store'
@@ -12,6 +13,18 @@ export function AltVy() {
   const [params, setParams] = useSearchParams()
   const charId = params.get('karaktar') ?? ''
   const char = characters.find((c) => c.id === charId)
+  const [picked, setPicked] = useState<Set<string>>(new Set())
+
+  // Byt karaktär = börja om med valen
+  useEffect(() => setPicked(new Set()), [charId])
+
+  const toggle = (id: string) =>
+    setPicked((p) => {
+      const n = new Set(p)
+      if (n.has(id)) n.delete(id)
+      else n.add(id)
+      return n
+    })
 
   const groups = useMemo(() => {
     if (!char) return []
@@ -76,6 +89,9 @@ export function AltVy() {
       </div>
 
       {char && groups.length === 0 && <div className="panel empty">Inget i förrådet passar {char.name} just nu.</div>}
+      {char && groups.length > 0 && (
+        <p className="note">Bocka i rutan uppe till höger på de items {char.name} vill låna. Sedan skapas ett meddelande till Discord längst ner.</p>
+      )}
 
       {groups.map(([slot, list]) => (
         <section key={slot} className="slot-group">
@@ -84,10 +100,41 @@ export function AltVy() {
             {slot} <small>{list.length}</small>
           </h2>
           <div className="grid">
-            {list.map((i) => <ItemCard key={i.id} item={i} own={i.holder_id === char!.id} />)}
+            {list.map((i) => {
+              const own = i.holder_id === char!.id
+              return (
+                <ItemCard
+                  key={i.id}
+                  item={i}
+                  own={own}
+                  selected={picked.has(i.id)}
+                  onSelect={own ? undefined : toggle}
+                />
+              )
+            })}
           </div>
         </section>
       ))}
+      {char && picked.size > 0 && (
+        <>
+          <div id="lan" />
+          <LoanRequest
+            alt={char}
+            items={items.filter((it) => picked.has(it.id))}
+            onClear={() => setPicked(new Set())}
+          />
+          <div className="loan-bar">
+            <span>{picked.size} {picked.size === 1 ? 'item valt' : 'items valda'} för {char.name}</span>
+            <button
+              type="button"
+              className="btn btn--primary"
+              onClick={() => document.getElementById('lan')?.scrollIntoView({ behavior: 'smooth' })}
+            >
+              Visa Discord-meddelande
+            </button>
+          </div>
+        </>
+      )}
     </div>
   )
 }
