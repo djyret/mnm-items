@@ -249,6 +249,8 @@ textarea { resize: vertical; }
   background: #4d4c46;
   border-radius: 2px;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 .tooltip__title {
   font-family: var(--font-title);
@@ -264,6 +266,7 @@ textarea { resize: vertical; }
   text-shadow: 0 1px 2px #000;
 }
 .tooltip__body {
+  flex: 1;
   padding: 0.6rem 0.9rem 0.8rem;
   color: var(--stone-text);
   font-size: 1.02rem;
@@ -271,7 +274,7 @@ textarea { resize: vertical; }
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.75);
   background:
     linear-gradient(rgba(60, 60, 54, 0.35), rgba(40, 40, 36, 0.45)),
-    url('/bilder/stone.webp') 0 0 / 540px auto repeat;
+    url('/bilder/stone.webp') center / cover no-repeat;
 }
 .tooltip__ac { font-weight: 600; }
 .tooltip__stat { margin-right: 1.1em; white-space: nowrap; }
