@@ -1,7 +1,13 @@
 import { useEffect, useState } from 'react'
 import { COINS, fromPurse, toPurse, type CoinKey } from '../lib/money'
 
-/** Pris med myntsymboler; tomma valörer döljs. */
+const coinSrc = (key: CoinKey) => `${import.meta.env.BASE_URL}ikoner/mynt/${key}.webp`
+
+function Coin({ k, name }: { k: CoinKey; name: string }) {
+  return <img className="coin" src={coinSrc(k)} alt={name} title={name} />
+}
+
+/** Pris med mynt; tomma valörer döljs. */
 export function Money({ cp }: { cp: number | null | undefined }) {
   if (cp == null) return null
   const purse = toPurse(cp)
@@ -11,14 +17,14 @@ export function Money({ cp }: { cp: number | null | undefined }) {
       {(shown.length ? shown : [COINS[3]]).map((c) => (
         <span key={c.key} className="money__part">
           {purse[c.key]}
-          <i className={`coin coin--${c.key}`} aria-label={c.name} />
+          <Coin k={c.key} name={c.name} />
         </span>
       ))}
     </span>
   )
 }
 
-/** Fyra rutor: platinum, guld, silver, koppar. Tomt i alla = inget pris (null). */
+/** Fyra fält i fallande valör: platinum, guld, silver, koppar. Tomt i alla = inget pris (null). */
 export function PriceInput({ value, onChange }: { value: number | null; onChange: (cp: number | null) => void }) {
   const [text, setText] = useState<Record<CoinKey, string>>(() => purseText(value))
 
@@ -30,18 +36,22 @@ export function PriceInput({ value, onChange }: { value: number | null; onChange
   return (
     <div className="price-input">
       {COINS.map((c) => (
-        <label key={c.key} className="price-input__coin" title={c.name}>
+        <label key={c.key} className="price-input__coin">
+          <span className="price-input__label">
+            <Coin k={c.key} name={c.name} />
+            {c.name}
+          </span>
           <input
             inputMode="numeric"
             value={text[c.key]}
             placeholder="0"
+            aria-label={c.name}
             onChange={(e) => {
               const next = { ...text, [c.key]: e.target.value.replace(/\D/g, '') }
               setText(next)
               onChange(toCp(next))
             }}
           />
-          <i className={`coin coin--${c.key}`} aria-label={c.name} />
         </label>
       ))}
     </div>

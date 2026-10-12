@@ -189,8 +189,8 @@ export function ItemPage() {
                     <button className="btn" disabled={!moveTo || busy} onClick={move}>Flytta</button>
                   </div>
                   <div className="quick__row quick__row--sell">
-                    <input placeholder="Såld till (valfritt)" value={soldTo} onChange={(e) => setSoldTo(e.target.value)} />
                     <PriceInput value={soldPrice ?? item.price_cp} onChange={setSoldPrice} />
+                    <input placeholder="Såld till (valfritt)" value={soldTo} onChange={(e) => setSoldTo(e.target.value)} />
                     <button className="btn" disabled={busy} onClick={sell}>Markera såld</button>
                   </div>
                   <div className="quick__row">
