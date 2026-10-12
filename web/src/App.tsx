@@ -1,5 +1,5 @@
 import { HashRouter, NavLink, Route, Routes } from 'react-router-dom'
-import { Compass, Ribbon } from './components/Ornaments'
+import { Compass } from './components/Ornaments'
 import { StoreProvider, useStore } from './lib/store'
 import { AltVy } from './pages/AltVy'
 import { Forrad } from './pages/Forrad'
@@ -20,12 +20,9 @@ function Shell() {
     <>
       <header className="hero">
         <div className="hero__inner">
-          <NavLink to="/" className="brand">
-            <span className="plaque">
-              <span className="plaque__sub">Monsters &amp; Memories</span>
-              <span className="plaque__title">Förrådet</span>
-            </span>
-            <Ribbon>Items att sälja / nyttja till alts</Ribbon>
+          {/* Rubriken är inmålad i headerbilden; texten finns kvar för skärmläsare */}
+          <NavLink to="/" className="brand-link" aria-label="Förrådet – till startsidan">
+            <h1 className="sr-only">Förrådet – Monsters &amp; Memories. Items att sälja / nyttja till alts</h1>
           </NavLink>
           <nav className="nav">
             {NAV.map(([to, label, icon]) => (
