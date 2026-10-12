@@ -11,13 +11,17 @@ const pretty = (slot: string | undefined) => (slot ? slot.charAt(0) + slot.slice
  * Ett stycke per ägare: vem som ska plocka ut vad ur banken.
  * Med bilder läggs en direktlänk till screenshoten efter varje item – Discord visar då bilden under meddelandet.
  */
-function holderBlock(holderName: string, list: Item[], withImages: boolean): string {
+type ImageMode = 'kort' | 'lang' | 'ingen'
+
+function holderBlock(holderName: string, list: Item[], mode: ImageMode): string {
   return [
     `**${holderName}** – kan du plocka ut ur banken:`,
     ...list.map((i) => {
       const line = `- ${i.name}${i.slots.length ? ` (${i.slots.map(pretty).join('/')})` : ''}`
-      const url = withImages ? imageUrl(i.image_path) : null
-      return url ? `${line} ${url}` : line
+      const url = mode !== 'ingen' ? imageUrl(i.image_path) : null
+      if (!url) return line
+      // Kort: dold länk [bild](url) – texten blir kortare i Discord
+      return mode === 'kort' ? `${line} [bild](${url})` : `${line} ${url}`
     }),
   ].join('\n')
 }
@@ -41,7 +45,7 @@ export function LoanRequest({ alt, items, onClear }: { alt: Character; items: It
   const [copied, setCopied] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [done, setDone] = useState<string | null>(null)
-  const [withImages, setWithImages] = useState(true)
+  const [mode, setMode] = useState<ImageMode>('kort')
 
   const byHolder = useMemo(() => {
     const m = new Map<string, Item[]>()
@@ -57,7 +61,7 @@ export function LoanRequest({ alt, items, onClear }: { alt: Character; items: It
       ? ` (${[alt.class && (CLASSES[alt.class] || alt.class), alt.level && `lvl ${alt.level}`].filter(Boolean).join(', ')})`
       : ''
   }`
-  const full = [head, ...byHolder.map(([name, list]) => holderBlock(name, list, withImages))].join('\n\n')
+  const full = [head, ...byHolder.map(([name, list]) => holderBlock(name, list, mode))].join('\n\n')
   const withPics = items.filter((i) => i.image_path)
 
   async function copyPic(item: Item) {
@@ -102,10 +106,20 @@ export function LoanRequest({ alt, items, onClear }: { alt: Character; items: It
       </div>
       <p className="note">Kopiera och klistra in i Discord. Varje person ser vad hen ska plocka ut.</p>
 
-      <label className="check">
-        <input type="checkbox" checked={withImages} onChange={(e) => setWithImages(e.target.checked)} />
-        Ta med bilder (Discord visar bilden på itemets stats under meddelandet)
-      </label>
+      <div className="field loan__mode">
+        <span>Bilder i meddelandet</span>
+        <div className="chips">
+          {([
+            ['kort', 'Korta länkar [bild]'],
+            ['lang', 'Hela länkar'],
+            ['ingen', 'Inga bilder'],
+          ] as const).map(([k, label]) => (
+            <button key={k} type="button" className={`chip${mode === k ? ' is-active' : ''}`} onClick={() => setMode(k)}>
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div className="loan__out">
         <div className="loan__outhead">
@@ -120,7 +134,7 @@ export function LoanRequest({ alt, items, onClear }: { alt: Character; items: It
       {byHolder.length > 1 && (
         <div className="loan__per">
           {byHolder.map(([name, list]) => (
-            <button key={name} type="button" className="chip" onClick={() => copy(name, `${head}\n\n${holderBlock(name, list, withImages)}`)}>
+            <button key={name} type="button" className="chip" onClick={() => copy(name, `${head}\n\n${holderBlock(name, list, mode)}`)}>
               {copied === name ? 'Kopierat!' : `Kopiera bara till ${name} (${list.length})`}
             </button>
           ))}
