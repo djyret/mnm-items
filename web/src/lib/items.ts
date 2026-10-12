@@ -16,6 +16,7 @@ export const emptyDraft = (): ItemDraft => ({
   races: [],
   extra_lines: [],
   image_path: null,
+  icon_path: null,
   holder_id: null,
   status: 'ledig',
   lent_to_id: null,
@@ -91,8 +92,8 @@ export async function blobToBase64(blob: Blob): Promise<string> {
   return btoa(bin)
 }
 
-export async function uploadImage(blob: Blob): Promise<string> {
-  const path = `${crypto.randomUUID()}.webp`
+export async function uploadImage(blob: Blob, suffix = ''): Promise<string> {
+  const path = `${crypto.randomUUID()}${suffix}.webp`
   const { error } = await supabase.storage.from(IMAGE_BUCKET).upload(path, blob, {
     contentType: 'image/webp',
     cacheControl: '31536000',
@@ -101,16 +102,37 @@ export async function uploadImage(blob: Blob): Promise<string> {
   return path
 }
 
-export async function deleteImage(path: string | null) {
-  if (path) await supabase.storage.from(IMAGE_BUCKET).remove([path])
+export async function deleteImages(...paths: (string | null)[]) {
+  const list = paths.filter((p): p is string => !!p)
+  if (list.length) await supabase.storage.from(IMAGE_BUCKET).remove(list)
+}
+
+/** Klipper ut ikonen ur screenshoten: kvadratisk ruta med marginal runt modellens box. */
+export async function cropIcon(image: Blob, box: NonNullable<ParsedItem['icon_box']>, size = 96): Promise<Blob> {
+  const bmp = await createImageBitmap(image)
+  const side = Math.max(box.width, box.height) * 1.35
+  const cx = box.x + box.width / 2
+  const cy = box.y + box.height / 2
+  const sx = Math.max(0, Math.min(bmp.width - side, cx - side / 2))
+  const sy = Math.max(0, Math.min(bmp.height - side, cy - side / 2))
+  const canvas = document.createElement('canvas')
+  canvas.width = canvas.height = size
+  canvas.getContext('2d')!.drawImage(bmp, sx, sy, side, side, 0, 0, size, size)
+  bmp.close()
+  return new Promise((resolve, reject) =>
+    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('Kunde inte klippa ikonen'))), 'image/webp', 0.9),
+  )
 }
 
 /** Skickar bilden till Edge Function parse-item (Claude Haiku). */
 export async function parseImage(blob: Blob): Promise<ParsedItem> {
+  const bmp = await createImageBitmap(blob)
+  const { width, height } = bmp
+  bmp.close()
   const res = await fetch(`${SUPABASE_URL}/functions/v1/parse-item`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', apikey: SUPABASE_KEY },
-    body: JSON.stringify({ image: await blobToBase64(blob), media_type: blob.type || 'image/webp' }),
+    body: JSON.stringify({ image: await blobToBase64(blob), media_type: blob.type || 'image/webp', width, height }),
   })
   const body = await res.json().catch(() => ({}))
   if (!res.ok) throw new Error(body.error ?? `Avläsning misslyckades (${res.status})`)

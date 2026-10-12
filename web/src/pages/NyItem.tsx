@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ItemFields, OwnershipFields } from '../components/ItemForm'
 import { ItemTooltip } from '../components/ItemTooltip'
-import { compressImage, emptyDraft, logEvent, parseImage, parsedToDraft, uploadImage } from '../lib/items'
+import { compressImage, cropIcon, emptyDraft, logEvent, parseImage, parsedToDraft, uploadImage } from '../lib/items'
 import { useStore } from '../lib/store'
 import { supabase } from '../lib/supabase'
 import type { ItemDraft } from '../lib/types'
@@ -25,6 +25,8 @@ export function NyItem() {
   const [phase, setPhase] = useState<Phase>('tom')
   const [image, setImage] = useState<Blob | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
+  const [icon, setIcon] = useState<Blob | null>(null)
+  const [iconPreview, setIconPreview] = useState<string | null>(null)
   const [draft, setDraft] = useState<ItemDraft>(() => ({ ...emptyDraft(), holder_id: readLastHolder() }))
   const [error, setError] = useState<string | null>(null)
   const [dragging, setDragging] = useState(false)
@@ -53,6 +55,11 @@ export function NyItem() {
       })
       const parsed = await parseImage(small)
       setDraft((d) => parsedToDraft(parsed, d))
+      if (parsed.icon_box) {
+        const ic = await cropIcon(small, parsed.icon_box)
+        setIcon(ic)
+        setIconPreview(URL.createObjectURL(ic))
+      }
     } catch (e) {
       setError(`${(e as Error).message}. Fyll i fälten för hand.`)
     }
@@ -80,10 +87,13 @@ export function NyItem() {
     setPhase('sparar')
     setError(null)
     try {
-      const image_path = image ? await uploadImage(image) : null
+      const [image_path, icon_path] = await Promise.all([
+        image ? uploadImage(image) : null,
+        icon ? uploadImage(icon, '-icon') : null,
+      ])
       const { data, error } = await supabase
         .from('items')
-        .insert({ ...draft, name: draft.name.trim(), image_path })
+        .insert({ ...draft, name: draft.name.trim(), image_path, icon_path })
         .select('id')
         .single()
       if (error) throw error
@@ -104,6 +114,8 @@ export function NyItem() {
   function reset() {
     setImage(null)
     setPreview(null)
+    setIcon(null)
+    setIconPreview(null)
     setDraft({ ...emptyDraft(), holder_id: draft.holder_id })
     setPhase('tom')
     setError(null)
@@ -159,7 +171,7 @@ export function NyItem() {
       {(phase === 'klar' || phase === 'sparar') && (
         <div className="new-layout">
           <div className="new-layout__preview">
-            <ItemTooltip item={draft} />
+            <ItemTooltip item={draft} iconUrl={iconPreview} />
             {preview && <img className="shot" src={preview} alt="Originalbild" />}
           </div>
           <div className="panel">

@@ -4,7 +4,7 @@ import { HolderBadge, NoDropBadge, StatusBadge } from '../components/Badges'
 import { ItemFields, OwnershipFields } from '../components/ItemForm'
 import { ItemTooltip } from '../components/ItemTooltip'
 import { STATUS_LABELS } from '../lib/constants'
-import { deleteImage, isNoDrop, logEvent } from '../lib/items'
+import { compressImage, cropIcon, deleteImages, isNoDrop, logEvent, parseImage, uploadImage } from '../lib/items'
 import { useStore } from '../lib/store'
 import { imageUrl, supabase } from '../lib/supabase'
 import type { Item, ItemDraft, ItemEvent } from '../lib/types'
@@ -83,7 +83,7 @@ export function ItemPage() {
 
   async function saveEdit() {
     if (!draft) return
-    const { image_path: _, ...rest } = draft
+    const { image_path: _i, icon_path: _c, ...rest } = draft
     const ok = await patch(rest, [item!.id, 'redigerad', {}])
     if (ok) setEditing(false)
   }
@@ -97,9 +97,27 @@ export function ItemPage() {
       setBusy(false)
       return
     }
-    await deleteImage(item!.image_path)
+    await deleteImages(item!.image_path, item!.icon_path)
     await reload()
     navigate('/')
+  }
+
+  async function fetchIcon() {
+    if (!img) return
+    setBusy(true)
+    setError(null)
+    try {
+      const blob = await compressImage(await (await fetch(img)).blob())
+      const parsed = await parseImage(blob)
+      if (!parsed.icon_box) throw new Error('Hittade ingen ikon i bilden')
+      const icon_path = await uploadImage(await cropIcon(blob, parsed.icon_box), '-icon')
+      await supabase.from('items').update({ icon_path }).eq('id', item!.id)
+      await deleteImages(item!.icon_path)
+      await reload()
+    } catch (e) {
+      setError((e as Error).message)
+    }
+    setBusy(false)
   }
 
   const img = imageUrl(item.image_path)
@@ -111,7 +129,7 @@ export function ItemPage() {
       <Link to="/" className="back">← Förrådet</Link>
       <div className="item-layout">
         <div className="item-layout__main">
-          <ItemTooltip item={editing && draft ? draft : item} />
+          <ItemTooltip item={editing && draft ? draft : item} iconUrl={imageUrl(item.icon_path)} />
           {img && (
             <a href={img} target="_blank" rel="noreferrer" title="Öppna originalbild">
               <img className="shot" src={img} alt={`Screenshot av ${item.name}`} />
@@ -191,6 +209,11 @@ export function ItemPage() {
           ) : (
             <div className="actions">
               <button className="btn" onClick={() => { setDraft({ ...item }); setEditing(true) }}>Redigera</button>
+              {img && (
+                <button className="btn btn--ghost" disabled={busy} onClick={fetchIcon}>
+                  {item.icon_path ? 'Läs om ikonen' : 'Hämta ikon ur bilden'}
+                </button>
+              )}
               <button className="btn btn--danger" disabled={busy} onClick={remove}>Ta bort</button>
             </div>
           )}

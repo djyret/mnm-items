@@ -1,7 +1,6 @@
 import { useMemo } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { HolderBadge, StatusBadge } from '../components/Badges'
-import { ItemTooltip } from '../components/ItemTooltip'
+import { ItemCard } from '../components/ItemCard'
 import { CLASSES, SLOTS } from '../lib/constants'
 import { canUse, isNoDrop, itemScore } from '../lib/items'
 import { useStore } from '../lib/store'
@@ -71,15 +70,7 @@ export function AltVy() {
         <section key={slot} className="slot-group">
           <h2 className="slot-group__title">{slot} <small>{list.length}</small></h2>
           <div className="grid">
-            {list.map((i) => (
-              <Link key={i.id} to={`/item/${i.id}`} className={`card${i.holder_id === char!.id ? ' card--own' : ''}`}>
-                <ItemTooltip item={i} compact />
-                <div className="card__meta">
-                  <HolderBadge item={i} />
-                  <StatusBadge item={i} />
-                </div>
-              </Link>
-            ))}
+            {list.map((i) => <ItemCard key={i.id} item={i} own={i.holder_id === char!.id} />)}
           </div>
         </section>
       ))}

@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { HolderBadge, NoDropBadge, StatusBadge } from '../components/Badges'
-import { ItemTooltip } from '../components/ItemTooltip'
+import { ItemCard } from '../components/ItemCard'
 import { CLASSES, SLOTS, STATUSES, STATUS_LABELS, STAT_LABELS, statLabel, weaponRatio } from '../lib/constants'
 import { isNoDrop, itemScore } from '../lib/items'
 import { useStore } from '../lib/store'
@@ -180,16 +179,7 @@ export function Forrad() {
           </div>
         )}
         <div className="grid">
-          {filtered.map((i) => (
-            <Link key={i.id} to={`/item/${i.id}`} className="card">
-              <ItemTooltip item={i} compact />
-              <div className="card__meta">
-                <HolderBadge item={i} />
-                <StatusBadge item={i} />
-                <NoDropBadge item={i} />
-              </div>
-            </Link>
-          ))}
+          {filtered.map((i) => <ItemCard key={i.id} item={i} />)}
         </div>
       </section>
     </div>

@@ -27,6 +27,7 @@ export interface Item {
   races: string[]
   extra_lines: string[]
   image_path: string | null
+  icon_path: string | null
   holder_id: string | null
   status: Status
   lent_to_id: string | null
@@ -62,4 +63,5 @@ export interface ParsedItem {
   classes: string[]
   races: string[]
   extra_lines: string[]
+  icon_box?: { x: number; y: number; width: number; height: number } | null
 }

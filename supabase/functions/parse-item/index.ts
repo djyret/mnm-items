@@ -16,7 +16,7 @@ const SCHEMA = {
   additionalProperties: false,
   required: [
     "name", "flags", "slots", "ac", "stats", "effect", "description",
-    "weight", "size", "classes", "races", "extra_lines",
+    "weight", "size", "classes", "races", "extra_lines", "icon_box",
   ],
   properties: {
     name: { type: "string", description: "Itemnamn i normal skiftläge, t.ex. 'Robe of the Undying Scholar'" },
@@ -39,6 +39,16 @@ const SCHEMA = {
     size: { type: ["string", "null"] },
     classes: { type: "array", items: { type: "string" }, description: "Klasskoder ENDAST från raden som börjar med 'Class:', eller ['ALL']. Tom lista om raden inte syns. 'Skill:' är vapentyp, inte klass." },
     races: { type: "array", items: { type: "string" }, description: "Från 'Race:', eller ['ALL']" },
+    icon_box: {
+      type: ["object", "null"],
+      description: "Pixelruta runt itemets lilla ikon (bilden till vänster om textraderna, under rubriken). null om ingen ikon syns.",
+      additionalProperties: false,
+      required: ["x", "y", "width", "height"],
+      properties: {
+        x: { type: "integer" }, y: { type: "integer" },
+        width: { type: "integer" }, height: { type: "integer" },
+      },
+    },
     extra_lines: { type: "array", items: { type: "string" }, description: "Information som inte passar i något annat fält, t.ex. 'Skill: BLG' för vapen. Upprepa aldrig sådant som redan finns i andra fält." },
   },
 };
@@ -52,7 +62,7 @@ Deno.serve(async (req) => {
   if (req.method !== "POST") return json({ error: "Endast POST" }, 405);
 
   try {
-    const { image, media_type } = await req.json();
+    const { image, media_type, width, height } = await req.json();
     if (typeof image !== "string" || image.length === 0) return json({ error: "Bild saknas" }, 400);
     if (image.length > 7_000_000) return json({ error: "Bilden är för stor" }, 413);
     const mediaType = ["image/png", "image/jpeg", "image/webp", "image/gif"].includes(media_type)
@@ -68,7 +78,13 @@ Deno.serve(async (req) => {
         role: "user",
         content: [
           { type: "image", source: { type: "base64", media_type: mediaType, data: image } },
-          { type: "text", text: PROMPT },
+          {
+            type: "text",
+            text: width && height
+              ? `${PROMPT}
+Bilden är ${width}×${height} pixlar; ange icon_box i de koordinaterna (origo uppe till vänster).`
+              : PROMPT,
+          },
         ],
       }],
     });
