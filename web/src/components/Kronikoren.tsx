@@ -3,7 +3,8 @@ import { kronikaUrl, writeChronicle, type ChronicleDraft, type SceneDraft } from
 import { supabase } from '../lib/supabase'
 import type { CastMember, Chapter, Entry } from '../lib/types'
 
-const draftKey = (id: string) => `mnm:kronikor:${id}`
+// Versionen höjs när krönikören ändras, så gamla sparade utkast inte dyker upp igen
+const draftKey = (id: string) => `mnm:kronikor:v2:${id}`
 
 function readDraft(id: string): ChronicleDraft | null {
   try {
