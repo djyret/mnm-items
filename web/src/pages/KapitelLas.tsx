@@ -244,7 +244,10 @@ export function KapitelLas() {
     <div className="page kr-read">
       <div className="kr-read__top">
         <Link to="/kronikan" className="back"><Icon name="vanster" size={14} /> Krönikan</Link>
-        <ChapterTabs id={id} />
+        <span className="kr-read__actions">
+          <Link to={`/kronikan/${id}/bildspel`} className="btn btn--small"><Icon name="spela" size={14} /> Spela upp</Link>
+          <ChapterTabs id={id} />
+        </span>
       </div>
 
       <div className="kr-wood">

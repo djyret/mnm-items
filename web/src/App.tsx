@@ -10,6 +10,7 @@ import { Salda } from './pages/Salda'
 import { Hjalp } from './pages/Hjalp'
 import { Kapitel } from './pages/Kapitel'
 import { KapitelLas } from './pages/KapitelLas'
+import { Bildspel } from './pages/Bildspel'
 import { Kronikan } from './pages/Kronikan'
 import { Stilbibel } from './pages/Stilbibel'
 
@@ -58,6 +59,7 @@ function Shell() {
           <Route path="/kronikan/stil" element={<Stilbibel />} />
           <Route path="/kronikan/:id" element={<KapitelLas />} />
           <Route path="/kronikan/:id/verkstad" element={<Kapitel />} />
+          <Route path="/kronikan/:id/bildspel" element={<Bildspel />} />
           <Route path="/hjalp" element={<Hjalp />} />
         </Routes>
       </main>

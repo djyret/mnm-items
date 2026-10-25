@@ -7,6 +7,7 @@ const PATHS = {
   upp: 'M5 15l7-7 7 7',
   ner: 'M5 9l7 7 7-7',
   plus: 'M12 5v14M5 12h14',
+  paus: 'M8 5v14M16 5v14',
 }
 
 export function Icon({ name, size = 18 }: { name: keyof typeof PATHS; size?: number }) {
