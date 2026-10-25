@@ -416,3 +416,6 @@ enabled = true
 
 [functions.parse-item]
 verify_jwt = false
+
+[functions.berattelse]
+verify_jwt = false

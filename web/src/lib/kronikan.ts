@@ -1,5 +1,5 @@
 import { compressImage } from './items'
-import { supabase } from './supabase'
+import { SUPABASE_KEY, SUPABASE_URL, supabase } from './supabase'
 import type { CastMember, Chapter, Entry, EntryKind, Quote } from './types'
 
 export const KRONIKA_BUCKET = 'kronikan'
@@ -91,6 +91,7 @@ export interface PromptInput {
   quotes: Quote[]
   cast_names: string[]
   pet_names: Record<string, string>
+  source_ids: string[]
   subzone: string | null
 }
 
@@ -118,6 +119,9 @@ export function buildPrompt(style: string, chapter: Pick<Chapter, 'zone' | 'subz
     }
   }
   parts.push('', `SCENE: ${moment.caption?.trim() || '(describe what happens)'}`)
+  if (moment.source_ids.length) {
+    parts.push('Also attached: in-game screenshots of the real moment. Use them for the location, layout, enemies and composition, redrawn in the style above.')
+  }
   if (quotes.length) {
     parts.push('', 'SPEECH BUBBLES (exact text, keep the Swedish):')
     for (const q of quotes) parts.push(`- ${q.who ? `${q.who} says` : 'Caption'}: "${q.text.trim()}"`)
@@ -125,6 +129,39 @@ export function buildPrompt(style: string, chapter: Pick<Chapter, 'zone' | 'subz
     parts.push('', 'No speech bubbles.')
   }
   return parts.join('\n')
+}
+
+// ---------- Krönikören ----------
+
+export interface SceneDraft {
+  title: string
+  caption: string
+  cast_names: string[]
+  pet_names: Record<string, string>
+  quotes: Quote[]
+  subzone: string | null
+  source_ids: string[]
+  why: string
+}
+
+export interface ChronicleDraft {
+  title: string
+  summary: string
+  story: string
+  captions: { entry_id: string; caption: string }[]
+  scenes: SceneDraft[]
+}
+
+/** Låter Claude läsa kapitlets minnen och skriva ett utkast (Edge Function berattelse). */
+export async function writeChronicle(chapterId: string): Promise<ChronicleDraft> {
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/berattelse`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', apikey: SUPABASE_KEY },
+    body: JSON.stringify({ chapter_id: chapterId }),
+  })
+  const body = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(body.error ?? `Krönikören svarade inte (${res.status})`)
+  return body.draft as ChronicleDraft
 }
 
 // ---------- Datum ----------

@@ -6,19 +6,20 @@ import {
 } from '../lib/kronikan'
 import { supabase } from '../lib/supabase'
 import type { CastMember, Chapter, Entry, EntryKind, Quote } from '../lib/types'
+import { Kronikoren } from '../components/Kronikoren'
 import { MissingSetup } from './Kronikan'
 
-type EntryDraft = Pick<Entry, 'kind' | 'image_path' | 'caption' | 'quotes' | 'cast_names' | 'pet_names' | 'subzone' | 'url'>
+type EntryDraft = Pick<Entry, 'kind' | 'image_path' | 'caption' | 'quotes' | 'cast_names' | 'pet_names' | 'source_ids' | 'subzone' | 'url'>
 
 const blankMoment = (): EntryDraft => ({
-  kind: 'serie', image_path: null, caption: null, quotes: [], cast_names: [], pet_names: {}, subzone: null, url: null,
+  kind: 'serie', image_path: null, caption: null, quotes: [], cast_names: [], pet_names: {}, source_ids: [], subzone: null, url: null,
 })
 
 const toggle = (list: string[], v: string) => (list.includes(v) ? list.filter((x) => x !== v) : [...list, v])
 
 // ---------- Bildprompt ----------
 
-function PromptBox({ prompt, people }: { prompt: string; people: CastMember[] }) {
+function PromptBox({ prompt, people, sources }: { prompt: string; people: CastMember[]; sources: Entry[] }) {
   const [copied, setCopied] = useState(false)
   const refs = people.filter((c) => c.ref_path)
   const missing = people.filter((c) => !c.ref_path)
@@ -39,6 +40,18 @@ function PromptBox({ prompt, people }: { prompt: string; people: CastMember[] })
         </button>
       </div>
       <textarea readOnly rows={10} value={prompt} onFocus={(e) => e.target.select()} />
+      {sources.some((e) => e.image_path) && (
+        <div className="kr-prompt__refs">
+          <span className="chips__label">Skärmdumpar från ögonblicket – dra in dem också:</span>
+          <div className="kr-refs kr-refs--wide">
+            {sources.filter((e) => e.image_path).map((e) => (
+              <a key={e.id} href={kronikaUrl(e.image_path)!} target="_blank" rel="noreferrer">
+                <img src={kronikaUrl(e.image_path)!} alt={e.caption ?? ''} />
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
       {people.length > 0 && (
         <div className="kr-prompt__refs">
           <span className="chips__label">Dra in referensbilderna i ChatGPT tillsammans med prompten:</span>
@@ -63,13 +76,14 @@ function PromptBox({ prompt, people }: { prompt: string; people: CastMember[] })
 
 // ---------- Redigera ett minne ----------
 
-function EntryEditor({ draft, onChange, chapter, cast, petNames, style, uploading, onSave, onCancel, saving, isNew }: {
+function EntryEditor({ draft, onChange, chapter, cast, petNames, sources, style, uploading, onSave, onCancel, saving, isNew }: {
   draft: EntryDraft
   onChange: (d: EntryDraft) => void
   chapter: Chapter
   cast: CastMember[]
   /** Senast använda namn per husdjur i kapitlet */
   petNames: Record<string, string>
+  sources: Entry[]
   style: string
   uploading: boolean
   onSave: () => void
@@ -179,7 +193,7 @@ function EntryEditor({ draft, onChange, chapter, cast, petNames, style, uploadin
         </label>
       )}
 
-      {draft.kind === 'serie' && <PromptBox prompt={buildPrompt(style, chapter, draft, cast)} people={people} />}
+      {draft.kind === 'serie' && <PromptBox prompt={buildPrompt(style, chapter, draft, cast)} people={people} sources={sources} />}
 
       <div className="actions">
         <button className="btn btn--primary" onClick={onSave} disabled={saving || uploading}>{saving ? 'Sparar…' : isNew ? 'Spara minnet' : 'Spara'}</button>
@@ -251,7 +265,7 @@ function EntryView({ entry, chapter, cast, isCover, first, last, onEdit, onMove,
 
 // ---------- Kapitelsidan ----------
 
-type ChapterDraft = Pick<Chapter, 'title' | 'played_on' | 'zone' | 'subzone' | 'summary'>
+type ChapterDraft = Pick<Chapter, 'title' | 'played_on' | 'zone' | 'subzone' | 'summary' | 'story'>
 
 export function Kapitel() {
   const { id } = useParams()
@@ -351,7 +365,7 @@ export function Kapitel() {
   function startEdit(e: Entry | null) {
     if (editing === 'ny' && draft.image_path) deleteKronika(draft.image_path)
     setEditing(e ? e.id : 'ny')
-    setDraft(e ? { kind: e.kind, image_path: e.image_path, caption: e.caption, quotes: e.quotes, cast_names: e.cast_names, pet_names: e.pet_names ?? {}, subzone: e.subzone, url: e.url } : blankMoment())
+    setDraft(e ? { kind: e.kind, image_path: e.image_path, caption: e.caption, quotes: e.quotes, cast_names: e.cast_names, pet_names: e.pet_names ?? {}, source_ids: e.source_ids ?? [], subzone: e.subzone, url: e.url } : blankMoment())
   }
 
   function cancelEdit() {
@@ -419,7 +433,8 @@ export function Kapitel() {
   const petNames: Record<string, string> = Object.assign({}, ...entries.map((e) => e.pet_names ?? {}))
 
   const editorProps = {
-    draft, onChange: setDraft, chapter, cast, petNames, style, uploading: uploads > 0, saving,
+    draft, onChange: setDraft, chapter, cast, petNames, style,
+    sources: entries.filter((e) => draft.source_ids.includes(e.id)), uploading: uploads > 0, saving,
     onSave: saveEntry, onCancel: cancelEdit,
   }
 
@@ -447,6 +462,7 @@ export function Kapitel() {
           <label className="field"><span>Zon</span><input value={head.zone ?? ''} onChange={(e) => setHead({ ...head, zone: e.target.value || null })} /></label>
           <label className="field"><span>Delområde</span><input value={head.subzone ?? ''} onChange={(e) => setHead({ ...head, subzone: e.target.value || null })} /></label>
           <label className="field field--wide"><span>Sammanfattning</span><textarea rows={3} value={head.summary ?? ''} onChange={(e) => setHead({ ...head, summary: e.target.value || null })} placeholder="Kvällen i några meningar" /></label>
+          <label className="field field--wide"><span>Berättelsen</span><textarea rows={12} value={head.story ?? ''} onChange={(e) => setHead({ ...head, story: e.target.value || null })} placeholder="Stycken separeras med en tom rad" /></label>
           <div className="actions field--wide">
             <button className="btn btn--primary">Spara</button>
             <button type="button" className="btn btn--ghost" onClick={() => setHead(null)}>Avbryt</button>
@@ -459,10 +475,18 @@ export function Kapitel() {
           <h1 className="page-title">{chapter.title}</h1>
           {chapter.zone && <div className="kr-plaque">{chapter.zone}{chapter.subzone && <small>{chapter.subzone}</small>}</div>}
           {chapter.summary && <p className="help-intro">{chapter.summary}</p>}
-          <button className="btn btn--small btn--ghost" onClick={() => setHead({ title: chapter.title, played_on: chapter.played_on, zone: chapter.zone, subzone: chapter.subzone, summary: chapter.summary })}>
+          <button className="btn btn--small btn--ghost" onClick={() => setHead({ title: chapter.title, played_on: chapter.played_on, zone: chapter.zone, subzone: chapter.subzone, summary: chapter.summary, story: chapter.story })}>
             Redigera kapitlet
           </button>
         </header>
+      )}
+
+      {chapter.story && !head && (
+        <article className="panel kr-story">
+          <h2 className="panel-title">Berättelsen</h2>
+          {/* Krönikörens hänvisningar som (#3) behövs inte i läsvyn */}
+          {chapter.story.split(/\n\s*\n/).map((p, i) => <p key={i}>{p.replace(/\s*\(#[\d,\s#–-]+\)/g, '')}</p>)}
+        </article>
       )}
 
       {error && <div className="alert">{error}</div>}
@@ -482,6 +506,8 @@ export function Kapitel() {
           <small className="note">Beskriv en scen, få en färdig prompt till ChatGPT och klistra in bilden när den är klar.</small>
         </div>
       </div>
+
+      <Kronikoren chapter={chapter} entries={entries} cast={cast} onChanged={load} />
 
       {editing === 'ny' && (
         <div className="panel">

@@ -1299,7 +1299,40 @@ input:not([type='checkbox']), select { min-height: var(--ctl-h); }
 .kr-ref--empty { border: 2px dashed var(--bronze); }
 input[type='color'] { padding: 2px; height: var(--ctl-h, 2.4rem); cursor: pointer; }
 
+/* Berättelsen och krönikören */
+.kr-story { max-width: 860px; margin: 0 auto 1.2rem; padding: 1.2rem 1.6rem 1rem; }
+.kr-story p { font-size: 1.12rem; line-height: 1.6; margin: 0 0 0.9rem; }
+.kr-story p:first-of-type::first-letter {
+  float: left;
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 3.2em;
+  line-height: 0.9;
+  padding: 0.08em 0.12em 0 0;
+  color: var(--gold);
+  text-shadow: 0 2px 2px #000;
+}
+.kr-writer { margin-bottom: 1.2rem; }
+.kr-writer__intro { display: flex; gap: 1.2rem; align-items: center; justify-content: space-between; }
+.kr-writer__intro .note { margin: 0; font-style: normal; }
+.kr-writer__intro .btn { flex: 0 0 auto; }
+.kr-suggest { display: flex; flex-direction: column; gap: 0.7rem; }
+.kr-suggest__row { display: grid; grid-template-columns: 140px minmax(0, 1fr) auto; gap: 0.8rem; align-items: start; }
+.kr-suggest__row .guide__label { padding-top: 0.55rem; }
+.kr-suggest__row .note { margin: 0.4rem 0 0; }
+.kr-suggest__row .btn, .kr-suggest__row .badge { margin-top: 0.25rem; }
+.kr-scenes-title { margin: 1.2rem 0 0.6rem; }
+.kr-scenes { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(380px, 100%), 1fr)); gap: 0.9rem; }
+.kr-scene { display: flex; flex-direction: column; gap: 0.4rem; padding: 0.75rem 0.9rem; border: 1px solid #4a4237; border-radius: var(--radius); background: rgba(15, 13, 10, 0.55); }
+.kr-scene__head { display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; }
+.kr-scene__head b { font-family: var(--font-title); font-size: 1.05rem; color: #f0e4c8; }
+.kr-scene .note { margin: 0; }
+.kr-refs--wide img { width: 150px; height: 100px; }
+
 @media (max-width: 900px) {
+  .kr-writer__intro { flex-direction: column; align-items: stretch; }
+  .kr-suggest__row { grid-template-columns: 1fr; gap: 0.3rem; }
+  .kr-suggest__row .guide__label { padding-top: 0; }
   .kr-timeline::before, .kr-timeline__item::before { display: none; }
   .kr-timeline__item { grid-template-columns: 1fr; gap: 0.4rem; }
   .kr-timeline__date { text-align: left; flex-direction: row; gap: 0.5rem; align-items: baseline; }

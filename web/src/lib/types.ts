@@ -87,6 +87,8 @@ export interface Chapter {
   zone: string | null
   subzone: string | null
   summary: string | null
+  /** Kvällens berättelse, stycken separerade med tom rad */
+  story: string | null
   cover_id: string | null
   created_at: string
   updated_at: string
@@ -102,6 +104,8 @@ export interface Entry {
   cast_names: string[]
   /** Husdjur heter olika vid varje summon: {"Vattenelementalen":"Nauturdis"} */
   pet_names: Record<string, string>
+  /** Skärmdumpar ett ögonblick bygger på */
+  source_ids: string[]
   subzone: string | null
   url: string | null
   position: number
