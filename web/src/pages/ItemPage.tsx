@@ -10,6 +10,7 @@ import { compressImage, cropIcon, deleteImages, logEvent, parseImage, uploadImag
 import { useStore } from '../lib/store'
 import { imageUrl, supabase } from '../lib/supabase'
 import type { Item, ItemDraft, ItemEvent } from '../lib/types'
+import { Icon } from '../components/Icon'
 
 const EVENT_TEXT: Record<string, string> = {
   skapad: 'Lades till',
@@ -145,7 +146,7 @@ export function ItemPage() {
 
   return (
     <div className="page">
-      <Link to="/" className="back">← Förrådet</Link>
+      <Link to="/" className="back"><Icon name="vanster" size={14} /> Förrådet</Link>
       <div className="item-layout">
         <div className="item-layout__main">
           <ItemTooltip item={editing && draft ? draft : item} iconUrl={imageUrl(item.icon_path)} />

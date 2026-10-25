@@ -4,6 +4,7 @@ import { ROLE_LABELS, deleteKronika, imageFiles, kronikaUrl, loadCastAndStyle, m
 import { supabase } from '../lib/supabase'
 import type { CastMember } from '../lib/types'
 import { MissingSetup } from './Kronikan'
+import { Icon } from '../components/Icon'
 
 type CastDraft = Pick<CastMember, 'name' | 'role' | 'tag_color' | 'look' | 'ref_path'>
 
@@ -146,7 +147,7 @@ export function Stilbibel() {
 
   return (
     <div className="page">
-      <Link to="/kronikan" className="back">← Krönikan</Link>
+      <Link to="/kronikan" className="back"><Icon name="vanster" size={14} /> Krönikan</Link>
       <h1 className="page-title">Stilbibel</h1>
       <p className="help-intro">
         Det här håller seriebilderna lika från gång till gång. Varje bildprompt byggs av stilen nedan plus

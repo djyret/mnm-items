@@ -5,6 +5,7 @@ import { imageUrl } from '../lib/supabase'
 import type { Item } from '../lib/types'
 import { ItemTooltip } from './ItemTooltip'
 import { Money } from './Money'
+import { Icon } from './Icon'
 
 export function PersonIcon() {
   return (
@@ -70,7 +71,7 @@ export function ItemCard({ item, own = false, selected, onSelect }: {
             : item.price_cp != null && <span title="Riktpris"><Money cp={item.price_cp} /></span>}
           <span className={`badge badge--${item.status}`}>
             {STATUS_LABELS[item.status]}
-            {target ? ` → ${target}` : ''}
+            {target && <><Icon name="hoger" size={12} /> {target}</>}
           </span>
         </span>
       </div>

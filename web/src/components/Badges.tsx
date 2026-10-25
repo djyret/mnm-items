@@ -1,6 +1,7 @@
 import { STATUS_LABELS } from '../lib/constants'
 import { useStore } from '../lib/store'
 import type { Item } from '../lib/types'
+import { Icon } from './Icon'
 
 export function StatusBadge({ item }: { item: Item }) {
   const { charById } = useStore()
@@ -13,7 +14,7 @@ export function StatusBadge({ item }: { item: Item }) {
   return (
     <span className={`badge badge--${item.status}`}>
       {STATUS_LABELS[item.status]}
-      {target ? ` → ${target}` : ''}
+      {target && <><Icon name="hoger" size={12} /> {target}</>}
     </span>
   )
 }

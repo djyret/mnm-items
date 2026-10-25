@@ -6,6 +6,7 @@ import { CLASSES, SLOTS, STATUSES, STATUS_LABELS, STAT_LABELS, statLabel, weapon
 import { itemScore } from '../lib/items'
 import { useStore } from '../lib/store'
 import type { Item } from '../lib/types'
+import { Icon } from '../components/Icon'
 
 type Sort = 'nyast' | 'namn' | 'ac' | 'poang' | 'ratio' | 'pris' | `stat:${string}`
 
@@ -124,7 +125,7 @@ export function Forrad() {
                 value={v}
                 onChange={(e) => setMins(mins.map((m, j) => (j === idx ? [k, Number(e.target.value) || 0] : m)))}
               />
-              <button className="icon-btn" aria-label="Ta bort" onClick={() => setMins(mins.filter((_, j) => j !== idx))}>×</button>
+              <button className="icon-btn" aria-label="Ta bort" onClick={() => setMins(mins.filter((_, j) => j !== idx))}><Icon name="stang" size={14} /></button>
             </div>
           ))}
           <select

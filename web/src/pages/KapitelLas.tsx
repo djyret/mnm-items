@@ -240,7 +240,7 @@ export function KapitelLas() {
   return (
     <div className="page kr-read">
       <div className="kr-read__top">
-        <Link to="/kronikan" className="back kr-back"><Icon name="vanster" size={14} /> Krönikan</Link>
+        <Link to="/kronikan" className="back"><Icon name="vanster" size={14} /> Krönikan</Link>
         <ChapterTabs id={id} />
       </div>
 

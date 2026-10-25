@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { slotIcon } from '../lib/constants'
+import { Icon } from '../components/Icon'
 
 const MENU = `${import.meta.env.BASE_URL}ikoner/meny/`
 const ICON = `${import.meta.env.BASE_URL}ikoner/`
@@ -163,7 +164,7 @@ export function Hjalp() {
   if (amne) {
     return (
       <div className="page help">
-        <button type="button" className="btn btn--ghost" onClick={() => visa(null)}>← Tillbaka till alla ämnen</button>
+        <button type="button" className="btn btn--ghost" onClick={() => visa(null)}><Icon name="vanster" size={16} /> Tillbaka till alla ämnen</button>
         <div className="panel help-topic">
           <div className="help-topic__head">
             <img src={amne.bild} alt="" />
@@ -183,7 +184,7 @@ export function Hjalp() {
             </div>
           )}
         </div>
-        <button type="button" className="btn btn--ghost" onClick={() => visa(null)}>← Tillbaka till alla ämnen</button>
+        <button type="button" className="btn btn--ghost" onClick={() => visa(null)}><Icon name="vanster" size={16} /> Tillbaka till alla ämnen</button>
       </div>
     )
   }

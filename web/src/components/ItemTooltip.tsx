@@ -1,5 +1,6 @@
 import { STAT_GROUPS, STAT_HELP, slotIcon, statLabel, weaponRatio } from '../lib/constants'
 import type { ItemDraft } from '../lib/types'
+import { Icon } from './Icon'
 
 const fmt = (v: number) => (v > 0 ? `+${v}` : `${v}`)
 
@@ -31,7 +32,7 @@ export function ItemTooltip({ item, compact = false, iconUrl }: {
       <div className="tooltip__title">
         <span className="tooltip__grip" aria-hidden />
         <span className="tooltip__name">{item.name || 'Namnlöst item'}</span>
-        <span className="tooltip__x" aria-hidden>✕</span>
+        <span className="tooltip__x" aria-hidden><Icon name="stang" size={10} /></span>
       </div>
       <div className="tooltip__body">
         <ItemIcon src={iconUrl} slot={item.slots[0]} size={compact ? 'sm' : 'md'} />

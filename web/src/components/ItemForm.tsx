@@ -4,6 +4,7 @@ import { ClassIcon } from './ClassIcon'
 import { PriceInput } from './Money'
 import { useStore } from '../lib/store'
 import type { ItemDraft } from '../lib/types'
+import { Icon } from './Icon'
 
 type Props = { draft: ItemDraft; onChange: (d: ItemDraft) => void }
 
@@ -95,7 +96,7 @@ function ClassMultiPicker({ value, onChange }: { value: string[]; onChange: (v: 
           Okänd klasskod från avläsningen – klicka för att ta bort:
           {unknown.map((u) => (
             <button key={u} type="button" className="chip chip--warn" onClick={() => onChange(value.filter((v) => v !== u))}>
-              {u} ×
+              {u} <Icon name="stang" size={12} />
             </button>
           ))}
         </small>
@@ -184,7 +185,7 @@ export function ItemFields({ draft, onChange }: Props) {
                   set('stats', rest)
                 }}
               >
-                ×
+                <Icon name="stang" size={14} />
               </button>
             </label>
           ))}

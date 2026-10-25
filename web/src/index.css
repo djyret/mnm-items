@@ -41,14 +41,13 @@
 html, body { margin: 0; }
 /* Reservera alltid plats för rullisten så sidan inte hoppar i sidled */
 html { scrollbar-gutter: stable; }
-body { overflow-x: hidden; }
-
+/* Tavernabakgrund bakom hela sidan */
 body {
+  overflow-x: hidden;
   background:
-    radial-gradient(ellipse 70% 45% at 50% 0%, rgba(224, 140, 70, 0.16), transparent 70%),
-    radial-gradient(ellipse 120% 80% at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.7) 100%),
-    linear-gradient(180deg, #1a1510, var(--bg) 40%);
-  background-attachment: fixed;
+    radial-gradient(ellipse 55% 70% at 50% 45%, rgba(18, 15, 11, 0.55), transparent 80%),
+    url('/bilder/bakgrund.webp') center top / cover fixed,
+    var(--bg);
   color: var(--text);
   font-family: var(--font-body);
   font-size: 18px;
@@ -115,66 +114,11 @@ kbd {
   gap: 0.7rem;
   margin-top: 1.1rem;
 }
-.menu-btn, .btn {
+.btn {
   --frame-metal: var(--iron-metal);
   --frame-rivet: var(--rivet);
   --face: linear-gradient(rgba(70, 72, 64, 0.25), rgba(30, 30, 27, 0.35)), var(--stone) center / 260px auto;
 }
-.menu-btn {
-  display: flex;
-  align-items: stretch;
-  gap: 5px;
-  padding: 7px;
-  min-width: 178px;
-  text-decoration: none;
-  background:
-    var(--frame-rivet) 2px 2px / 9px no-repeat,
-    var(--frame-rivet) calc(100% - 2px) 2px / 9px no-repeat,
-    var(--frame-rivet) 2px calc(100% - 2px) / 9px no-repeat,
-    var(--frame-rivet) calc(100% - 2px) calc(100% - 2px) / 9px no-repeat,
-    var(--frame-metal);
-  border: 1px solid #111;
-  border-radius: 2px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), inset 0 -1px 0 rgba(0, 0, 0, 0.5), 0 4px 10px rgba(0, 0, 0, 0.6);
-  transition: filter 0.12s, transform 0.12s;
-}
-.menu-btn__icon {
-  flex: 0 0 auto;
-  width: 44px;
-  height: 44px;
-  background: #1a1916;
-  border: 1px solid #0d0c0a;
-  box-shadow: inset 0 0 0 1px #77736a, inset 0 0 8px rgba(0, 0, 0, 0.9);
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-}
-.menu-btn__icon img { width: 100%; height: 100%; object-fit: cover; }
-.menu-btn__label {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 0.9rem;
-  font-family: var(--font-title);
-  font-weight: 700;
-  font-variant: small-caps;
-  font-size: 1.12rem;
-  letter-spacing: 0.04em;
-  color: #f1ece1;
-  text-shadow: 0 1px 2px #000, 0 0 6px rgba(0, 0, 0, 0.6);
-  background: var(--face);
-  border: 1px solid #0d0c0a;
-  box-shadow: inset 0 0 0 1px #77736a, inset 0 0 10px rgba(0, 0, 0, 0.55);
-}
-.menu-btn:hover { filter: brightness(1.15); transform: translateY(-1px); }
-.menu-btn.active { --frame-metal: var(--gold-metal); --frame-rivet: var(--rivet-gold); }
-.menu-btn.active .menu-btn__label {
-  color: #fff6df;
-  background: linear-gradient(rgba(120, 100, 70, 0.3), rgba(60, 48, 30, 0.35)), var(--stone) center / 260px auto;
-  box-shadow: inset 0 0 0 1px #e0b872, inset 0 0 10px rgba(0, 0, 0, 0.45);
-}
-.menu-btn.active .menu-btn__icon { box-shadow: inset 0 0 0 1px #e0b872, inset 0 0 8px rgba(0, 0, 0, 0.9); }
 
 /* Vanliga knappar i samma stil, utan ikon */
 .btn {
@@ -209,14 +153,6 @@ kbd {
 .btn:active { filter: brightness(0.92); }
 .btn:disabled { opacity: 0.45; cursor: default; filter: none; }
 .btn--primary { --frame-metal: var(--gold-metal); --frame-rivet: var(--rivet-gold); color: #fff6df; }
-.btn--danger { --face: linear-gradient(rgba(140, 40, 28, 0.55), rgba(80, 20, 14, 0.6)), var(--stone) center / 260px auto; }
-.btn--ghost {
-  --frame-metal: linear-gradient(180deg, #4a4741, #2c2a26);
-  --frame-rivet: none;
-  --face: rgba(15, 13, 10, 0.75);
-  color: var(--text-dim);
-  font-weight: 500;
-}
 .btn--danger-text { color: #e59a8c; }
 .btn--small { padding: 0.25rem 0.75rem 0.3rem; font-size: 0.88rem; }
 .icon-btn {
@@ -266,7 +202,7 @@ kbd {
   border-radius: var(--radius);
   margin-bottom: 1rem;
 }
-.back { display: inline-block; margin-bottom: 0.75rem; text-decoration: none; font-family: var(--font-title); font-size: 0.85rem; letter-spacing: 0.06em; }
+.back { display: inline-flex; align-items: center; gap: 0.35rem; margin-bottom: 0.75rem; text-decoration: none; font-family: var(--font-title); font-size: 0.85rem; letter-spacing: 0.06em; }
 
 .site-foot {
   display: flex;
@@ -352,11 +288,11 @@ textarea { resize: vertical; }
 
 /* ---------- Tooltip som i spelet ---------- */
 .tooltip {
-  border: 3px solid #5d5952;
-  outline: 2px solid #1b1a17;
-  box-shadow: inset 0 0 0 1px #8b867c, 0 6px 16px rgba(0, 0, 0, 0.55);
-  background: #4d4c46;
-  border-radius: 2px;
+  /* Järnram + sten ur en bild (9-slice) */
+  border-style: solid;
+  border-width: 13px 9px 11px;
+  border-image: url('/bilder/item-ram.webp') 60 38 50 37 fill / 13px 9px 11px stretch;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.55));
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -372,8 +308,9 @@ textarea { resize: vertical; }
   font-size: 1.25rem;
   color: var(--stone-text);
   padding: 0.25rem 0.35rem;
-  background: linear-gradient(180deg, #78746b, #4a4740 55%, #3d3a34);
-  border-bottom: 2px solid #2a2824;
+  background: linear-gradient(180deg, rgba(20, 20, 18, 0.55), rgba(20, 20, 18, 0.25));
+  border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08);
   text-shadow: 0 1px 2px #000;
 }
 .tooltip__name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -397,9 +334,6 @@ textarea { resize: vertical; }
   font-size: 1.02rem;
   line-height: 1.55;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.75);
-  background:
-    linear-gradient(rgba(60, 60, 54, 0.3), rgba(40, 40, 36, 0.4)),
-    var(--stone) center / cover no-repeat;
 }
 .tooltip__lines { flex: 1; min-width: 0; }
 .tooltip__ac { font-weight: 600; }
@@ -608,9 +542,6 @@ textarea { resize: vertical; }
   .filters, .new-layout__preview, .item-layout__main { position: static; max-height: none; }
   .grid { grid-template-columns: 1fr; }
   .nav { gap: 0.45rem; }
-  .menu-btn { min-width: 0; flex: 1 1 calc(50% - 0.5rem); padding: 5px; }
-  .menu-btn__icon { width: 36px; height: 36px; }
-  .menu-btn__label { font-size: 0.95rem; padding: 0 0.5rem; }
 }
 
 /* ---------- Klassikoner ---------- */
@@ -689,13 +620,6 @@ textarea { resize: vertical; }
 .slot-group__title img { width: 34px; height: 34px; object-fit: contain; filter: drop-shadow(0 1px 2px #000); }
 .item-icon img.item-icon__slot { object-fit: contain; padding: 12%; opacity: 0.45; filter: grayscale(0.4); }
 
-/* Tavernabakgrund bakom hela sidan */
-body {
-  background:
-    radial-gradient(ellipse 55% 70% at 50% 45%, rgba(18, 15, 11, 0.55), transparent 80%),
-    url('/bilder/bakgrund.webp') center top / cover fixed,
-    var(--bg);
-}
 @media (max-width: 900px) {
   body { background-attachment: scroll; background-size: auto 100vh; }
 }
@@ -773,40 +697,9 @@ body {
 .chips { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
 .chips--add { margin-top: 0.3rem; }
 .chips__label { font-size: 0.85rem; color: var(--text-dim); margin-right: 0.2rem; }
-.chip {
-  font-family: var(--font-title);
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  padding: 0.25rem 0.55rem;
-  color: var(--text-dim);
-  background: #1a1916;
-  border: 1px solid #4f4b44;
-  border-radius: 2px;
-  cursor: pointer;
-}
-.chip:hover { color: var(--text); border-color: var(--iron-light); }
-.chip.is-active { color: #fff3d6; background: linear-gradient(180deg, #4a3a24, #2a2016); border-color: var(--bronze-light); }
-.chip--warn { color: #ffd2c9; border-color: var(--danger); margin-left: 0.4rem; }
 .warn { display: block; margin-top: 0.4rem; color: #f2c4bb; }
 
-/* ---------- Itemram: järnram + sten ur en bild (9-slice) ---------- */
-.tooltip {
-  border-style: solid;
-  border-width: 13px 9px 11px;
-  border-image: url('/bilder/item-ram.webp') 60 38 50 37 fill / 13px 9px 11px stretch;
-  outline: none;
-  border-radius: 0;
-  background: none;
-  box-shadow: none;
-  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.55));
-}
-.tooltip__title {
-  background: linear-gradient(180deg, rgba(20, 20, 18, 0.55), rgba(20, 20, 18, 0.25));
-  border-bottom: 1px solid rgba(0, 0, 0, 0.5);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08);
-}
-.tooltip__body { background: none; }
+/* ---------- Itemram, kompakt ---------- */
 .tooltip--compact { border-width: 11px 8px 9px; border-image-width: 11px 8px 9px; }
 
 /* ---------- Pengar: platinum, guld, silver, koppar ---------- */
@@ -866,20 +759,6 @@ body {
 .stat-box__sub { color: var(--text-dim); font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .seller-list { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-.seller {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  padding: 0.35rem 0.75rem 0.35rem 0.4rem;
-  font: inherit;
-  color: var(--text);
-  background: #1a1916;
-  border: 1px solid #4f4b44;
-  border-radius: 2px;
-  cursor: pointer;
-}
-.seller:hover { border-color: var(--iron-light); }
-.seller.is-active { border-color: var(--bronze-light); background: linear-gradient(180deg, #4a3a24, #2a2016); box-shadow: 0 0 8px rgba(224, 160, 80, 0.3); }
 .seller__name { font-family: var(--font-title); font-weight: 700; font-variant: small-caps; font-size: 1.05rem; }
 .seller__n { color: var(--text-dim); font-size: 0.85rem; }
 
@@ -964,7 +843,9 @@ code { font-family: Consolas, monospace; color: var(--gold); }
   margin-top: 1rem;
   padding: 0.8rem 1rem;
   background: rgba(224, 184, 114, 0.08);
-  border-left: 4px solid var(--gold);
+  border: 1px solid rgba(224, 184, 114, 0.35);
+  border-radius: var(--radius);
+  box-shadow: inset 0 0 0 1px rgba(10, 9, 7, 0.6);
   font-size: 1.1rem;
 }
 .help-faq, .help-status { margin: 0; }
@@ -1051,10 +932,16 @@ input:not([type='checkbox']), select { min-height: var(--ctl-h); }
   font-weight: 700;
 }
 .btn--ghost:hover { color: #fff; }
-.btn--danger { --frame-metal: linear-gradient(180deg, #9a5446 0%, #6a2f24 50%, #4f2018 100%); }
+.btn--danger {
+  --frame-metal: linear-gradient(180deg, #9a5446 0%, #6a2f24 50%, #4f2018 100%);
+  --face: linear-gradient(rgba(140, 40, 28, 0.55), rgba(80, 20, 14, 0.6)), var(--stone) center / 260px auto;
+}
 
 /* Val-brickor (flaggor, size, bildläge …): liten järnram, guld när vald */
 .chip {
+  font-family: var(--font-title);
+  font-weight: 700;
+  cursor: pointer;
   display: inline-flex;
   align-items: center;
   min-height: 2rem;
@@ -1076,13 +963,19 @@ input:not([type='checkbox']), select { min-height: var(--ctl-h); }
 .chip:hover { color: #fff; filter: brightness(1.15); border-color: transparent; }
 .chip.is-active {
   color: #fff3d6;
+  border-color: var(--bronze-light);
   background:
     linear-gradient(rgba(110, 85, 45, 0.45), rgba(55, 40, 20, 0.6)) padding-box,
     var(--stone) center / 220px auto padding-box,
     var(--gold-metal) border-box;
   box-shadow: inset 0 0 0 1px #0d0c0a, 0 0 8px rgba(224, 160, 80, 0.35);
 }
-.chip--warn { background: linear-gradient(rgba(140, 40, 28, 0.6), rgba(80, 20, 14, 0.7)) padding-box, var(--iron-metal) border-box; }
+.chip--warn {
+  color: #ffd2c9;
+  border-color: var(--danger);
+  margin-left: 0.4rem;
+  background: linear-gradient(rgba(140, 40, 28, 0.6), rgba(80, 20, 14, 0.7)) padding-box, var(--iron-metal) border-box;
+}
 
 /* Ikonval (slot, klass): samma järnram/guldram som knapparna */
 .icon-picker__btn, .class-picker__btn {
@@ -1115,6 +1008,14 @@ input:not([type='checkbox']), select { min-height: var(--ctl-h); }
 
 /* Säljare-knappar på Försäljning */
 .seller {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.35rem 0.75rem 0.35rem 0.4rem;
+  font: inherit;
+  color: var(--text);
+  border-radius: 2px;
+  cursor: pointer;
   border: 2px solid transparent;
   background:
     linear-gradient(rgba(40, 40, 36, 0.55), rgba(22, 22, 20, 0.7)) padding-box,
@@ -1124,6 +1025,8 @@ input:not([type='checkbox']), select { min-height: var(--ctl-h); }
 }
 .seller:hover { border-color: transparent; filter: brightness(1.12); }
 .seller.is-active {
+  border-color: var(--bronze-light);
+  box-shadow: 0 0 8px rgba(224, 160, 80, 0.3);
   background:
     linear-gradient(rgba(110, 85, 45, 0.45), rgba(55, 40, 20, 0.6)) padding-box,
     var(--stone) center / 260px auto padding-box,
@@ -1596,6 +1499,5 @@ blockquote.kr-note { font-family: var(--font-title); font-weight: 700; }
   .kr-castcard__img, .kr-ref { width: 100%; flex: none; max-width: 260px; }
 }
 
-.kr-back { display: inline-flex; align-items: center; gap: 0.35rem; }
 .kr-add .btn, .kr-quote .icon-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; }
 .kr-plaque--title::before, .kr-plaque--title::after { top: -13px; }
