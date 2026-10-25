@@ -106,6 +106,9 @@ export interface Entry {
   pet_names: Record<string, string>
   /** Skärmdumpar ett ögonblick bygger på */
   source_ids: string[]
+  /** Bildens mått, sparade vid uppladdning */
+  width: number | null
+  height: number | null
   subzone: string | null
   url: string | null
   position: number

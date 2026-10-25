@@ -193,11 +193,16 @@ Deno.serve(async (req) => {
     // Översätt minnesnummer till id:n
     const draft = JSON.parse(text.text);
     const idOf = (nr: number) => entries[nr - 1]?.id;
+    // Hänvisningar som (#3) pekar om på kort-id, så de håller när minnen läggs till eller flyttas
+    const story = String(draft.story).replace(/#(\d+)/g, (m: string, nr: string) => {
+      const id = idOf(Number(nr));
+      return id ? `#${id.slice(0, 8)}` : m;
+    });
     return json({
       draft: {
         title: draft.title,
         summary: draft.summary,
-        story: draft.story,
+        story,
         captions: draft.captions
           .map((c: { nr: number; caption: string }) => ({ entry_id: idOf(c.nr), caption: c.caption }))
           .filter((c: { entry_id?: string }) => c.entry_id),

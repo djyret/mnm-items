@@ -1,0 +1,666 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-25T16:17:40.294Z",
+  "title": "Design System: MnM Förrådet",
+  "extensions": {
+    "colorMeta": {
+      "tavern-night": {
+        "role": "neutral",
+        "displayName": "Tavern Night",
+        "canonical": "#120f0b",
+        "tonalRamp": [
+          "#050403",
+          "#080705",
+          "#0c0a07",
+          "#0f0d09",
+          "#2a2723",
+          "#656360",
+          "#a09f9d",
+          "#dbdbda"
+        ]
+      },
+      "gold": {
+        "role": "primary",
+        "displayName": "Lamplight Gold",
+        "canonical": "#dcb362",
+        "tonalRamp": [
+          "#372d19",
+          "#63512c",
+          "#8f7440",
+          "#bb9853",
+          "#e0bb72",
+          "#e8ce99",
+          "#f1e1c0",
+          "#faf4e7"
+        ]
+      },
+      "bronze": {
+        "role": "primary",
+        "displayName": "Worn Bronze",
+        "canonical": "#a9814a",
+        "tonalRamp": [
+          "#2a2013",
+          "#4c3a21",
+          "#6e5430",
+          "#906e3f",
+          "#b28e5c",
+          "#c7ad89",
+          "#ddcdb7",
+          "#f2ece4"
+        ]
+      },
+      "bronze-light": {
+        "role": "primary",
+        "displayName": "Polished Bronze",
+        "canonical": "#e0b872",
+        "tonalRamp": [
+          "#382e1d",
+          "#655333",
+          "#92784a",
+          "#be9c61",
+          "#e3bf80",
+          "#ebd1a3",
+          "#f3e3c7",
+          "#faf4ea"
+        ]
+      },
+      "bronze-dark": {
+        "role": "primary",
+        "displayName": "Dark Bronze",
+        "canonical": "#5c4224",
+        "tonalRamp": [
+          "#171109",
+          "#291e10",
+          "#3c2b17",
+          "#4e381f",
+          "#6c553a",
+          "#958471",
+          "#beb3a7",
+          "#e7e3de"
+        ]
+      },
+      "iron": {
+        "role": "neutral",
+        "displayName": "Iron",
+        "canonical": "#6f6a61",
+        "tonalRamp": [
+          "#1c1b18",
+          "#32302c",
+          "#48453f",
+          "#5e5a52",
+          "#7d7971",
+          "#a19e98",
+          "#c5c3c0",
+          "#e9e9e7"
+        ]
+      },
+      "iron-dark": {
+        "role": "neutral",
+        "displayName": "Dark Iron",
+        "canonical": "#3a3732",
+        "tonalRamp": [
+          "#0f0e0d",
+          "#1a1916",
+          "#262421",
+          "#312f2b",
+          "#4e4b47",
+          "#7f7d7a",
+          "#b0afad",
+          "#e1e1e0"
+        ]
+      },
+      "candle-text": {
+        "role": "neutral",
+        "displayName": "Candle Text",
+        "canonical": "#ebe3d3",
+        "tonalRamp": [
+          "#3b3935",
+          "#6a665f",
+          "#999489",
+          "#c8c1b3",
+          "#ede6d7",
+          "#f2ede2",
+          "#f7f4ed",
+          "#fcfbf8"
+        ]
+      },
+      "ash-text": {
+        "role": "neutral",
+        "displayName": "Ash Text",
+        "canonical": "#b3a993",
+        "tonalRamp": [
+          "#2d2a25",
+          "#514c42",
+          "#746e60",
+          "#98907d",
+          "#bbb29e",
+          "#cec7b9",
+          "#e1ddd4",
+          "#f4f2ef"
+        ]
+      },
+      "heading-cream": {
+        "role": "neutral",
+        "displayName": "Heading Cream",
+        "canonical": "#f0e4c8",
+        "tonalRamp": [
+          "#3c3932",
+          "#6c675a",
+          "#9c9482",
+          "#ccc2aa",
+          "#f2e7ce",
+          "#f5eddb",
+          "#f9f4e9",
+          "#fdfbf7"
+        ]
+      },
+      "stone-text": {
+        "role": "neutral",
+        "displayName": "Stone Text",
+        "canonical": "#f4f1ea",
+        "tonalRamp": [
+          "#3d3c3b",
+          "#6e6c69",
+          "#9f9d98",
+          "#cfcdc7",
+          "#f5f2ec",
+          "#f8f6f1",
+          "#fbf9f7",
+          "#fdfdfc"
+        ]
+      },
+      "status-free": {
+        "role": "tertiary",
+        "displayName": "Status Free",
+        "canonical": "#8fbf73",
+        "tonalRamp": [
+          "#24301d",
+          "#405634",
+          "#5d7c4b",
+          "#7aa262",
+          "#9ac581",
+          "#b6d5a4",
+          "#d2e5c7",
+          "#eef5ea"
+        ]
+      },
+      "status-lent": {
+        "role": "tertiary",
+        "displayName": "Status Lent",
+        "canonical": "#e0ac48",
+        "tonalRamp": [
+          "#382b12",
+          "#654d20",
+          "#92702f",
+          "#be923d",
+          "#e3b45a",
+          "#ebc988",
+          "#f3deb6",
+          "#faf3e4"
+        ]
+      },
+      "status-sold": {
+        "role": "tertiary",
+        "displayName": "Status Sold",
+        "canonical": "#8c8478",
+        "tonalRamp": [
+          "#23211e",
+          "#3f3b36",
+          "#5b564e",
+          "#777066",
+          "#989086",
+          "#b4afa7",
+          "#d1cec9",
+          "#eeedeb"
+        ]
+      },
+      "status-reserved": {
+        "role": "tertiary",
+        "displayName": "Status Reserved",
+        "canonical": "#86a6dc",
+        "tonalRamp": [
+          "#222a37",
+          "#3c4b63",
+          "#576c8f",
+          "#728dbb",
+          "#92afe0",
+          "#b0c5e8",
+          "#cfdbf1",
+          "#edf2fa"
+        ]
+      },
+      "status-equipped": {
+        "role": "tertiary",
+        "displayName": "Status Equipped",
+        "canonical": "#c098e0",
+        "tonalRamp": [
+          "#302638",
+          "#564465",
+          "#7d6392",
+          "#a381be",
+          "#c6a2e3",
+          "#d6bceb",
+          "#e6d6f3",
+          "#f6f0fa"
+        ]
+      },
+      "danger": {
+        "role": "tertiary",
+        "displayName": "Danger Red",
+        "canonical": "#d0604e",
+        "tonalRamp": [
+          "#341814",
+          "#5e2b23",
+          "#873e33",
+          "#b15242",
+          "#d57060",
+          "#e0988c",
+          "#ecbfb8",
+          "#f8e7e4"
+        ]
+      },
+      "parchment": {
+        "role": "secondary",
+        "displayName": "Burnt Parchment",
+        "canonical": "#e8d6ad",
+        "tonalRamp": [
+          "#3a362b",
+          "#68604e",
+          "#978b70",
+          "#c5b693",
+          "#eadab5",
+          "#f0e4ca",
+          "#f6efde",
+          "#fcf9f3"
+        ]
+      },
+      "parchment-light": {
+        "role": "secondary",
+        "displayName": "Light Parchment",
+        "canonical": "#f1e5c4",
+        "tonalRamp": [
+          "#3c3931",
+          "#6c6758",
+          "#9d957f",
+          "#cdc3a7",
+          "#f2e8ca",
+          "#f6eed9",
+          "#f9f5e7",
+          "#fdfbf6"
+        ]
+      },
+      "parchment-dark": {
+        "role": "secondary",
+        "displayName": "Dark Parchment",
+        "canonical": "#cdb381",
+        "tonalRamp": [
+          "#332d20",
+          "#5c513a",
+          "#857454",
+          "#ae986e",
+          "#d2bb8e",
+          "#dfcead",
+          "#ebe1cd",
+          "#f8f4ec"
+        ]
+      },
+      "ink": {
+        "role": "secondary",
+        "displayName": "Oak-Gall Ink",
+        "canonical": "#3a2a17",
+        "tonalRamp": [
+          "#0f0b06",
+          "#1a130a",
+          "#261b0f",
+          "#312414",
+          "#4e3f2e",
+          "#7f7568",
+          "#b0aaa2",
+          "#e1dfdc"
+        ]
+      },
+      "ink-soft": {
+        "role": "secondary",
+        "displayName": "Soft Ink",
+        "canonical": "#6e4c22",
+        "tonalRamp": [
+          "#1c1309",
+          "#31220f",
+          "#483116",
+          "#5e411d",
+          "#7d5e38",
+          "#a18b6f",
+          "#c5b7a7",
+          "#e9e4de"
+        ]
+      },
+      "pin-red": {
+        "role": "secondary",
+        "displayName": "Wax Red",
+        "canonical": "#a3291c",
+        "tonalRamp": [
+          "#290a07",
+          "#49120d",
+          "#6a1b12",
+          "#8b2318",
+          "#ac3e33",
+          "#c3746b",
+          "#daa9a4",
+          "#f1dfdd"
+        ]
+      },
+      "panel-top": {
+        "role": "neutral",
+        "displayName": "Panel Top",
+        "canonical": "#2a241d",
+        "tonalRamp": [
+          "#0b0907",
+          "#13100d",
+          "#1b1713",
+          "#241f19",
+          "#3f3a34",
+          "#75716c",
+          "#aaa7a5",
+          "#dfdedd"
+        ]
+      },
+      "panel-bottom": {
+        "role": "neutral",
+        "displayName": "Panel Bottom",
+        "canonical": "#1d1914",
+        "tonalRamp": [
+          "#070605",
+          "#0d0b09",
+          "#13100d",
+          "#191511",
+          "#34302c",
+          "#6c6a66",
+          "#a5a3a1",
+          "#dddddc"
+        ]
+      },
+      "well": {
+        "role": "neutral",
+        "displayName": "Recessed Well",
+        "canonical": "#0f0d0a",
+        "tonalRamp": [
+          "#040303",
+          "#070605",
+          "#0a0807",
+          "#0d0b09",
+          "#272523",
+          "#636260",
+          "#9f9e9d",
+          "#dbdbda"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Chapter title on the parchment sign."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Page titles."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Card, frame, character and tab titles in small caps."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Base text everywhere."
+      },
+      "reading": {
+        "displayName": "Reading",
+        "purpose": "Story text on parchment and in the story panel."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Uppercase field labels, panel titles, table headers, badges."
+      },
+      "button": {
+        "displayName": "Button",
+        "purpose": "Small-caps text on every button, chip and tab."
+      }
+    },
+    "shadows": [
+      {
+        "name": "panel",
+        "value": "inset 0 0 0 2px #15120e, inset 0 0 0 3px rgba(169,129,74,0.35), 0 10px 24px rgba(0,0,0,0.5)",
+        "purpose": "Every panel and frame."
+      },
+      {
+        "name": "panel-hover",
+        "value": "inset 0 0 0 2px #15120e, inset 0 0 0 3px rgba(224,184,114,0.6), 0 12px 28px rgba(0,0,0,0.6), 0 0 18px rgba(224,150,70,0.18)",
+        "purpose": "Clickable cards on hover, with a 2px lift."
+      },
+      {
+        "name": "recessed-well",
+        "value": "inset 0 2px 4px rgba(0,0,0,0.6), 0 1px 0 rgba(169,129,74,0.15)",
+        "purpose": "Inputs and textareas."
+      },
+      {
+        "name": "focus-glow",
+        "value": "inset 0 2px 4px rgba(0,0,0,0.6), 0 0 0 1px #a9814a, 0 0 10px rgba(224,160,80,0.3)",
+        "purpose": "Input focus."
+      },
+      {
+        "name": "selected-glow",
+        "value": "0 0 8px rgba(224,160,80,0.35)",
+        "purpose": "Active chips, pickers and sellers."
+      },
+      {
+        "name": "button",
+        "value": "inset 0 0 0 1px #0d0c0a, inset 0 0 0 2px rgba(119,115,106,0.8), 0 0 0 1px #111, 0 3px 6px rgba(0,0,0,0.55)",
+        "purpose": "Iron-framed buttons."
+      },
+      {
+        "name": "hung-on-wall",
+        "value": "drop-shadow(0 10px 12px rgba(0,0,0,0.55))",
+        "purpose": "filter for 9-slice rasters (parchment, item frame, posters, menu images); range 0 8px 10px to 0 14px 16px."
+      }
+    ],
+    "motion": [
+      {
+        "name": "control-feedback",
+        "value": "filter 0.12s",
+        "purpose": "Brightness change on buttons and menu."
+      },
+      {
+        "name": "card-lift",
+        "value": "transform 0.14s ease, box-shadow 0.14s ease",
+        "purpose": "Card hover lift."
+      },
+      {
+        "name": "wall-piece",
+        "value": "transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1)",
+        "purpose": "Chronicle pieces straighten and lift on hover or when lit."
+      },
+      {
+        "name": "pin-in",
+        "value": "0.42s cubic-bezier(0.16, 1, 0.3, 1), 45ms stagger",
+        "purpose": "Chronicle pieces drop into place on open; only without reduced motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "narrow-header",
+        "value": "600px"
+      },
+      {
+        "name": "single-column",
+        "value": "900px"
+      }
+    ],
+    "materials": [
+      {
+        "name": "tavern-background",
+        "value": "url('/bilder/bakgrund.webp') center top / cover fixed",
+        "purpose": "Page background on every route."
+      },
+      {
+        "name": "painted-header",
+        "value": "url('/bilder/header.webp')",
+        "purpose": "Brand header with built-in sign; edges masked into the background."
+      },
+      {
+        "name": "painted-menu",
+        "value": "/ikoner/meny/*.webp",
+        "purpose": "Raster menu buttons with off and on states."
+      },
+      {
+        "name": "stone",
+        "value": "url('/bilder/stone.webp') center / 260px auto",
+        "purpose": "Face of buttons, chips, selects, character rows."
+      },
+      {
+        "name": "iron-metal",
+        "value": "linear-gradient(180deg,#8d8a84 0%,#5d5a54 18%,#4a4843 50%,#3a3834 82%,#5f5c56 100%)",
+        "purpose": "Resting frame metal."
+      },
+      {
+        "name": "gold-metal",
+        "value": "linear-gradient(180deg,#e9c27a 0%,#a77a3c 20%,#8a6230 50%,#6e4c22 80%,#b88a48 100%)",
+        "purpose": "Active frame metal."
+      },
+      {
+        "name": "item-frame",
+        "value": "url('/bilder/item-ram.webp') 60 38 50 37 fill",
+        "purpose": "9-slice iron frame for item tooltips and comic posters."
+      },
+      {
+        "name": "parchment",
+        "value": "url('/bilder/pergament.webp') 56 fill",
+        "purpose": "9-slice burnt parchment for Krönikan reading surfaces."
+      },
+      {
+        "name": "nail",
+        "value": "url('/bilder/spik.webp') center / cover",
+        "purpose": "Forged nail head holding parchment pieces."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Button",
+      "kind": "button",
+      "refersTo": "button",
+      "description": "Default iron-framed stone button.",
+      "html": "<button class=\"ds-btn\">Redigera</button>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;justify-content:center;min-height:2.6rem;padding:.3rem 1.25rem .35rem;font-family:'Cinzel',Georgia,serif;font-weight:700;font-variant:small-caps;font-size:.98rem;letter-spacing:.04em;color:#f1ece1;text-shadow:0 1px 2px #000;cursor:pointer;border:4px solid transparent;border-radius:2px;background:linear-gradient(rgba(70,72,64,.25),rgba(30,30,27,.35)) padding-box,linear-gradient(180deg,#4a4843,#3a3834) padding-box,linear-gradient(180deg,#8d8a84 0%,#5d5a54 18%,#4a4843 50%,#3a3834 82%,#5f5c56 100%) border-box;box-shadow:inset 0 0 0 1px #0d0c0a,inset 0 0 0 2px rgba(119,115,106,.8),0 0 0 1px #111,0 3px 6px rgba(0,0,0,.55);transition:filter .12s}.ds-btn:hover{filter:brightness(1.18);color:#fff}.ds-btn:active{filter:brightness(.92)}.ds-btn:focus-visible{outline:2px solid #e0b872;outline-offset:2px}"
+    },
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Gold-framed button for the main action.",
+      "html": "<button class=\"ds-btn-primary\">Skriv om krönikan</button>",
+      "css": ".ds-btn-primary{display:inline-flex;align-items:center;justify-content:center;min-height:2.6rem;padding:.3rem 1.25rem .35rem;font-family:'Cinzel',Georgia,serif;font-weight:700;font-variant:small-caps;font-size:.98rem;letter-spacing:.04em;color:#fff6df;text-shadow:0 1px 2px #000;cursor:pointer;border:4px solid transparent;border-radius:2px;background:linear-gradient(rgba(70,72,64,.25),rgba(30,30,27,.35)) padding-box,linear-gradient(180deg,#4a4843,#3a3834) padding-box,linear-gradient(180deg,#e9c27a 0%,#a77a3c 20%,#8a6230 50%,#6e4c22 80%,#b88a48 100%) border-box;box-shadow:inset 0 0 0 1px #0d0c0a,inset 0 0 0 2px rgba(119,115,106,.8),0 0 0 1px #111,0 3px 6px rgba(0,0,0,.55);transition:filter .12s}.ds-btn-primary:hover{filter:brightness(1.18)}.ds-btn-primary:active{filter:brightness(.92)}.ds-btn-primary:focus-visible{outline:2px solid #e0b872;outline-offset:2px}"
+    },
+    {
+      "name": "Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Small iron-framed toggle; gold when active.",
+      "html": "<span class=\"ds-chip\">Magic</span> <span class=\"ds-chip is-active\">Lore</span>",
+      "css": ".ds-chip{display:inline-flex;align-items:center;min-height:2rem;padding:.2rem .7rem;font-family:'Cinzel',Georgia,serif;font-weight:700;font-variant:small-caps;font-size:.82rem;letter-spacing:.04em;color:#e6dfd0;text-shadow:0 1px 1px #000;border:2px solid transparent;border-radius:2px;cursor:pointer;background:linear-gradient(rgba(40,40,36,.55),rgba(22,22,20,.7)) padding-box,linear-gradient(#2a2925,#1e1d1a) padding-box,linear-gradient(180deg,#8d8a84 0%,#5d5a54 18%,#4a4843 50%,#3a3834 82%,#5f5c56 100%) border-box;box-shadow:inset 0 0 0 1px #0d0c0a,0 1px 2px rgba(0,0,0,.6)}.ds-chip:hover{filter:brightness(1.15);color:#fff}.ds-chip.is-active{color:#fff3d6;background:linear-gradient(rgba(110,85,45,.45),rgba(55,40,20,.6)) padding-box,linear-gradient(#2a2925,#1e1d1a) padding-box,linear-gradient(180deg,#e9c27a 0%,#a77a3c 20%,#8a6230 50%,#6e4c22 80%,#b88a48 100%) border-box;box-shadow:inset 0 0 0 1px #0d0c0a,0 0 8px rgba(224,160,80,.35)}"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Recessed dark well with bronze focus glow.",
+      "html": "<input class=\"ds-input\" placeholder=\"Sök item…\">",
+      "css": ".ds-input{font-family:'Crimson Pro',Georgia,serif;font-size:1rem;color:#ebe3d3;background:linear-gradient(180deg,#0f0d0a,#191612);border:1px solid #4a4237;border-top-color:#0a0907;border-radius:3px;padding:.42rem .6rem;min-height:2.6rem;box-shadow:inset 0 2px 4px rgba(0,0,0,.6),0 1px 0 rgba(169,129,74,.15)}.ds-input::placeholder{color:#7d745f;font-style:italic}.ds-input:focus-visible{outline:none;border-color:#a9814a;box-shadow:inset 0 2px 4px rgba(0,0,0,.6),0 0 0 1px #a9814a,0 0 10px rgba(224,160,80,.3)}"
+    },
+    {
+      "name": "Panel",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "Bronze-bordered panel with gold uppercase title.",
+      "html": "<section class=\"ds-panel\"><h2 class=\"ds-panel__title\">Sök och filtrera</h2><p>Innehåll.</p></section>",
+      "css": ".ds-panel{background:linear-gradient(180deg,#2a241d,#1d1914);border:1px solid #5c4224;outline:1px solid #0a0907;border-radius:3px;padding:1.1rem 1.15rem;color:#ebe3d3;font-family:'Crimson Pro',Georgia,serif;box-shadow:inset 0 0 0 2px #15120e,inset 0 0 0 3px rgba(169,129,74,.35),0 10px 24px rgba(0,0,0,.5)}.ds-panel__title{font-family:'Cinzel',Georgia,serif;font-size:.85rem;letter-spacing:.14em;text-transform:uppercase;color:#dcb362;margin:0 0 .8rem;padding-bottom:.45rem;border-bottom:1px solid transparent;border-image:linear-gradient(90deg,#a9814a,transparent) 1}"
+    },
+    {
+      "name": "Status Badge",
+      "kind": "chip",
+      "refersTo": "badge",
+      "description": "Item state badge in its status colour.",
+      "html": "<span class=\"ds-badge\" style=\"color:#8fbf73\">Ledig</span> <span class=\"ds-badge\" style=\"color:#e0ac48\">Utlånad</span> <span class=\"ds-badge\" style=\"color:#c098e0\">Equippad</span>",
+      "css": ".ds-badge{display:inline-block;font-family:'Cinzel',Georgia,serif;font-size:.64rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:.18rem .5rem;border-radius:2px;border:1px solid currentColor;background:rgba(0,0,0,.45)}"
+    },
+    {
+      "name": "Chapter Tabs",
+      "kind": "nav",
+      "refersTo": "tab-active",
+      "description": "Läs | Verkstad switch in a recessed strip.",
+      "html": "<nav class=\"ds-tabs\"><a class=\"ds-tab is-active\" href=\"#\">Läs</a><a class=\"ds-tab\" href=\"#\">Verkstad</a></nav>",
+      "css": ".ds-tabs{display:inline-flex;gap:4px;padding:4px;background:#15120e;border:1px solid #0a0907;box-shadow:inset 0 0 0 1px #4a4741}.ds-tab{font-family:'Cinzel',Georgia,serif;font-weight:700;font-variant:small-caps;font-size:1.05rem;letter-spacing:.05em;padding:.3rem 1.1rem .4rem;color:#b3a993;text-decoration:none;border:1px solid transparent;transition:color .15s,background .15s}.ds-tab:hover{color:#f1ece1}.ds-tab.is-active{color:#fff6df;background:linear-gradient(180deg,#5d4527,#33261a);border-color:#e0b872;box-shadow:inset 0 1px 0 rgba(255,230,180,.25)}.ds-tab:focus-visible{outline:2px solid #e0b872;outline-offset:2px}"
+    },
+    {
+      "name": "Parchment Note",
+      "kind": "custom",
+      "refersTo": "parchment-note",
+      "description": "Chronicle quote note on parchment, sized by volume (gradient stands in for the pergament.webp 9-slice).",
+      "html": "<blockquote class=\"ds-note ds-note--shout\">”AAAAH!”<small>— Derinx</small></blockquote>",
+      "css": ".ds-note{display:inline-flex;flex-direction:column;gap:.35rem;margin:0;padding:18px 20px 14px;width:200px;color:#3a2a17;background:linear-gradient(180deg,#f1e5c4,#e8d6ad 60%,#cdb381);font-family:'Cinzel',Georgia,serif;font-weight:700;font-size:1.12rem;line-height:1.1;transform:rotate(-2deg);filter:drop-shadow(0 8px 10px rgba(0,0,0,.5));transition:transform .22s cubic-bezier(.2,.8,.2,1)}.ds-note:hover{transform:rotate(0) translateY(-3px) scale(1.02)}.ds-note--shout{font-size:1.55rem;color:#a3291c;letter-spacing:.02em}.ds-note small{font-family:'Crimson Pro',Georgia,serif;font-style:italic;font-size:.92rem;color:#6e4c22}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Lamplit Tavern Stash",
+    "overview": "Every screen sits inside one painted tavern. A fixed painting of the tavern interior (`bilder/bakgrund.webp`) is the page itself; a painted header with the built-in Förrådet sign and a row of painted menu buttons (`ikoner/meny/*.webp`) crown it. Everything the gang touches is made of the same few materials: dark bronze-framed panels with filigree corners, stone faces inside iron frames for anything clickable, gold metal for whatever is active, and the game's own iron item frame (`bilder/item-ram.webp`) around item cards. The palette is candlelight on dark wood: warm cream text, gold and bronze accents, near-black browns.\n\nThe Krönikan surface extends that world with one new material, burnt parchment (`bilder/pergament.webp`), held by forged iron nail heads (`bilder/spik.webp`). In the reading view the evening is nailed straight onto the tavern wall that is already the background; comic images reuse the item iron frame; story, notes and title sign are parchment with dark-brown ink. The working view stays in the incumbent panel world and stays calm.\n\nThe system is dense where it administers (stash grid, filters, tables) and generous where it remembers (the chapter wall). It is game-UI literal by intent: tooltips and frames copy the in-game window chrome of Monsters & Memories.",
+    "keyCharacteristics": [
+      "Raster materials carry the world: tavern background, painted header and menu, stone, item frame, parchment, nail.",
+      "Cinzel for every heading, label and control; Crimson Pro for all reading text.",
+      "Iron frame = clickable; gold frame = selected or active; red face = destructive.",
+      "Bronze filigree corner ornaments on panels and frames.",
+      "Parchment and ink are Krönikan's reading material only."
+    ],
+    "rules": [
+      {
+        "name": "The Metal Means State Rule",
+        "body": "Iron is resting, gold is chosen. Any selectable thing (menu, button, chip, icon picker, seller, character row, tab) switches from iron metal and iron rivets to gold metal and gold rivets when active; no other colour signals selection.",
+        "section": "colors"
+      },
+      {
+        "name": "The Paper Has Its Own Ink Rule",
+        "body": "On parchment, text is ink or ink-soft and the accent is wax red; player name colours are darkened toward ink (mixed 45% with #2a1a0c) because the game's tags are made for dark backgrounds. Never put cream text or gold on parchment.",
+        "section": "colors"
+      },
+      {
+        "name": "The Small-Caps Control Rule",
+        "body": "Clickable things speak in Cinzel small caps (buttons, chips, tabs, menu labels); uppercase tracking is reserved for labels and badges that are not clicked.",
+        "section": "typography"
+      },
+      {
+        "name": "The Spoken Volume Rule",
+        "body": "On the chapter wall, quotes are set by how loudly they were said: shouting in Cinzel 700 at 1.55rem in wax red, speaking in Cinzel 700 at 1.12rem, muttering in Crimson Pro italic at 0.98rem in ink-soft.",
+        "section": "typography"
+      },
+      {
+        "name": "The Silhouette Shadow Rule",
+        "body": "Anything drawn with a raster border-image casts `filter: drop-shadow`, never `box-shadow`, so torn parchment and riveted iron keep their real outline.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** build every new clickable from the iron frame and stone face, and mark selection by switching to gold metal and gold rivets.",
+      "**Do** keep the tavern background visible and fixed; place new surfaces on it rather than on a new backdrop.",
+      "**Do** use Cinzel for headings, labels and controls and Crimson Pro for anything read as prose.",
+      "**Do** draw parchment and frames with their 9-slice rasters and shadow them with `drop-shadow`.",
+      "**Do** keep parchment text in ink, ink-soft and wax red, and darken player tag colours before using them on paper.",
+      "**Do** keep controls on the shared 2.6rem height when they sit in a row.",
+      "**Do** gate entrance motion behind `prefers-reduced-motion: no-preference`."
+    ],
+    "donts": [
+      "**Don't** introduce rounded, flat or pill-shaped controls; corners stay at 2 to 3px and are ornamented with rivets or filigree instead.",
+      "**Don't** use office push pins, sticky-note colours or a separate board texture on the chronicle wall; pieces are held by forged nails on the tavern wall itself.",
+      "**Don't** put cream text or gold accents on parchment, or parchment surfaces in the administrative views.",
+      "**Don't** use cool or saturated accent colours beyond the item status set.",
+      "**Don't** use unicode glyphs as icons; draw them in `Icon.tsx`.",
+      "**Don't** add coloured side-stripe borders to callouts."
+    ]
+  }
+}

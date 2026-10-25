@@ -7,3 +7,7 @@ supabase/.branches/
 
 # Råbilder (stora) – webbens bilder ligger i web/public/bilder
 /Bilder/
+
+# Impeccable: beslutsskisser (lokala)
+.impeccable/mocks/
+.impeccable/review/

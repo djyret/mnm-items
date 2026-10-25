@@ -9,6 +9,7 @@ import { NyItem } from './pages/NyItem'
 import { Salda } from './pages/Salda'
 import { Hjalp } from './pages/Hjalp'
 import { Kapitel } from './pages/Kapitel'
+import { KapitelLas } from './pages/KapitelLas'
 import { Kronikan } from './pages/Kronikan'
 import { Stilbibel } from './pages/Stilbibel'
 
@@ -55,7 +56,8 @@ function Shell() {
           <Route path="/salda" element={<Salda />} />
           <Route path="/kronikan" element={<Kronikan />} />
           <Route path="/kronikan/stil" element={<Stilbibel />} />
-          <Route path="/kronikan/:id" element={<Kapitel />} />
+          <Route path="/kronikan/:id" element={<KapitelLas />} />
+          <Route path="/kronikan/:id/verkstad" element={<Kapitel />} />
           <Route path="/hjalp" element={<Hjalp />} />
         </Routes>
       </main>

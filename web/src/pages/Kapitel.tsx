@@ -6,13 +6,15 @@ import {
 } from '../lib/kronikan'
 import { supabase } from '../lib/supabase'
 import type { CastMember, Chapter, Entry, EntryKind, Quote } from '../lib/types'
+import { ChapterTabs } from '../components/ChapterTabs'
+import { Icon } from '../components/Icon'
 import { Kronikoren } from '../components/Kronikoren'
 import { MissingSetup } from './Kronikan'
 
-type EntryDraft = Pick<Entry, 'kind' | 'image_path' | 'caption' | 'quotes' | 'cast_names' | 'pet_names' | 'source_ids' | 'subzone' | 'url'>
+type EntryDraft = Pick<Entry, 'kind' | 'image_path' | 'caption' | 'quotes' | 'cast_names' | 'pet_names' | 'source_ids' | 'subzone' | 'url' | 'width' | 'height'>
 
 const blankMoment = (): EntryDraft => ({
-  kind: 'serie', image_path: null, caption: null, quotes: [], cast_names: [], pet_names: {}, source_ids: [], subzone: null, url: null,
+  kind: 'serie', image_path: null, caption: null, quotes: [], cast_names: [], pet_names: {}, source_ids: [], subzone: null, url: null, width: null, height: null,
 })
 
 const toggle = (list: string[], v: string) => (list.includes(v) ? list.filter((x) => x !== v) : [...list, v])
@@ -178,7 +180,7 @@ function EntryEditor({ draft, onChange, chapter, cast, petNames, sources, style,
               {cast.map((c) => <option key={c.id} value={c.name}>{c.name}</option>)}
             </select>
             <input value={q.text} onChange={(e) => setQuote(i, { text: e.target.value })} placeholder="t.ex. NU!!!" />
-            <button type="button" className="icon-btn" aria-label="Ta bort repliken" onClick={() => set('quotes', draft.quotes.filter((_, j) => j !== i))}>✕</button>
+            <button type="button" className="icon-btn" aria-label="Ta bort repliken" onClick={() => set('quotes', draft.quotes.filter((_, j) => j !== i))}><Icon name="stang" size={16} /></button>
           </div>
         ))}
         <div className="chips chips--add">
@@ -236,7 +238,7 @@ function EntryView({ entry, chapter, cast, isCover, first, last, onEdit, onMove,
           {entry.subzone && entry.subzone !== chapter.subzone && <span className="kr-zone">{entry.subzone}</span>}
         </div>
         {entry.caption && <p className="kr-entry__caption">{entry.caption}</p>}
-        {entry.kind === 'klipp' && entry.url && <p><a href={entry.url} target="_blank" rel="noreferrer">▶ Se klippet</a></p>}
+        {entry.kind === 'klipp' && entry.url && <p><a href={entry.url} target="_blank" rel="noreferrer" className="kr-note__link"><Icon name="spela" size={14} /> Se klippet</a></p>}
         {entry.quotes.length > 0 && (
           <ul className="kr-quotes">
             {entry.quotes.map((q, i) => (
@@ -253,8 +255,8 @@ function EntryView({ entry, chapter, cast, isCover, first, last, onEdit, onMove,
         )}
         <div className="kr-entry__tools">
           <button className="btn btn--small btn--ghost" onClick={onEdit}>Redigera</button>
-          <button className="btn btn--small btn--ghost" onClick={() => onMove(-1)} disabled={first} aria-label="Flytta upp">↑</button>
-          <button className="btn btn--small btn--ghost" onClick={() => onMove(1)} disabled={last} aria-label="Flytta ner">↓</button>
+          <button className="btn btn--small btn--ghost" onClick={() => onMove(-1)} disabled={first} aria-label="Flytta upp"><Icon name="upp" size={16} /></button>
+          <button className="btn btn--small btn--ghost" onClick={() => onMove(1)} disabled={last} aria-label="Flytta ner"><Icon name="ner" size={16} /></button>
           {url && !isCover && <button className="btn btn--small btn--ghost" onClick={onCover}>Gör till omslag</button>}
           <button className="btn btn--small btn--ghost btn--danger-text" onClick={onDelete}>Ta bort</button>
         </div>
@@ -312,8 +314,8 @@ export function Kapitel() {
     if (editing) {
       setUploads((n) => n + 1)
       try {
-        const { path, kind } = await storeImage(files[0])
-        setDraft((d) => ({ ...d, image_path: path, kind: d.kind === 'serie' || d.kind === 'skarmdump' ? d.kind : kind }))
+        const { path, kind, width, height } = await storeImage(files[0])
+        setDraft((d) => ({ ...d, image_path: path, width, height, kind: d.kind === 'serie' || d.kind === 'skarmdump' ? d.kind : kind }))
       } catch (e) {
         setError((e as Error).message)
       }
@@ -323,8 +325,8 @@ export function Kapitel() {
     setUploads((n) => n + files.length)
     for (const f of files) {
       try {
-        const { path, kind } = await storeImage(f)
-        const { error } = await supabase.from('chronicle_entries').insert({ chapter_id: id, kind, image_path: path, position: Date.now() / 1000 })
+        const { path, kind, width, height } = await storeImage(f)
+        const { error } = await supabase.from('chronicle_entries').insert({ chapter_id: id, kind, image_path: path, width, height, position: Date.now() / 1000 })
         if (error) throw error
       } catch (e) {
         setError((e as Error).message)
@@ -365,7 +367,7 @@ export function Kapitel() {
   function startEdit(e: Entry | null) {
     if (editing === 'ny' && draft.image_path) deleteKronika(draft.image_path)
     setEditing(e ? e.id : 'ny')
-    setDraft(e ? { kind: e.kind, image_path: e.image_path, caption: e.caption, quotes: e.quotes, cast_names: e.cast_names, pet_names: e.pet_names ?? {}, source_ids: e.source_ids ?? [], subzone: e.subzone, url: e.url } : blankMoment())
+    setDraft(e ? { kind: e.kind, image_path: e.image_path, caption: e.caption, quotes: e.quotes, cast_names: e.cast_names, pet_names: e.pet_names ?? {}, source_ids: e.source_ids ?? [], subzone: e.subzone, url: e.url, width: e.width, height: e.height } : blankMoment())
   }
 
   function cancelEdit() {
@@ -440,7 +442,7 @@ export function Kapitel() {
 
   return (
     <div
-      className={`page kr-page${dragging ? ' kr-page--drop' : ''}`}
+      className={`page kr-page kr-work${dragging ? ' kr-page--drop' : ''}`}
       onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
       onDragLeave={(e) => { if (e.currentTarget === e.target) setDragging(false) }}
       onDrop={(e) => {
@@ -449,7 +451,10 @@ export function Kapitel() {
         addImages(imageFiles(e.dataTransfer.files))
       }}
     >
-      <Link to="/kronikan" className="back">← Krönikan</Link>
+      <div className="kr-read__top">
+        <Link to="/kronikan" className="back kr-back"><Icon name="vanster" size={14} /> Krönikan</Link>
+        <ChapterTabs id={chapter.id} />
+      </div>
 
       {head ? (
         <form className="panel form" onSubmit={async (e) => {
@@ -470,41 +475,34 @@ export function Kapitel() {
           </div>
         </form>
       ) : (
-        <header className="kr-chapter-head">
-          <div className="kr-timeline__date"><span>{weekday(chapter.played_on)}</span><b>{formatDay(chapter.played_on)}</b></div>
-          <h1 className="page-title">{chapter.title}</h1>
-          {chapter.zone && <div className="kr-plaque">{chapter.zone}{chapter.subzone && <small>{chapter.subzone}</small>}</div>}
-          {chapter.summary && <p className="help-intro">{chapter.summary}</p>}
+        <header className="kr-work-head">
+          <div>
+            <h1 className="page-title">{chapter.title}</h1>
+            <span className="kr-zone">{[`${weekday(chapter.played_on)} ${formatDay(chapter.played_on)}`, chapter.zone, chapter.subzone].filter(Boolean).join(' · ')}</span>
+          </div>
           <button className="btn btn--small btn--ghost" onClick={() => setHead({ title: chapter.title, played_on: chapter.played_on, zone: chapter.zone, subzone: chapter.subzone, summary: chapter.summary, story: chapter.story })}>
             Redigera kapitlet
           </button>
         </header>
       )}
 
-      {chapter.story && !head && (
-        <article className="panel kr-story">
-          <h2 className="panel-title">Berättelsen</h2>
-          {/* Krönikörens hänvisningar som (#3) behövs inte i läsvyn */}
-          {chapter.story.split(/\n\s*\n/).map((p, i) => <p key={i}>{p.replace(/\s*\(#[\d,\s#–-]+\)/g, '')}</p>)}
-        </article>
-      )}
-
       {error && <div className="alert">{error}</div>}
 
       <div className="kr-add">
         <div className="dropzone kr-drop" onClick={() => fileInput.current?.click()} role="button" tabIndex={0}>
-          <div className="dropzone__big">Släng in bilder: <kbd>Ctrl</kbd>+<kbd>V</kbd> eller dra hit</div>
-          <div>Flera på en gång går bra. Seriebilder och skärmdumpar känns igen på formatet.</div>
-          {uploads > 0 && !editing && <p className="pulse">Laddar upp {uploads}…</p>}
+          {uploads > 0 && !editing ? (
+            <span className="pulse">Laddar upp {uploads}…</span>
+          ) : (
+            <span>Släng in kvällens bilder: <kbd>Ctrl</kbd>+<kbd>V</kbd> var som helst på sidan, dra hit eller klicka</span>
+          )}
           <input ref={fileInput} type="file" accept="image/*" multiple hidden onChange={(e) => {
             addImages(imageFiles(e.target.files))
             e.target.value = ''
           }} />
         </div>
-        <div className="kr-add__buttons">
-          <button className="btn btn--primary" onClick={() => startEdit(null)} disabled={editing === 'ny'}>+ Nytt ögonblick</button>
-          <small className="note">Beskriv en scen, få en färdig prompt till ChatGPT och klistra in bilden när den är klar.</small>
-        </div>
+        <button className="btn" onClick={() => startEdit(null)} disabled={editing === 'ny'} title="Beskriv en scen och få en färdig prompt till ChatGPT">
+          <Icon name="plus" size={16} /> Nytt ögonblick
+        </button>
       </div>
 
       <Kronikoren chapter={chapter} entries={entries} cast={cast} onChanged={load} />

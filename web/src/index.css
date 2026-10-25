@@ -1299,6 +1299,247 @@ input:not([type='checkbox']), select { min-height: var(--ctl-h); }
 .kr-ref--empty { border: 2px dashed var(--bronze); }
 input[type='color'] { padding: 2px; height: var(--ctl-h, 2.4rem); cursor: pointer; }
 
+/* ---------- Kapitel: flikar Läs | Verkstad ---------- */
+:root {
+  --parchment: #e8d6ad;
+  --parchment-light: #f1e5c4;
+  --parchment-dark: #cdb381;
+  --ink: #3a2a17;
+  --ink-soft: #6e4c22;
+  --pin: #a3291c;
+}
+.kr-read__top { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 0.9rem; }
+.kr-read__top .back { margin: 0; }
+.kr-tabs { display: flex; gap: 4px; padding: 4px; background: #15120e; border: 1px solid #0a0907; box-shadow: inset 0 0 0 1px #4a4741; }
+.kr-tab {
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-variant: small-caps;
+  font-size: 1.05rem;
+  letter-spacing: 0.05em;
+  padding: 0.3rem 1.1rem 0.4rem;
+  color: #b3a993;
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: color 0.15s, background 0.15s;
+}
+.kr-tab:hover { color: #f1ece1; }
+.kr-tab.active { color: #fff6df; background: linear-gradient(180deg, #5d4527, #33261a); border-color: var(--bronze-light); box-shadow: inset 0 1px 0 rgba(255, 230, 180, 0.25); }
+.kr-tab:focus-visible { outline: 2px solid var(--bronze-light); outline-offset: 2px; }
+
+/* ---------- Läsvyn: tavernans anslagstavla ---------- */
+/* Ingen egen tavla: kvällen spikas direkt på tavernaväggen som redan är sidans bakgrund */
+.kr-wood { position: relative; padding: 8px 0 24px; }
+.kr-plaque--title {
+  display: flex;
+  width: fit-content;
+  max-width: min(720px, 100%);
+  margin: 0 auto 28px;
+  padding: 0.7rem 2.4rem 0.8rem;
+  text-transform: none;
+  text-align: center;
+  gap: 0.15rem;
+  position: relative;
+  border: 24px solid transparent;
+  border-image: url('/bilder/pergament.webp') 56 fill / 24px stretch;
+  padding: 0.2rem 1.6rem 0.3rem;
+  background: none;
+  box-shadow: none;
+  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.55));
+}
+.kr-plaque--title h1 { margin: 0; font-size: clamp(1.6rem, 2.6vw, 2.3rem); line-height: 1.15; color: var(--ink); text-wrap: balance; }
+.kr-plaque__meta { font-family: var(--font-body); font-style: italic; font-size: 1.05rem; color: var(--ink-soft); }
+.kr-plaque--title::before, .kr-plaque--title::after,
+.kr-polaroid::before, .kr-note::before {
+  /* Smitt järnbeslag ur Förrådets egen ram (bilder/spik.webp), vridet olika på varje lapp */
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 50%;
+  width: 15px;
+  height: 15px;
+  margin-left: -7.5px;
+  background: url('/bilder/spik.webp') center / cover;
+  transform: rotate(calc(var(--tilt, 0deg) * 7));
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.75));
+  z-index: 2;
+}
+.kr-plaque--title::before { left: 18px; margin: 0; }
+.kr-plaque--title::after { left: auto; right: 18px; margin: 0; }
+
+.kr-read__body { display: grid; grid-template-columns: 330px minmax(0, 1fr); gap: 30px; align-items: start; }
+
+/* Berättelsen på en pergamentrulle */
+.kr-scroll {
+  position: sticky;
+  top: 16px;
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  padding: 10px 6px 8px 10px;
+  border: 26px solid transparent;
+  border-image: url('/bilder/pergament.webp') 56 fill / 26px stretch;
+  color: var(--ink);
+  font-size: 1.06rem;
+  line-height: 1.6;
+  filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.6));
+  scrollbar-color: var(--ink-soft) transparent;
+}
+.kr-scroll ::selection, .kr-note::selection { background: rgba(163, 41, 28, 0.25); }
+.kr-scroll__p { position: relative; margin: 0 0 0.85rem; padding: 0.15rem 0.4rem; border-radius: 2px; transition: background 0.18s ease-out; }
+.kr-scroll__p:first-child::first-letter {
+  float: left;
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 3.1em;
+  line-height: 0.85;
+  padding: 0.06em 0.1em 0 0;
+  color: var(--pin);
+}
+.kr-scroll__p.has-refs { cursor: pointer; }
+/* Stycken som hör till bilder på väggen får ett spikhuvud i marginalen */
+.kr-scroll__p.has-refs::after {
+  content: '';
+  position: absolute;
+  left: -12px;
+  top: 0.55em;
+  width: 9px;
+  height: 9px;
+  background: url('/bilder/spik.webp') center / cover;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5));
+}
+.kr-scroll__p:focus-visible { outline: 2px solid var(--pin); outline-offset: 2px; }
+.kr-scroll__p.has-refs:hover, .kr-scroll__p.is-active { background: rgba(169, 129, 74, 0.28); }
+.kr-scroll__p.is-active { box-shadow: 0 0 0 1px rgba(110, 76, 34, 0.5); }
+.kr-scroll__empty p { margin: 0 0 0.8rem; }
+.kr-scroll a { color: var(--pin); font-weight: 600; }
+
+/* Väggen: rutnät i strikt kvällsordning. Placeringen räknas ut i KapitelLas (place), så inget hoppar bakåt */
+.kr-board {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 200px);
+  grid-auto-rows: 133px;
+  gap: 20px;
+  justify-content: center;
+  padding: 12px 0 10px;
+}
+.kr-poster, .kr-polaroid, .kr-note {
+  position: relative;
+  margin: 0;
+  transform: rotate(var(--tilt, 0deg));
+  transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.22s, filter 0.22s;
+}
+.kr-poster, .kr-polaroid { font: inherit; color: inherit; cursor: zoom-in; }
+.kr-poster:hover, .kr-polaroid:hover, .kr-note:hover { transform: rotate(0deg) translateY(-3px) scale(1.02); z-index: 3; }
+.kr-poster:focus-visible, .kr-polaroid:focus-visible { outline: 2px solid var(--bronze-light); outline-offset: 4px; }
+/* Seriebilder i Förrådets järnram, samma som itemkorten */
+.kr-poster {
+  display: block;
+  padding: 0;
+  border-style: solid;
+  border-width: 16px 11px 14px;
+  border-image: url('/bilder/item-ram.webp') 60 38 50 37 / 16px 11px 14px stretch;
+  background: #0a0907;
+  filter: drop-shadow(0 14px 16px rgba(0, 0, 0, 0.65));
+}
+.kr-poster img { display: block; width: 100%; height: auto; aspect-ratio: var(--ar, 1.5); object-fit: cover; }
+/* Skärmdumpar monterade på bränt pergament */
+.kr-polaroid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 4px 4px 2px;
+  text-align: left;
+  border: 18px solid transparent;
+  border-image: url('/bilder/pergament.webp') 56 fill / 18px stretch;
+  background: none;
+  filter: drop-shadow(0 10px 12px rgba(0, 0, 0, 0.55));
+}
+.kr-polaroid::before { top: -11px; }
+.kr-polaroid img { flex: 1 1 auto; min-height: 0; width: 100%; object-fit: cover; background: #1a1916; border: 1px solid rgba(58, 42, 23, 0.6); }
+.kr-polaroid span {
+  flex: none;
+  font-style: italic;
+  font-size: 0.92rem;
+  line-height: 1.35;
+  color: var(--ink);
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+/* Lappar: bränt pergament, speglat olika så att grannar aldrig har samma avrivna kant */
+.kr-note {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 18px 20px 14px;
+  color: var(--ink);
+  font-size: 1rem;
+  line-height: 1.35;
+  isolation: isolate;
+  filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.5));
+}
+.kr-note::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border: 18px solid transparent;
+  border-image: url('/bilder/pergament.webp') 56 fill / 18px stretch;
+  transform: scale(var(--flip, 1), calc(var(--flip, 1) * -1));
+}
+/* Spelets namnfärger är gjorda för mörk bakgrund; mörkna dem mot pergamentet */
+.kr-note small { font-family: var(--font-body); font-style: italic; font-weight: 700; font-size: 0.92rem; color: color-mix(in srgb, var(--tag, #6e4c22) 45%, #2a1a0c); }
+.kr-note__link { display: inline-flex; align-items: center; gap: 0.35rem; color: var(--pin); font-weight: 600; }
+/* Repliker: storleken följer hur högt de sägs */
+blockquote.kr-note { font-family: var(--font-title); font-weight: 700; }
+.kr-note--ropar { font-size: 1.55rem; line-height: 1.1; color: var(--pin); letter-spacing: 0.02em; }
+.kr-note--sager { font-size: 1.12rem; }
+.kr-note--mumlar { font-family: var(--font-body) !important; font-weight: 400 !important; font-style: italic; font-size: 0.98rem; color: var(--ink-soft); }
+/* Stycket man pekar på i berättelsen tänder sina bilder och lappar */
+.kr-board.is-focused .is-dim { filter: brightness(0.38) saturate(0.5) drop-shadow(0 8px 10px rgba(0, 0, 0, 0.5)); }
+.kr-board .is-lit { transform: rotate(0deg) scale(1.03); z-index: 2; outline: 3px solid var(--bronze-light); outline-offset: 3px; }
+/* Lapparna nålas upp en efter en när tavlan öppnas */
+@media (prefers-reduced-motion: no-preference) {
+  .kr-board > * { animation: kr-pin 0.42s cubic-bezier(0.16, 1, 0.3, 1) backwards; animation-delay: calc(var(--i, 0) * 45ms); }
+}
+@keyframes kr-pin { from { transform: translateY(-14px) rotate(calc(var(--tilt, 0deg) * 2.5)); } }
+.kr-board--empty { display: grid; place-items: center; min-height: 260px; }
+.kr-board--empty .kr-note { width: 280px; min-height: 150px; font-family: var(--font-title); font-size: 1.2rem; }
+
+/* Stor bild för skärmdelning */
+.kr-viewer { max-width: 96vw; max-height: 96vh; overflow: hidden; outline: none; padding: 0; border: 1px solid var(--bronze-dark); background: #0c0a08; color: var(--text); box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8); }
+.kr-viewer::backdrop { background: rgba(6, 5, 4, 0.88); }
+.kr-viewer figure { margin: 0; }
+.kr-viewer img { display: block; max-width: 96vw; max-height: calc(96vh - 64px); width: auto; height: auto; margin: 0 auto; }
+.kr-viewer figcaption { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 10px 14px; min-height: 64px; font-size: 1.05rem; }
+.kr-viewer__nav { display: flex; align-items: center; gap: 0.5rem; flex: 0 0 auto; }
+.kr-viewer__nav b { font-family: var(--font-title); color: var(--gold); font-variant-numeric: tabular-nums; min-width: 4.5ch; text-align: center; }
+.icon { display: block; flex: 0 0 auto; }
+
+/* ---------- Verkstaden: lugn arbetsyta ---------- */
+.kr-work-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; padding: 0.8rem 1rem 0.9rem; margin-bottom: 1rem; background: linear-gradient(rgba(18, 15, 11, 0.86), rgba(18, 15, 11, 0.93)); border: 1px solid var(--bronze-dark); box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45); }
+.kr-work-head .page-title { margin: 0 0 0.2rem; }
+.kr-work .kr-add { grid-template-columns: minmax(0, 1fr) auto; align-items: stretch; }
+.kr-work .kr-drop { flex-direction: row; justify-content: center; padding: 0.85rem 1.2rem; font-size: 1.02rem; }
+.kr-work .kr-entries { grid-template-columns: repeat(auto-fill, minmax(min(520px, 100%), 1fr)); gap: 1rem; }
+.kr-work .kr-entry { flex-direction: row; align-items: stretch; }
+.kr-work .kr-entry__img, .kr-work .kr-entry__wait { flex: 0 0 200px; width: 200px; aspect-ratio: 3 / 2; align-self: flex-start; }
+.kr-work .kr-entry__img img { width: 100%; height: 100%; object-fit: cover; }
+.kr-work .kr-entry__wait { border-bottom: none; border-right: 1px solid var(--bronze-dark); padding: 0.5rem; text-align: center; }
+.kr-work .kr-entry__wait b { font-size: 1rem; }
+.kr-work .kr-entry__wait span { font-size: 0.85rem; }
+.kr-work .kr-entry__body { flex: 1; min-width: 0; padding: 0.55rem 0.8rem 0.6rem; gap: 0.3rem; }
+.kr-work .kr-entry__caption { font-size: 0.98rem; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.kr-work .kr-quotes { font-size: 0.95rem; }
+.kr-entry__tools .btn { display: inline-flex; align-items: center; justify-content: center; }
+/* Sällan använda verktyg visas när man pekar på minnet; alltid synliga på pekskärm */
+@media (hover: hover) {
+  .kr-work .kr-entry__tools .btn:not(:first-child) { opacity: 0; transition: opacity 0.15s ease-out; }
+  .kr-work .kr-entry:hover .kr-entry__tools .btn, .kr-work .kr-entry:focus-within .kr-entry__tools .btn { opacity: 1; }
+}
+
 /* Berättelsen och krönikören */
 .kr-story { max-width: 860px; margin: 0 auto 1.2rem; padding: 1.2rem 1.6rem 1rem; }
 .kr-story p { font-size: 1.12rem; line-height: 1.6; margin: 0 0 0.9rem; }
@@ -1334,6 +1575,17 @@ input[type='color'] { padding: 2px; height: var(--ctl-h, 2.4rem); cursor: pointe
   .kr-suggest__row { grid-template-columns: 1fr; gap: 0.3rem; }
   .kr-suggest__row .guide__label { padding-top: 0; }
   .kr-timeline::before, .kr-timeline__item::before { display: none; }
+  .kr-read__body { grid-template-columns: 1fr; gap: 20px; }
+  .kr-scroll { position: static; max-height: none; }
+  .kr-wood { padding: 18px 12px 22px; border-width: 6px; }
+  .kr-board { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: auto; gap: 16px; }
+  .kr-poster { align-self: start; }
+  .kr-polaroid img { flex: none; aspect-ratio: 4 / 3; }
+  .kr-note { min-height: 110px; }
+  .kr-work .kr-entry { flex-direction: column; }
+  .kr-work .kr-entry__img, .kr-work .kr-entry__wait { width: 100%; flex-basis: auto; }
+  .kr-work .kr-add { grid-template-columns: 1fr; }
+  .kr-work-head { flex-direction: column; align-items: flex-start; }
   .kr-timeline__item { grid-template-columns: 1fr; gap: 0.4rem; }
   .kr-timeline__date { text-align: left; flex-direction: row; gap: 0.5rem; align-items: baseline; }
   .kr-chapter { flex-direction: column; }
@@ -1343,3 +1595,7 @@ input[type='color'] { padding: 2px; height: var(--ctl-h, 2.4rem); cursor: pointe
   .kr-castcard, .kr-cast-form { flex-direction: column; }
   .kr-castcard__img, .kr-ref { width: 100%; flex: none; max-width: 260px; }
 }
+
+.kr-back { display: inline-flex; align-items: center; gap: 0.35rem; }
+.kr-add .btn, .kr-quote .icon-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; }
+.kr-plaque--title::before, .kr-plaque--title::after { top: -13px; }

@@ -48,13 +48,14 @@ export function guessKind(width: number, height: number): EntryKind {
     : 'skarmdump'
 }
 
-/** Skalar ner bilden och laddar upp den. Returnerar sökväg och gissad typ. */
-export async function storeImage(file: Blob): Promise<{ path: string; kind: EntryKind }> {
+/** Skalar ner bilden och laddar upp den. Returnerar sökväg, gissad typ och mått. */
+export async function storeImage(file: Blob): Promise<{ path: string; kind: EntryKind; width: number; height: number }> {
   const bmp = await createImageBitmap(file)
-  const kind = guessKind(bmp.width, bmp.height)
+  const { width, height } = bmp
+  const kind = guessKind(width, height)
   bmp.close()
   const small = await compressImage(file, 1920)
-  return { path: await uploadKronika(small), kind }
+  return { path: await uploadKronika(small), kind, width, height }
 }
 
 /** Bilder ur en paste- eller drop-händelse. */
@@ -162,6 +163,42 @@ export async function writeChronicle(chapterId: string): Promise<ChronicleDraft>
   const body = await res.json().catch(() => ({}))
   if (!res.ok) throw new Error(body.error ?? `Krönikören svarade inte (${res.status})`)
   return body.draft as ChronicleDraft
+}
+
+// ---------- Läsvyn ----------
+
+/** Krönikörens hänvisningar pekar på minnen med de första åtta tecknen i id:t. */
+export const shortId = (id: string) => id.slice(0, 8)
+
+export interface StoryParagraph {
+  text: string
+  refs: string[]
+}
+
+/** Delar berättelsen i stycken och plockar ut hänvisningar som (#3fa2c1d0, #9b7e…). */
+export function storyParagraphs(story: string | null): StoryParagraph[] {
+  if (!story) return []
+  return story.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean).map((p) => ({
+    refs: [...p.matchAll(/#([0-9a-f]{8})/g)].map((m) => m[1]),
+    text: p.replace(/\s*\((?:#[0-9a-f]{8}|#\d+)(?:[,\s–-]+(?:#[0-9a-f]{8}|#\d+))*\)/g, '').trim(),
+  }))
+}
+
+/** Hur högt repliken sägs: skrik blir stort, muttrande litet. */
+export function quoteVolume(text: string): 'ropar' | 'sager' | 'mumlar' {
+  const letters = text.replace(/[^\p{L}]/gu, '')
+  const caps = letters.length >= 2 && letters === letters.toUpperCase()
+  const bangs = (text.match(/!/g) ?? []).length
+  if (/(\.\.\.|…)\s*$/.test(text.trim()) && bangs === 0) return 'mumlar'
+  if (bangs >= 2 || (caps && bangs >= 1) || (caps && letters.length <= 6)) return 'ropar'
+  return 'sager'
+}
+
+/** Liten, stabil lutning per lapp, så tavlan ser uppnålad ut men inte hoppar mellan visningar. */
+export function tilt(id: string, max = 3): number {
+  let h = 0
+  for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) | 0
+  return Math.round(((((h % 1000) + 1000) % 1000) / 1000 * 2 - 1) * max * 10) / 10
 }
 
 // ---------- Datum ----------

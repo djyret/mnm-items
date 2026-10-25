@@ -66,7 +66,7 @@ export function Kronikan() {
       .single()
     setBusy(false)
     if (error) setError(error.message)
-    else navigate(`/kronikan/${data.id}`)
+    else navigate(`/kronikan/${data.id}/verkstad`)
   }
 
   if (missingTables(error ?? undefined)) {

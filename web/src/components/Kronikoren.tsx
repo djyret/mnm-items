@@ -116,13 +116,10 @@ export function Kronikoren({ chapter, entries, cast, onChanged }: {
         <div className="kr-writer__intro">
           <div>
             <h2 className="panel-title">Krönikören</h2>
-            <p className="note">
-              Claude läser kvällens {shots} bilder och anteckningar – chattfönster, stridslogg och namnskyltar – och skriver
-              ett utkast: titel, berättelse, bildtexter och förslag på seriebilder. Tar runt en minut.
-            </p>
+            <p className="note">Läser kvällens {shots} bilder – chatt, stridslogg, namnskyltar – och föreslår berättelse, bildtexter och seriescener.</p>
           </div>
           <button className="btn btn--primary" onClick={write} disabled={writing || entries.length === 0}>
-            {writing ? 'Krönikören skriver…' : '✦ Skriv kvällens krönika'}
+            {writing ? 'Krönikören skriver…' : chapter.story ? 'Skriv om krönikan' : 'Skriv kvällens krönika'}
           </button>
         </div>
         {writing && <p className="pulse center">Läser skärmdumparna och skriver…</p>}
