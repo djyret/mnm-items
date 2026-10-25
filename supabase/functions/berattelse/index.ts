@@ -9,7 +9,7 @@ const MAX_IMAGES = 60;
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-gang-word",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
@@ -109,6 +109,9 @@ interface Entry {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   if (req.method !== "POST") return json({ error: "Endast POST" }, 405);
+  // Gängordet skyddar API-nycklarna: utan det kan vem som helst med länken dra kostnader
+  const word = Deno.env.get("GANG_WORD");
+  if (!word || req.headers.get("x-gang-word") !== word) return json({ error: "Fel gängord", code: "gang_word" }, 401);
 
   try {
     const { chapter_id } = await req.json();

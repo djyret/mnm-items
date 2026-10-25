@@ -197,9 +197,9 @@ Pages are centred at a 1400px max width with 16px gutters (`1.5rem 16px 2rem` pa
 
 Working pages use sidebar plus content grids: the stash is a 290px sticky filter column beside an auto-fill card grid (`minmax(340px, 1fr)`, 1.2rem gap); item and add pages split into two columns with a sticky preview. Controls share one height (2.6rem) so fields, selects and buttons line up in rows.
 
-The Krönikan reading view is a 330px sticky parchment roll beside a wall grid of 200px columns and 133px rows with 20px gaps, centred, filled strictly in evening order (placement computed in `KapitelLas.tsx`). Pieces are rotated slightly (comic images within about 1.2deg, paper within about 3deg). The working view (Verkstad) uses a header bar, a slim drop zone, and two-column horizontal entry cards (200px thumbnail at 3:2).
+The Krönikan reading view is a 330px sticky parchment roll beside a wall grid of 200px columns and 133px rows with 20px gaps, centred, filled strictly in evening order (placement computed in `KapitelLas.tsx`). Pieces are rotated slightly (comic images within about 1.2deg, paper within about 3deg). The working view (Verkstad) is a workbench: the list of the evening's memories beside one 460px control panel (24px gap). The panel is sticky 16px from the top, capped at the viewport height minus 32px, and scrolls on its own; list rows run a 2rem number column, a 128px thumbnail at 3:2 and the text.
 
-At 900px and below every multi-column layout collapses to one column, sticky elements become static, the menu wraps two-up, the wall becomes two equal columns with auto rows, and the background stops being fixed.
+At 900px and below every multi-column layout collapses to one column, sticky elements become static, the menu wraps two-up, the wall becomes two equal columns with auto rows, the workbench stacks with the control panel first and the list below (rows shrink to a 1.6rem number and a 96px thumbnail), and the background stops being fixed.
 
 ## Elevation & Depth
 
@@ -260,6 +260,13 @@ Line icons drawn as inline SVG (`Icon.tsx`: 24px viewbox, 2.2 stroke, round caps
 ### Chronicle Wall (signature)
 Krönikan's reading view: the parchment title sign nailed at both top corners; the sticky parchment story roll with a wax-red Cinzel drop cap, where paragraphs linked to images carry a nail head in the margin and, on hover or click, light their pieces (lit pieces straighten and gain a bronze-light outline, others dim to 38%); comic images in the item iron frame; screenshots mounted on parchment with up to five italic caption lines; notes and quotes on mirrored parchment, each held by one rotated forged nail. Pieces pin in one by one (0.42s, 45ms stagger) only when reduced motion is not requested. Clicking an image opens a large dark viewer with arrow navigation for screen sharing.
 
+### Workbench (signature)
+Krönikan's working view: one list that selects, one panel that acts. Both halves are plain panels (panel gradient, bronze-dark border, panel shadow).
+- **Memory list:** a header (page title, zone line, memory count with the number waiting for an image in status-lent) above an ordered list of rows. Each row is a single button: a tabular Cinzel number in ash text (2rem column), a 128px 3:2 thumbnail in a recessed well, then the kind badge (plus an Omslag badge on the cover), a two-line caption and the cast. Rows carry no buttons of their own; clicking selects. Hover is a faint warm wash (rgba(224,184,114,0.06)), selected is a bronze gradient fading to the right with a bronze-light border, focus is a 2px bronze-light outline.
+- **Control panel:** one 460px sticky panel holds every action and has two states. Chapter state: sections divided by faint bronze rules: Lägg till (the dashed bronze paste and drop zone and a full-width Nytt ögonblick button), the AI chronicler stacked in one column, and Kapitlet (edit or read the chapter). Inspector state for the selected memory: a head row with a back button, the title "<kind> N av M" and previous/next arrows; a tool row (make a comic, move up or down, make cover) closed by a rule; the entry editor, whose kind picker is labelled Sort; and a sticky footer with Spara (primary) and Stäng, with Ta bort as a small ghost danger-text button pushed to the right.
+
+**The Comic Absorbs Its Source Rule.** A comic built from screenshots (its source ids) absorbs them: those screenshots stop appearing as memories of their own in the list and on the wall and live on only as the comic's original. In the workshop the original sits as a small inset (38% wide, 4:3, 2px cream border) in the corner of the comic's thumbnail, or, before the comic is painted, is the thumbnail itself under a "Väntar på seriebild" strip with a dashed bronze top edge; the inspector lists it with Gör till eget minne to unfold it. On the wall it is tucked into the comic's lower-right corner as a small cream-mounted print captioned "Från spelet" in italic ink, tilted 5deg, and opens in the viewer.
+
 ## Do's and Don'ts
 
 ### Do:
@@ -270,6 +277,7 @@ Krönikan's reading view: the parchment title sign nailed at both top corners; t
 - **Do** keep parchment text in ink, ink-soft and wax red, and darken player tag colours before using them on paper.
 - **Do** keep controls on the shared 2.6rem height when they sit in a row.
 - **Do** gate entrance motion behind `prefers-reduced-motion: no-preference`.
+- **Do** gather a working surface's actions in one sticky control panel beside a list whose rows only select; the destructive action sits last, pushed right.
 
 ### Don't:
 - **Don't** introduce rounded, flat or pill-shaped controls; corners stay at 2 to 3px and are ornamented with rivets or filigree instead.

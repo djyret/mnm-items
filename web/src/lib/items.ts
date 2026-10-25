@@ -1,5 +1,6 @@
 import { STAT_GROUPS, normalizeStatKey } from './constants'
-import { IMAGE_BUCKET, SUPABASE_KEY, SUPABASE_URL, supabase } from './supabase'
+import { callFunction } from './functions'
+import { IMAGE_BUCKET, supabase } from './supabase'
 import type { Character, Item, ItemDraft, ParsedItem } from './types'
 
 export const emptyDraft = (): ItemDraft => ({
@@ -129,14 +130,10 @@ export async function parseImage(blob: Blob): Promise<ParsedItem> {
   const bmp = await createImageBitmap(blob)
   const { width, height } = bmp
   bmp.close()
-  const res = await fetch(`${SUPABASE_URL}/functions/v1/parse-item`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', apikey: SUPABASE_KEY },
-    body: JSON.stringify({ image: await blobToBase64(blob), media_type: blob.type || 'image/webp', width, height }),
+  const body = await callFunction<{ item: ParsedItem }>('parse-item', {
+    image: await blobToBase64(blob), media_type: blob.type || 'image/webp', width, height,
   })
-  const body = await res.json().catch(() => ({}))
-  if (!res.ok) throw new Error(body.error ?? `Avläsning misslyckades (${res.status})`)
-  return body.item as ParsedItem
+  return body.item
 }
 
 // ---------- Händelser ----------

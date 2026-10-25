@@ -1,5 +1,6 @@
 import { compressImage } from './items'
-import { SUPABASE_KEY, SUPABASE_URL, supabase } from './supabase'
+import { callFunction } from './functions'
+import { supabase } from './supabase'
 import type { CastMember, Chapter, Entry, EntryKind, Quote } from './types'
 
 export const KRONIKA_BUCKET = 'kronikan'
@@ -158,28 +159,15 @@ export interface ChronicleDraft {
 
 /** Låter Claude läsa kapitlets minnen och skriva ett utkast (Edge Function berattelse). */
 export async function writeChronicle(chapterId: string): Promise<ChronicleDraft> {
-  const res = await fetch(`${SUPABASE_URL}/functions/v1/berattelse`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', apikey: SUPABASE_KEY },
-    body: JSON.stringify({ chapter_id: chapterId }),
-  })
-  const body = await res.json().catch(() => ({}))
-  if (!res.ok) throw new Error(body.error ?? `Krönikören svarade inte (${res.status})`)
-  return body.draft as ChronicleDraft
+  const body = await callFunction<{ draft: ChronicleDraft }>('berattelse', { chapter_id: chapterId })
+  return body.draft
 }
 
 // ---------- Bildgenerering ----------
 
 /** Låter OpenAI måla seriebilden (Edge Function seriebild). Bilden laddas upp men kopplas inte till något minne. */
 export async function generateImage(prompt: string, cast_names: string[], source_ids: string[]): Promise<{ path: string; width: number; height: number }> {
-  const res = await fetch(`${SUPABASE_URL}/functions/v1/seriebild`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', apikey: SUPABASE_KEY },
-    body: JSON.stringify({ prompt, cast_names, source_ids }),
-  })
-  const body = await res.json().catch(() => ({}))
-  if (!res.ok) throw new Error(body.error ?? `Bildgenereringen svarade inte (${res.status})`)
-  return body
+  return callFunction('seriebild', { prompt, cast_names, source_ids })
 }
 
 // ---------- Skärmdump + seriebild = ett minne ----------
@@ -188,12 +176,13 @@ export async function generateImage(prompt: string, cast_names: string[], source
  * En seriebild som har fått sin bild äter upp skärmdumparna den bygger på: de visas inuti den
  * i stället för som egna minnen. Skärmdumparna finns kvar i databasen.
  */
-export function foldSources(entries: Entry[]): { visible: Entry[]; originals: Map<string, Entry[]> } {
+export function foldSources(entries: Entry[], opts: { pending?: boolean } = {}): { visible: Entry[]; originals: Map<string, Entry[]> } {
   const byId = new Map(entries.map((e) => [e.id, e]))
   const folded = new Set<string>()
   const originals = new Map<string, Entry[]>()
   for (const e of entries) {
-    if (e.kind !== 'serie' || !e.image_path) continue
+    // I verkstaden räknas även seriebilder som ännu väntar på bild; läsvyn behöver en bild att visa
+    if (e.kind !== 'serie' || (!e.image_path && !opts.pending)) continue
     const own = (e.source_ids ?? [])
       .map((id) => byId.get(id))
       .filter((s): s is Entry => !!s && s.kind === 'skarmdump' && !!s.image_path && !folded.has(s.id))

@@ -117,12 +117,15 @@ function EntryEditor({ draft, onChange, chapter, cast, petNames, sources, style,
 
   return (
     <div className="kr-editor">
-      <div className="chips">
-        {(Object.keys(KIND_LABELS) as EntryKind[]).map((k) => (
-          <button key={k} type="button" className={`chip${draft.kind === k ? ' is-active' : ''}`} onClick={() => set('kind', k)}>
-            {KIND_LABELS[k]}
-          </button>
-        ))}
+      <div className="field">
+        <span>Sort</span>
+        <div className="chips">
+          {(Object.keys(KIND_LABELS) as EntryKind[]).map((k) => (
+            <button key={k} type="button" className={`chip${draft.kind === k ? ' is-active' : ''}`} onClick={() => set('kind', k)}>
+              {KIND_LABELS[k]}
+            </button>
+          ))}
+        </div>
       </div>
 
       {hasImage && (
@@ -200,7 +203,7 @@ function EntryEditor({ draft, onChange, chapter, cast, petNames, sources, style,
           </div>
         ))}
         <div className="chips chips--add">
-          <button type="button" className="chip" onClick={() => set('quotes', [...draft.quotes, { who: draft.cast_names[0] ?? '', text: '' }])}>+ Replik</button>
+          <button type="button" className="chip" onClick={() => set('quotes', [...draft.quotes, { who: draft.cast_names[0] ?? '', text: '' }])}><Icon name="plus" size={14} /> Replik</button>
         </div>
       </div>
 
@@ -239,9 +242,12 @@ function EntryRow({ entry, index, selected, isCover, cast, originals, onSelect }
     <li>
       <button type="button" className={`kr-row${selected ? ' is-selected' : ''}`} aria-current={selected || undefined} onClick={onSelect}>
         <span className="kr-row__nr">{index + 1}</span>
-        <span className={`kr-row__thumb${waiting ? ' kr-row__thumb--wait' : ''}`}>
-          {url ? <img src={url} alt="" loading="lazy" /> : waiting ? <span>Väntar på bild</span> : <Icon name={entry.kind === 'klipp' ? 'spela' : 'plus'} size={18} />}
-          {originals[0] && <img className="kr-row__original" src={kronikaUrl(originals[0].image_path)!} alt="Originalet från spelet" loading="lazy" />}
+        <span className={`kr-row__thumb${waiting && !originals[0] ? ' kr-row__thumb--wait' : ''}`}>
+          {url ? <img src={url} alt="" loading="lazy" />
+            : waiting && originals[0] ? <><img src={kronikaUrl(originals[0].image_path)!} alt="" loading="lazy" /><span className="kr-row__waiting">Väntar på seriebild</span></>
+            : waiting ? <span>Väntar på bild</span>
+            : <Icon name={entry.kind === 'klipp' ? 'spela' : 'plus'} size={18} />}
+          {url && originals[0] && <img className="kr-row__original" src={kronikaUrl(originals[0].image_path)!} alt="Originalet från spelet" loading="lazy" />}
         </span>
         <span className="kr-row__body">
           <span className="kr-row__meta">
@@ -481,7 +487,7 @@ export function Kapitel() {
   // Senaste namnet per husdjur, så nästa ögonblick slipper skriva in det igen
   const petNames: Record<string, string> = Object.assign({}, ...entries.map((e) => e.pet_names ?? {}))
   // Skärmdumpar som en seriebild gjorts av visas inuti seriebilden, inte som egna minnen
-  const { visible, originals } = foldSources(entries)
+  const { visible, originals } = foldSources(entries, { pending: true })
 
   const editorProps = {
     draft, onChange: setDraft, chapter, cast, petNames, style,
@@ -513,9 +519,15 @@ export function Kapitel() {
     if (how === 'comic' && e) startComic(e)
     else if (how === 'new') startEdit(null)
     else if (e) startEdit(e)
-    // På mobil ligger panelen under listan; visa den
+    // Visa panelen: på mobil ligger den överst, på datorn ska den fastna så Spara syns
     setTimeout(() => {
-      if (window.matchMedia('(max-width: 900px)').matches) document.querySelector('.kr-bench__panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      const panel = document.querySelector('.kr-bench__panel')
+      if (!panel) return
+      if (window.matchMedia('(max-width: 900px)').matches) panel.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      else {
+        const top = panel.getBoundingClientRect().top
+        if (top > 16) window.scrollBy({ top: top - 16, behavior: 'smooth' })
+      }
     }, 50)
   }
 
@@ -577,8 +589,8 @@ export function Kapitel() {
                 <h2 className="panel-title">{kindTitle}</h2>
                 {selected && (
                   <span className="kr-inspector__nav">
-                    <button type="button" className="btn btn--small btn--ghost" aria-label="Föregående minne" disabled={index === 0} onClick={() => select(visible[index - 1])}><Icon name="upp" size={16} /></button>
-                    <button type="button" className="btn btn--small btn--ghost" aria-label="Nästa minne" disabled={index === visible.length - 1} onClick={() => select(visible[index + 1])}><Icon name="ner" size={16} /></button>
+                    <button type="button" className="btn btn--small btn--ghost" aria-label="Föregående minne" title="Föregående minne" disabled={index === 0} onClick={() => select(visible[index - 1])}><Icon name="upp" size={16} /></button>
+                    <button type="button" className="btn btn--small btn--ghost" aria-label="Nästa minne" title="Nästa minne" disabled={index === visible.length - 1} onClick={() => select(visible[index + 1])}><Icon name="ner" size={16} /></button>
                   </span>
                 )}
               </div>
@@ -588,12 +600,11 @@ export function Kapitel() {
                   {selected.kind === 'skarmdump' && selected.image_path && (
                     <button type="button" className="btn btn--small" onClick={() => select(selected, 'comic')}>Gör seriebild av den</button>
                   )}
-                  <button type="button" className="btn btn--small btn--ghost" disabled={index === 0} onClick={() => move(index, -1)}>Flytta upp</button>
-                  <button type="button" className="btn btn--small btn--ghost" disabled={index === visible.length - 1} onClick={() => move(index, 1)}>Flytta ner</button>
+                  <button type="button" className="btn btn--small btn--ghost" disabled={index === 0} onClick={() => move(index, -1)}><Icon name="upp" size={14} /> Flytta upp</button>
+                  <button type="button" className="btn btn--small btn--ghost" disabled={index === visible.length - 1} onClick={() => move(index, 1)}><Icon name="ner" size={14} /> Flytta ner</button>
                   {selected.image_path && chapter.cover_id !== selected.id && (
                     <button type="button" className="btn btn--small btn--ghost" onClick={() => patchChapter({ cover_id: selected.id })}>Gör till omslag</button>
                   )}
-                  <button type="button" className="btn btn--small btn--ghost btn--danger-text" onClick={async () => { if (await remove(selected)) setEditing(null) }}>Ta bort</button>
                 </div>
               )}
 
@@ -616,6 +627,10 @@ export function Kapitel() {
                   {saving ? 'Sparar…' : editing === 'ny' ? 'Spara minnet' : dirty ? 'Spara' : 'Sparat'}
                 </button>
                 <button className="btn btn--ghost" onClick={() => select(null)} disabled={saving}>{dirty ? 'Avbryt' : 'Stäng'}</button>
+                {selected && (
+                  <button type="button" className="btn btn--small btn--ghost btn--danger-text kr-inspector__delete" disabled={saving}
+                    onClick={async () => { if (await remove(selected)) setEditing(null) }}>Ta bort</button>
+                )}
               </div>
             </div>
           ) : head ? (
