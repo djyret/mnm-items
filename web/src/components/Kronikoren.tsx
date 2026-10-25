@@ -24,11 +24,13 @@ function storeDraft(id: string, d: ChronicleDraft | null) {
 }
 
 /** Låter Claude skriva kvällens krönika och visar utkastet att plocka ur. */
-export function Kronikoren({ chapter, entries, cast, onChanged }: {
+export function Kronikoren({ chapter, entries, cast, onChanged, bare = false }: {
   chapter: Chapter
   entries: Entry[]
   cast: CastMember[]
   onChanged: () => Promise<void>
+  /** Inuti verkstadens kontrollpanel: ingen egen ram */
+  bare?: boolean
 }) {
   // Utkastet sparas lokalt så det inte går förlorat om man lämnar sidan
   const [draft, setDraft] = useState<ChronicleDraft | null>(() => readDraft(chapter.id))
@@ -112,7 +114,7 @@ export function Kronikoren({ chapter, entries, cast, onChanged }: {
 
   if (!draft) {
     return (
-      <div className="panel kr-writer">
+      <div className={`${bare ? '' : 'panel '}kr-writer`}>
         <div className="kr-writer__intro">
           <div>
             <h2 className="panel-title">Krönikören</h2>
@@ -136,7 +138,7 @@ export function Kronikoren({ chapter, entries, cast, onChanged }: {
     )
 
   return (
-    <div className="panel kr-writer">
+    <div className={`${bare ? '' : 'panel '}kr-writer`}>
       <div className="loan__head">
         <h2 className="panel-title">Krönikörens utkast</h2>
         <div className="actions kr-head-actions">

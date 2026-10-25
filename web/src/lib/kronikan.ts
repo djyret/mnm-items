@@ -119,7 +119,10 @@ export function buildPrompt(style: string, chapter: Pick<Chapter, 'zone' | 'subz
       parts.push(`- ${label}: ${c.look.trim() || 'see reference image'} ${tag ? `Name tag "${tag}" in ${colorName(c.tag_color)}.` : 'No name tag.'}`)
     }
   }
-  parts.push('', `SCENE: ${moment.caption?.trim() || '(describe what happens)'}`)
+  // Utan beskrivning får skärmdumpen berätta vad som händer
+  const scene = moment.caption?.trim()
+    || (moment.source_ids.length ? 'Recreate the moment shown in the attached in-game screenshot: the same place, enemies and situation, with the characters in it.' : '(describe what happens)')
+  parts.push('', `SCENE: ${scene}`)
   if (moment.source_ids.length) {
     parts.push('Also attached: in-game screenshots of the real moment. Use them for the location, layout, enemies and composition, redrawn in the style above.')
   }
@@ -163,6 +166,41 @@ export async function writeChronicle(chapterId: string): Promise<ChronicleDraft>
   const body = await res.json().catch(() => ({}))
   if (!res.ok) throw new Error(body.error ?? `Krönikören svarade inte (${res.status})`)
   return body.draft as ChronicleDraft
+}
+
+// ---------- Bildgenerering ----------
+
+/** Låter OpenAI måla seriebilden (Edge Function seriebild). Bilden laddas upp men kopplas inte till något minne. */
+export async function generateImage(prompt: string, cast_names: string[], source_ids: string[]): Promise<{ path: string; width: number; height: number }> {
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/seriebild`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', apikey: SUPABASE_KEY },
+    body: JSON.stringify({ prompt, cast_names, source_ids }),
+  })
+  const body = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(body.error ?? `Bildgenereringen svarade inte (${res.status})`)
+  return body
+}
+
+// ---------- Skärmdump + seriebild = ett minne ----------
+
+/**
+ * En seriebild som har fått sin bild äter upp skärmdumparna den bygger på: de visas inuti den
+ * i stället för som egna minnen. Skärmdumparna finns kvar i databasen.
+ */
+export function foldSources(entries: Entry[]): { visible: Entry[]; originals: Map<string, Entry[]> } {
+  const byId = new Map(entries.map((e) => [e.id, e]))
+  const folded = new Set<string>()
+  const originals = new Map<string, Entry[]>()
+  for (const e of entries) {
+    if (e.kind !== 'serie' || !e.image_path) continue
+    const own = (e.source_ids ?? [])
+      .map((id) => byId.get(id))
+      .filter((s): s is Entry => !!s && s.kind === 'skarmdump' && !!s.image_path && !folded.has(s.id))
+    own.forEach((s) => folded.add(s.id))
+    if (own.length) originals.set(e.id, own)
+  }
+  return { visible: entries.filter((e) => !folded.has(e.id)), originals }
 }
 
 // ---------- Läsvyn ----------

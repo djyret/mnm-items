@@ -419,3 +419,6 @@ verify_jwt = false
 
 [functions.berattelse]
 verify_jwt = false
+
+[functions.seriebild]
+verify_jwt = false

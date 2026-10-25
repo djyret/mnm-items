@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { ChapterTabs } from '../components/ChapterTabs'
 import { Icon } from '../components/Icon'
 import {
-  formatDay, kronikaUrl, loadCastAndStyle, missingTables, quoteVolume, shortId, sortEntries, storyParagraphs, tilt, weekday,
+  formatDay, kronikaUrl, loadCastAndStyle, missingTables, quoteVolume, shortId, sortEntries, storyParagraphs, tilt, weekday, foldSources,
 } from '../lib/kronikan'
 import { supabase } from '../lib/supabase'
 import type { CastMember, Chapter, Entry, Quote } from '../lib/types'
@@ -146,7 +146,9 @@ export function KapitelLas() {
     loadCastAndStyle().then((r) => setCast(r.cast)).catch(() => {})
   }, [id])
 
-  const pins = useMemo(() => toPins(entries), [entries])
+  // Skärmdumpar som en seriebild gjorts av sitter instuckna i seriebilden i stället för som egna lappar
+  const folded = useMemo(() => foldSources(entries), [entries])
+  const pins = useMemo(() => toPins(folded.visible), [folded])
   const ratioOf = useCallback(
     (e: Entry) => (e.width && e.height ? e.width / e.height : measured[e.id]),
     [measured],
@@ -194,7 +196,8 @@ export function KapitelLas() {
   }, [pins.length])
 
   const paragraphs = useMemo(() => storyParagraphs(chapter?.story ?? null), [chapter?.story])
-  const pictures = useMemo(() => pins.filter((p) => p.type === 'affisch' || p.type === 'polaroid').map((p) => p.entry), [pins])
+  const pictures = useMemo(() => pins.flatMap((p) =>
+    p.type === 'affisch' ? [p.entry, ...(folded.originals.get(p.entry.id) ?? [])] : p.type === 'polaroid' ? [p.entry] : []), [pins, folded])
   const active = hover ?? chosen
   const lit = new Set(active !== null ? paragraphs[active]?.refs ?? [] : [])
   const color = (name: string) => cast.find((c) => c.name === name)?.tag_color
@@ -320,9 +323,17 @@ export function KapitelLas() {
                 const cls = `${n === pins.length - 1 && pin.type === 'affisch' ? ' kr-poster--finale' : ''}${state}`
                 if (pin.type === 'affisch') {
                   return (
-                    <button key={e.id} data-ref={ref} className={`kr-poster${cls}`} style={style} onClick={() => open(e)} aria-label={e.caption ?? 'Visa seriebilden'}>
-                      <img src={kronikaUrl(e.image_path)!} alt={e.caption ?? ''} loading="lazy" />
-                    </button>
+                    <div key={e.id} data-ref={ref} className={`kr-poster${cls}`} style={style}>
+                      <button type="button" className="kr-poster__open" onClick={() => open(e)} aria-label={e.caption ?? 'Visa seriebilden'}>
+                        <img src={kronikaUrl(e.image_path)!} alt={e.caption ?? ''} loading="lazy" />
+                      </button>
+                      {folded.originals.get(e.id)?.slice(0, 1).map((o) => (
+                        <button key={o.id} type="button" className="kr-poster__original" onClick={() => open(o)} aria-label="Visa originalet från spelet">
+                          <img src={kronikaUrl(o.image_path)!} alt="" loading="lazy" />
+                          <span>Från spelet</span>
+                        </button>
+                      ))}
+                    </div>
                   )
                 }
                 if (pin.type === 'polaroid') {

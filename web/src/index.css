@@ -1114,36 +1114,7 @@ input:not([type='checkbox']), select { min-height: var(--ctl-h); }
 }
 .kr-plaque small { font-size: 0.72rem; letter-spacing: 0.16em; font-weight: 500; border-top: 1px solid rgba(58, 42, 23, 0.45); padding-top: 0.1rem; margin-top: 0.05rem; }
 
-.kr-add { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 1rem; align-items: stretch; margin-bottom: 1.2rem; }
-.kr-drop { padding: 1.6rem 1.2rem; }
-.kr-drop .dropzone__big { font-size: 1.15rem; }
-.kr-add__buttons { display: flex; flex-direction: column; justify-content: center; gap: 0.4rem; }
 
-.kr-entries { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(560px, 100%), 1fr)); gap: 1.3rem; align-items: start; }
-.kr-entry { display: flex; flex-direction: column; overflow: hidden; }
-.kr-entry__img { display: block; background: #0a0907; }
-.kr-entry__img img { display: block; width: 100%; height: auto; }
-.kr-entry--anteckning, .kr-entry--klipp { background: linear-gradient(180deg, #2f2820, #221d16); }
-.kr-entry__wait {
-  aspect-ratio: 3 / 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.3rem;
-  font: inherit;
-  color: var(--text-dim);
-  cursor: pointer;
-  border: none;
-  border-bottom: 1px solid var(--bronze-dark);
-  background:
-    linear-gradient(rgba(18, 15, 11, 0.82), rgba(18, 15, 11, 0.9)),
-    url('/bilder/batfard.webp') center / cover;
-}
-.kr-entry__wait b { font-family: var(--font-title); font-size: 1.3rem; color: var(--stone-text); }
-.kr-entry__wait:hover { color: var(--text); }
-.kr-entry__body { padding: 0.7rem 0.9rem 0.8rem; display: flex; flex-direction: column; gap: 0.4rem; }
-.kr-entry__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
 .kr-kind { color: var(--text-dim); }
 .kr-kind--serie { color: var(--equip); }
 .kr-kind--skarmdump { color: var(--reserved); }
@@ -1152,8 +1123,6 @@ input:not([type='checkbox']), select { min-height: var(--ctl-h); }
 .kr-quotes { list-style: none; margin: 0; padding: 0; font-style: italic; }
 .kr-quotes b { font-style: normal; margin-right: 0.3rem; }
 .kr-cast { display: flex; flex-wrap: wrap; gap: 0.25rem 0.8rem; font-family: var(--font-title); font-size: 0.85rem; font-weight: 700; text-shadow: 0 1px 2px #000; }
-.kr-entry__tools { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.2rem; }
-.kr-entry--editing { grid-column: 1 / -1; }
 
 /* Redigering av ett minne */
 .kr-editor { display: flex; flex-direction: column; gap: 0.8rem; }
@@ -1333,7 +1302,7 @@ input[type='color'] { padding: 2px; height: var(--ctl-h, 2.4rem); cursor: pointe
 }
 .kr-poster, .kr-polaroid { font: inherit; color: inherit; cursor: zoom-in; }
 .kr-poster:hover, .kr-polaroid:hover, .kr-note:hover { transform: rotate(0deg) translateY(-3px) scale(1.02); z-index: 3; }
-.kr-poster:focus-visible, .kr-polaroid:focus-visible { outline: 2px solid var(--bronze-light); outline-offset: 4px; }
+.kr-poster__open:focus-visible, .kr-poster__original:focus-visible, .kr-polaroid:focus-visible { outline: 2px solid var(--bronze-light); outline-offset: 4px; }
 /* Seriebilder i Förrådets järnram, samma som itemkorten */
 .kr-poster {
   display: block;
@@ -1344,7 +1313,28 @@ input[type='color'] { padding: 2px; height: var(--ctl-h, 2.4rem); cursor: pointe
   background: #0a0907;
   filter: drop-shadow(0 14px 16px rgba(0, 0, 0, 0.65));
 }
-.kr-poster img { display: block; width: 100%; height: auto; aspect-ratio: var(--ar, 1.5); object-fit: cover; }
+.kr-poster__open { display: block; width: 100%; padding: 0; border: 0; background: none; cursor: zoom-in; }
+.kr-poster__open img { display: block; width: 100%; height: auto; aspect-ratio: var(--ar, 1.5); object-fit: cover; }
+/* Originalet från spelet, instucket i seriebildens hörn */
+.kr-poster__original {
+  position: absolute;
+  right: -16px;
+  bottom: -20px;
+  z-index: 2;
+  width: 32%;
+  max-width: 150px;
+  padding: 5px 5px 4px;
+  border: 0;
+  font: inherit;
+  cursor: zoom-in;
+  background: #f3ecdb;
+  transform: rotate(5deg);
+  filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.6));
+  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.kr-poster__original:hover { transform: rotate(0deg) scale(1.08); }
+.kr-poster__original img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; background: #1a1916; }
+.kr-poster__original span { display: block; padding-top: 2px; font-style: italic; font-size: 0.72rem; line-height: 1.2; color: var(--ink); text-align: center; }
 /* Skärmdumpar monterade på bränt pergament */
 .kr-polaroid {
   display: flex;
@@ -1421,27 +1411,115 @@ blockquote.kr-note { font-family: var(--font-title); font-weight: 700; }
 .kr-viewer__nav b { font-family: var(--font-title); color: var(--gold); font-variant-numeric: tabular-nums; min-width: 4.5ch; text-align: center; }
 .icon { display: block; flex: 0 0 auto; }
 
-/* ---------- Verkstaden: lugn arbetsyta ---------- */
-.kr-work-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; padding: 0.8rem 1rem 0.9rem; margin-bottom: 1rem; background: linear-gradient(rgba(18, 15, 11, 0.86), rgba(18, 15, 11, 0.93)); border: 1px solid var(--bronze-dark); box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45); }
-.kr-work-head .page-title { margin: 0 0 0.2rem; }
-.kr-work .kr-add { grid-template-columns: minmax(0, 1fr) auto; align-items: stretch; }
-.kr-work .kr-drop { flex-direction: row; justify-content: center; padding: 0.85rem 1.2rem; font-size: 1.02rem; }
-.kr-work .kr-entries { grid-template-columns: repeat(auto-fill, minmax(min(520px, 100%), 1fr)); gap: 1rem; }
-.kr-work .kr-entry { flex-direction: row; align-items: stretch; }
-.kr-work .kr-entry__img, .kr-work .kr-entry__wait { flex: 0 0 200px; width: 200px; aspect-ratio: 3 / 2; align-self: flex-start; }
-.kr-work .kr-entry__img img { width: 100%; height: 100%; object-fit: cover; }
-.kr-work .kr-entry__wait { border-bottom: none; border-right: 1px solid var(--bronze-dark); padding: 0.5rem; text-align: center; }
-.kr-work .kr-entry__wait b { font-size: 1rem; }
-.kr-work .kr-entry__wait span { font-size: 0.85rem; }
-.kr-work .kr-entry__body { flex: 1; min-width: 0; padding: 0.55rem 0.8rem 0.6rem; gap: 0.3rem; }
-.kr-work .kr-entry__caption { font-size: 0.98rem; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-.kr-work .kr-quotes { font-size: 0.95rem; }
-.kr-entry__tools .btn { display: inline-flex; align-items: center; justify-content: center; }
-/* Sällan använda verktyg visas när man pekar på minnet; alltid synliga på pekskärm */
-@media (hover: hover) {
-  .kr-work .kr-entry__tools .btn:not(:first-child) { opacity: 0; transition: opacity 0.15s ease-out; }
-  .kr-work .kr-entry:hover .kr-entry__tools .btn, .kr-work .kr-entry:focus-within .kr-entry__tools .btn { opacity: 1; }
+/* ---------- Verkstaden: arbetsbänk med lista och samlad kontrollpanel ---------- */
+.kr-bench { display: grid; grid-template-columns: minmax(0, 1fr) 460px; gap: 24px; align-items: start; }
+.kr-bench__list, .kr-bench__panel {
+  background: linear-gradient(180deg, #2a241d, #1d1914);
+  border: 1px solid var(--bronze-dark);
+  border-radius: var(--radius);
+  box-shadow: inset 0 0 0 2px #15120e, inset 0 0 0 3px rgba(169, 129, 74, 0.35), 0 10px 24px rgba(0, 0, 0, 0.5);
 }
+.kr-bench__head { display: flex; flex-direction: column; gap: 0.15rem; padding: 16px 18px 12px; border-bottom: 1px solid rgba(169, 129, 74, 0.3); }
+.kr-bench__head .page-title { margin: 0; }
+.kr-bench__count { color: var(--text-dim); font-size: 0.95rem; }
+.kr-bench__count b { color: var(--lent); font-weight: 600; }
+.kr-bench__empty { padding: 2.5rem 1.5rem; text-align: center; color: var(--text-dim); }
+
+/* Kvällens minnen: en rad per minne, inga knappar på raderna */
+.kr-rows { list-style: none; margin: 0; padding: 6px; display: flex; flex-direction: column; gap: 2px; }
+.kr-row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 2rem 128px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 6px 10px 6px 4px;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  transition: background 0.15s ease-out, border-color 0.15s ease-out;
+}
+.kr-row:hover { background: rgba(224, 184, 114, 0.06); }
+.kr-row.is-selected {
+  background: linear-gradient(90deg, rgba(110, 85, 45, 0.38), rgba(55, 40, 20, 0.18));
+  border-color: var(--bronze-light);
+}
+.kr-row:focus-visible { outline: 2px solid var(--bronze-light); outline-offset: 1px; }
+.kr-row__nr { font-family: var(--font-title); font-size: 0.85rem; color: var(--text-dim); text-align: right; font-variant-numeric: tabular-nums; }
+.kr-row__thumb {
+  width: 128px;
+  aspect-ratio: 3 / 2;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  color: var(--text-dim);
+  background: #0f0d0a;
+  border: 1px solid #0a0907;
+  box-shadow: inset 0 0 0 1px #4a4741;
+}
+.kr-row__thumb { position: relative; }
+.kr-row__thumb img { width: 100%; height: 100%; object-fit: cover; }
+.kr-row__thumb img.kr-row__original { position: absolute; right: 3px; bottom: 3px; width: 38%; height: auto; aspect-ratio: 4 / 3; border: 2px solid #f3ecdb; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.7); }
+.kr-row__thumb--wait { border: 1px dashed var(--bronze); box-shadow: none; padding: 4px; font-family: var(--font-title); font-size: 0.72rem; letter-spacing: 0.04em; text-align: center; }
+.kr-row__body { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.kr-row__meta { display: flex; align-items: center; gap: 0.4rem; }
+.kr-row__caption { font-size: 0.98rem; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.kr-row__caption.is-empty { color: var(--text-dim); font-style: italic; }
+
+/* Kontrollpanelen följer med när man rullar och har egen rullning */
+.kr-bench__panel {
+  position: sticky;
+  top: 16px;
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  padding: 16px 18px;
+  scrollbar-color: #5d5a54 transparent;
+}
+.kr-bench__panel .panel-title { margin: 0 0 0.6rem; }
+.kr-panel-section + .kr-panel-section { margin-top: 18px; padding-top: 16px; border-top: 1px solid rgba(169, 129, 74, 0.25); }
+.kr-chapter-panel .kr-drop { gap: 0.3rem; padding: 1.1rem 1rem; margin-bottom: 0.7rem; }
+.kr-chapter-panel .kr-drop b { font-family: var(--font-title); font-size: 1.05rem; color: var(--stone-text); }
+.kr-chapter-panel .kr-drop span { font-size: 0.92rem; }
+.kr-chapter-panel .kr-panel-section > .btn { width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; }
+.kr-panel-section .note { margin: 0.7rem 0 0; }
+.kr-panel-form { display: flex; flex-direction: column; gap: 0.7rem; }
+.kr-panel-form .field { margin-bottom: 0; }
+.kr-panel-form .form { grid-template-columns: 1fr 1fr; }
+
+/* Det valda minnet */
+.kr-inspector__head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 0.6rem; padding-bottom: 0.7rem; margin-bottom: 0.8rem; border-bottom: 1px solid rgba(169, 129, 74, 0.25); }
+.kr-inspector__head .panel-title { margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kr-inspector__head .btn, .kr-inspector__nav .btn { display: inline-flex; align-items: center; gap: 0.3rem; }
+.kr-inspector__nav { display: flex; gap: 0.3rem; }
+.kr-inspector__tools { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 1rem; }
+.kr-originals { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1rem; }
+.kr-originals__item { display: flex; align-items: center; gap: 0.7rem; }
+.kr-originals__item img { width: 96px; aspect-ratio: 4 / 3; object-fit: cover; border: 1px solid #0a0907; box-shadow: inset 0 0 0 1px #4a4741; }
+.kr-inspector__foot {
+  position: sticky;
+  bottom: -16px;
+  display: flex;
+  gap: 0.5rem;
+  margin: 1rem -18px -16px;
+  padding: 0.8rem 18px 0.9rem;
+  background: linear-gradient(180deg, rgba(29, 25, 20, 0.92), #1d1914);
+  border-top: 1px solid rgba(169, 129, 74, 0.3);
+}
+.kr-bench__panel .kr-editor__image { max-width: 100%; }
+.kr-bench__panel .kr-quote select { flex-basis: 128px; }
+.kr-bench__panel .kr-prompt .loan__outhead { flex-wrap: wrap; gap: 0.5rem; }
+
+/* Krönikören inne i panelen: staplat i stället för i kolumner */
+.kr-bench__panel .kr-writer { margin: 0; }
+.kr-bench__panel .kr-writer__intro { flex-direction: column; align-items: stretch; gap: 0.7rem; }
+.kr-bench__panel .kr-writer .loan__head { flex-direction: column; align-items: stretch; gap: 0.5rem; }
+.kr-bench__panel .kr-suggest__row { grid-template-columns: minmax(0, 1fr) auto; }
+.kr-bench__panel .kr-suggest__row .guide__label { grid-column: 1 / -1; padding-top: 0; }
+.kr-bench__panel .kr-scenes { grid-template-columns: 1fr; }
 
 /* Berättelsen och krönikören */
 .kr-story { max-width: 860px; margin: 0 auto 1.2rem; padding: 1.2rem 1.6rem 1rem; }
@@ -1479,25 +1557,28 @@ blockquote.kr-note { font-family: var(--font-title); font-weight: 700; }
   .kr-suggest__row .guide__label { padding-top: 0; }
   .kr-timeline::before, .kr-timeline__item::before { display: none; }
   .kr-read__body { grid-template-columns: 1fr; gap: 20px; }
+  .kr-bench { grid-template-columns: 1fr; gap: 16px; }
+  .kr-bench__panel { order: -1; position: static; max-height: none; overflow: visible; }
+  .kr-inspector__foot { bottom: 0; }
+  .kr-row { grid-template-columns: 1.6rem 96px minmax(0, 1fr); gap: 10px; }
+  .kr-row__thumb { width: 96px; }
+  .kr-inspector__head .panel-title { grid-column: 1 / -1; grid-row: 1; white-space: normal; }
   .kr-scroll { position: static; max-height: none; }
   .kr-wood { padding: 18px 12px 22px; border-width: 6px; }
   .kr-board { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: auto; gap: 16px; }
   .kr-poster { align-self: start; }
   .kr-polaroid img { flex: none; aspect-ratio: 4 / 3; }
   .kr-note { min-height: 110px; }
-  .kr-work .kr-entry { flex-direction: column; }
-  .kr-work .kr-entry__img, .kr-work .kr-entry__wait { width: 100%; flex-basis: auto; }
-  .kr-work .kr-add { grid-template-columns: 1fr; }
-  .kr-work-head { flex-direction: column; align-items: flex-start; }
   .kr-timeline__item { grid-template-columns: 1fr; gap: 0.4rem; }
   .kr-timeline__date { text-align: left; flex-direction: row; gap: 0.5rem; align-items: baseline; }
   .kr-chapter { flex-direction: column; }
   .kr-chapter__cover { flex: none; width: 100%; }
-  .kr-add { grid-template-columns: 1fr; }
   .kr-quote select { flex-basis: 120px; }
   .kr-castcard, .kr-cast-form { flex-direction: column; }
   .kr-castcard__img, .kr-ref { width: 100%; flex: none; max-width: 260px; }
 }
 
-.kr-add .btn, .kr-quote .icon-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; }
+.kr-quote .icon-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; }
 .kr-plaque--title::before, .kr-plaque--title::after { top: -13px; }
+.kr-prompt__actions { display: flex; gap: 0.4rem; flex: 0 0 auto; }
+.kr-prompt__actions .btn { white-space: nowrap; }

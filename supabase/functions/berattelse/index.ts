@@ -22,7 +22,7 @@ const SCHEMA = {
     summary: { type: "string", description: "Kvällen i två–tre meningar, för tidslinjen" },
     story: {
       type: "string",
-      description: "Berättelsen om kvällen, 4–10 stycken separerade med en tom rad. Ingen rubrik, ingen markdown.",
+      description: "Berättelsen om kvällen: 3–4 korta stycken separerade med en tom rad, högst cirka 170 ord totalt. Ingen rubrik, ingen markdown.",
     },
     captions: {
       type: "array",
@@ -87,6 +87,7 @@ const SYSTEM = `Du är krönikör för ett kompisgäng som spelar MMO:t Monsters
 Efter varje spelkväll får du kvällens skärmdumpar, färdiga seriebilder och anteckningar, och skriver gängets krönika.
 
 Ton: varm, humoristisk äventyrsberättelse på svenska, som en bardsaga berättad vid lägerelden. Skämta gärna om dödsfall, panikflykter och klantigheter – det är sådant gänget minns.
+Fatta dig kort: berättelsen läses på en pergamentrulle bredvid bilderna och ska rymmas utan att man behöver scrolla. Högst cirka 170 ord i 3–4 stycken. Bilderna berättar detaljerna; texten bär bara kvällens röda tråd och de bästa skämten.
 Håll dig till det som faktiskt syns i bilderna och anteckningarna. Läs chattfönster, stridslogg, namnskyltar, partyfönster och zonnamn i skärmdumparna – där finns detaljerna. Hitta inte på händelser; fyll bara ut stämning och övergångar.
 Skriv spelarnas karaktärer med sina namn. Använd spelets egna namn på platser, monster och föremål.
 Husdjur får ett nytt namn varje gång de summonas; använd namnet som syns i bilden.
