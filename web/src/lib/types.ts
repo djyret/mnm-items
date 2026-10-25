@@ -70,3 +70,51 @@ export interface ParsedItem {
   extra_lines: string[]
   icon_box?: { x: number; y: number; width: number; height: number } | null
 }
+
+// ---------- Krönikan ----------
+
+export type EntryKind = 'serie' | 'skarmdump' | 'anteckning' | 'klipp'
+
+export interface Quote {
+  who: string
+  text: string
+}
+
+export interface Chapter {
+  id: string
+  title: string
+  played_on: string
+  zone: string | null
+  subzone: string | null
+  summary: string | null
+  cover_id: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface Entry {
+  id: string
+  chapter_id: string
+  kind: EntryKind
+  image_path: string | null
+  caption: string | null
+  quotes: Quote[]
+  cast_names: string[]
+  /** Husdjur heter olika vid varje summon: {"Vattenelementalen":"Nauturdis"} */
+  pet_names: Record<string, string>
+  subzone: string | null
+  url: string | null
+  position: number
+  created_at: string
+}
+
+export interface CastMember {
+  id: string
+  name: string
+  role: 'hjalte' | 'husdjur' | 'npc'
+  tag_color: string
+  look: string
+  ref_path: string | null
+  position: number
+  created_at: string
+}

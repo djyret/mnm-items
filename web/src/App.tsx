@@ -8,6 +8,9 @@ import { Karaktarer } from './pages/Karaktarer'
 import { NyItem } from './pages/NyItem'
 import { Salda } from './pages/Salda'
 import { Hjalp } from './pages/Hjalp'
+import { Kapitel } from './pages/Kapitel'
+import { Kronikan } from './pages/Kronikan'
+import { Stilbibel } from './pages/Stilbibel'
 
 /** Menyknapparna är färdiga bilder (järn = vanlig, guld = aktiv sida). */
 const NAV: [string, string, string][] = [
@@ -16,6 +19,7 @@ const NAV: [string, string, string][] = [
   ['/karaktarer', 'Karaktärer', 'karaktarer'],
   ['/alt', 'Alts', 'alt-vy'],
   ['/salda', 'Försäljning', 'salda'],
+  ['/kronikan', 'Krönikan', 'kronikan'],
   ['/hjalp', 'Hjälp', 'hjalp'],
 ]
 const MENU = `${import.meta.env.BASE_URL}ikoner/meny/`
@@ -49,6 +53,9 @@ function Shell() {
           <Route path="/karaktarer" element={<Karaktarer />} />
           <Route path="/alt" element={<AltVy />} />
           <Route path="/salda" element={<Salda />} />
+          <Route path="/kronikan" element={<Kronikan />} />
+          <Route path="/kronikan/stil" element={<Stilbibel />} />
+          <Route path="/kronikan/:id" element={<Kapitel />} />
           <Route path="/hjalp" element={<Hjalp />} />
         </Routes>
       </main>
