@@ -89,6 +89,8 @@ export interface Chapter {
   summary: string | null
   /** Kvällens berättelse, stycken separerade med tom rad */
   story: string | null
+  /** Kvällen som längre saga: stycken separerade med tom rad, avsnitt börjar med '## Rubrik' */
+  saga: string | null
   cover_id: string | null
   created_at: string
   updated_at: string

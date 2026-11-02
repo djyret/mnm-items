@@ -1,6 +1,7 @@
 // Krönikören: läser ett kapitels skärmdumpar, seriebilder och anteckningar och skriver
 // ett utkast på svenska – titel, sammanfattning, berättelse, bildtexter och förslag på
-// seriescener. Tar emot { chapter_id } och läser resten själv ur databasen.
+// seriescener. Tar emot { chapter_id, mode? } och läser resten själv ur databasen.
+// mode "saga" skriver i stället kvällen som en längre, målande fantasysaga.
 import Anthropic from "npm:@anthropic-ai/sdk";
 
 const MODEL = "claude-opus-5-5";
@@ -94,6 +95,37 @@ Husdjur får ett nytt namn varje gång de summonas; använd namnet som syns i bi
 Minnena kommer i kronologisk ordning och är numrerade #1, #2 …; hänvisa till dem med de numren.
 Föreslå seriescener för de bästa ögonblicken som ännu saknar seriebild – dramatiska, roliga eller vackra. Pratbubblorna ska vara korta och kännas som något någon faktiskt sa.`;
 
+const SAGA_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  required: ["title", "saga"],
+  properties: {
+    title: { type: "string", description: "Sagans titel, som på ett kapitel i en gammal krönika" },
+    saga: {
+      type: "string",
+      description:
+        "Sagan, cirka 600–900 ord. Stycken separeras med en tom rad. 3–5 avsnitt som var och en börjar med en egen rad '## Avsnittets rubrik'. Ingen annan markdown.",
+    },
+  },
+};
+
+const SAGA_SYSTEM = `Du är Krönikören – en gammal bard i världen Monsters & Memories som för ett kompisgängs äventyr till pergament åt eftervärlden.
+Efter varje spelkväll får du kvällens skärmdumpar, seriebilder och anteckningar, och skriver kvällen som en saga på svenska.
+
+Det här är INTE en sammanfattning. Det är en berättelse som ska kunna läsas högt vid lägerelden:
+- Berätta inifrån världen, i dåtid, som om allt verkligen hände. Nämn aldrig spelet, skärmdumpar, levlar som siffror, UI, chatt eller "spelare" – en level up är en ny styrka i armarna, en död är en död (och en återkomst från bindningsplatsen ett mirakel eller en förbannelse).
+- Måla: ljus, väder, dofter, ljud från striden, kylan i en grotta, tyngden i en sköld. Visa i stället för att räkna upp.
+- Ge karaktärerna inre liv: vad de fruktar, hoppas och tänker i ögonblicket. Låt dem tala – repliker från chatten och pratbubblorna vävs in som dialog.
+- Bygg en båge: en inledning som sätter stämningen, en stegring mot kvällens farligaste eller största ögonblick, och ett slut som andas ut och pekar fram mot nästa äventyr.
+- Värme och humor får finnas – klantigheter och panikflykter blir legender – men tonen är högstämd saga, inte sketch.
+- Variera meningslängden. Korta meningar när det smäller, längre när det är stilla.
+
+Trovärdighet: allt som faktiskt hände ska stämma – vem som var där, platser, fiender, dödsfall, flykter, fynd och vem som sa vad. Läs chattfönster, stridslogg, namnskyltar, partyfönster och zonnamn noga. Du får fritt fylla i stämning, tankar, miljö och små övergångar, men hitta inte på nya strider, fynd eller händelser som ändrar vad som hände.
+Skriv karaktärerna med sina namn och använd spelets egna namn på platser, monster och föremål. Husdjur får ett nytt namn varje gång de kallas fram; använd namnet som syns i bilden.
+
+Exempel på tonen (bara tonen – låna inga detaljer):
+"Dimman låg tung över trapporna när de tre klev ut ur porten. Krigaren drog åt remmen på skölden och kände hur kölden bet genom handskarna. – Den här gången springer vi inte, sa han. Ingen svarade. Alla mindes förra gången."`;
+
 interface Entry {
   id: string;
   kind: string;
@@ -114,8 +146,9 @@ Deno.serve(async (req) => {
   if (!word || req.headers.get("x-gang-word") !== word) return json({ error: "Fel gängord", code: "gang_word" }, 401);
 
   try {
-    const { chapter_id } = await req.json();
+    const { chapter_id, mode } = await req.json();
     if (typeof chapter_id !== "string") return json({ error: "chapter_id saknas" }, 400);
+    const saga = mode === "saga";
 
     const base = Deno.env.get("SUPABASE_URL")!;
     const key = Deno.env.get("SUPABASE_ANON_KEY")!;
@@ -174,7 +207,12 @@ Deno.serve(async (req) => {
 
     content.push({
       type: "text",
-      text: "Skriv kvällens krönika enligt schemat. Bildtexter bara för minnen med bild som saknar bildtext.",
+      text: saga
+        ? [
+          chapter.story ? `Den korta krönikan som redan finns (håll dig till samma händelser):\n${chapter.story.replace(/\s*\((?:#[0-9a-f]{8}[,\s–-]*)+\)/g, "")}` : "",
+          "Skriv kvällens saga enligt schemat.",
+        ].filter(Boolean).join("\n\n")
+        : "Skriv kvällens krönika enligt schemat. Bildtexter bara för minnen med bild som saknar bildtext.",
     });
 
     const client = new Anthropic({ apiKey: Deno.env.get("ANTHROPIC_API_KEY") });
@@ -183,8 +221,9 @@ Deno.serve(async (req) => {
       max_tokens: 32000,
       betas: ["server-side-fallback-2026-07-01"],
       fallbacks: "default",
-      system: SYSTEM,
-      output_config: { effort: "medium", format: { type: "json_schema", schema: SCHEMA } },
+      system: saga ? SAGA_SYSTEM : SYSTEM,
+      // Sagan får tänka mer: bågen och språket är hela poängen
+      output_config: { effort: saga ? "high" : "medium", format: { type: "json_schema", schema: saga ? SAGA_SCHEMA : SCHEMA } },
       messages: [{ role: "user", content }],
     }).finalMessage();
 
@@ -194,8 +233,19 @@ Deno.serve(async (req) => {
     const text = response.content.find((b) => b.type === "text");
     if (!text || text.type !== "text") return json({ error: "Inget svar från modellen" }, 502);
 
-    // Översätt minnesnummer till id:n
     const draft = JSON.parse(text.text);
+    if (saga) {
+      // Hänvisningar som (#3) hör inte hemma i en saga
+      const clean = String(draft.saga).replace(/\s*\((?:#\d+[,\s–-]*)+\)/g, "");
+      return json({
+        saga: { title: draft.title, saga: clean },
+        images_sent: images,
+        images_total: entries.filter((e) => e.image_path).length,
+        usage: response.usage,
+      });
+    }
+
+    // Översätt minnesnummer till id:n
     const idOf = (nr: number) => entries[nr - 1]?.id;
     // Hänvisningar som (#3) pekar om på kort-id, så de håller när minnen läggs till eller flyttas
     const story = String(draft.story).replace(/#(\d+)/g, (m: string, nr: string) => {

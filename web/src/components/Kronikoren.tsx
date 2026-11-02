@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { kronikaUrl, writeChronicle, type ChronicleDraft, type SceneDraft } from '../lib/kronikan'
+import { Link } from 'react-router-dom'
+import { kronikaUrl, writeChronicle, writeSaga, type ChronicleDraft, type SagaDraft, type SceneDraft } from '../lib/kronikan'
 import { supabase } from '../lib/supabase'
 import type { CastMember, Chapter, Entry } from '../lib/types'
 
@@ -208,6 +209,84 @@ export function Kronikoren({ chapter, entries, cast, onChanged, bare = false }: 
             ))}
           </div>
         </>
+      )}
+    </div>
+  )
+}
+
+const sagaKey = (id: string) => `mnm:saga:v1:${id}`
+
+/** Låter Claude skriva kvällen som en längre, målande saga. Utkastet kan putsas innan det sparas. */
+export function Sagoskrivaren({ chapter, onChanged }: { chapter: Chapter; onChanged: () => Promise<void> }) {
+  const [draft, setDraft] = useState<SagaDraft | null>(() => {
+    try {
+      const raw = localStorage.getItem(sagaKey(chapter.id))
+      return raw ? (JSON.parse(raw) as SagaDraft) : null
+    } catch {
+      return null
+    }
+  })
+  const [writing, setWriting] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    try {
+      if (draft) localStorage.setItem(sagaKey(chapter.id), JSON.stringify(draft))
+      else localStorage.removeItem(sagaKey(chapter.id))
+    } catch {
+      /* privat läge */
+    }
+  }, [chapter.id, draft])
+
+  async function write() {
+    setWriting(true)
+    setError(null)
+    try {
+      setDraft(await writeSaga(chapter.id))
+    } catch (e) {
+      setError((e as Error).message)
+    }
+    setWriting(false)
+  }
+
+  async function save() {
+    setBusy(true)
+    setError(null)
+    const { error } = await supabase.from('chronicle_chapters').update({ saga: draft!.saga }).eq('id', chapter.id)
+    if (error) setError(error.message)
+    else {
+      setDraft(null)
+      await onChanged()
+    }
+    setBusy(false)
+  }
+
+  return (
+    <div className="kr-writer">
+      <div className="kr-writer__intro">
+        <div>
+          <h2 className="panel-title">Sagan</h2>
+          <p className="note">Kvällen berättad som en längre fantasysaga – med stämning, tankar och dialog. Läses under fliken Saga.</p>
+        </div>
+        <div className="actions kr-head-actions">
+          {chapter.saga && !draft && <Link className="btn btn--small btn--ghost" to={`/kronikan/${chapter.id}/saga`}>Läs sagan</Link>}
+          <button className="btn btn--primary" onClick={write} disabled={writing || busy}>
+            {writing ? 'Bardens penna rör sig…' : draft || chapter.saga ? 'Skriv om sagan' : 'Skriv sagan'}
+          </button>
+        </div>
+      </div>
+      {writing && <p className="pulse center">Läser skärmdumparna och diktar – det tar en stund…</p>}
+      {error && <div className="alert">{error}</div>}
+      {draft && (
+        <div className="kr-suggest">
+          <p className="note">Förslag på titel: <b>{draft.title}</b></p>
+          <textarea rows={16} value={draft.saga} onChange={(e) => setDraft({ ...draft, saga: e.target.value })} />
+          <div className="actions">
+            <button className="btn btn--primary btn--small" disabled={busy} onClick={save}>{chapter.saga ? 'Ersätt sagan' : 'Spara sagan'}</button>
+            <button className="btn btn--ghost btn--small" disabled={busy} onClick={() => setDraft(null)}>Släng utkastet</button>
+          </div>
+        </div>
       )}
     </div>
   )

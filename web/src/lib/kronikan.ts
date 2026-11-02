@@ -163,6 +163,39 @@ export async function writeChronicle(chapterId: string): Promise<ChronicleDraft>
   return body.draft
 }
 
+export interface SagaDraft {
+  title: string
+  saga: string
+}
+
+/** Låter Claude skriva kvällen som en längre fantasysaga (Edge Function berattelse, mode saga). */
+export async function writeSaga(chapterId: string): Promise<SagaDraft> {
+  const body = await callFunction<{ saga: SagaDraft }>('berattelse', { chapter_id: chapterId, mode: 'saga' })
+  return body.saga
+}
+
+export type SagaBlock = { type: 'rubrik' | 'stycke'; text: string }
+
+/** Delar sagan i avsnittsrubriker (rader som börjar med ##) och stycken. */
+export function sagaBlocks(saga: string | null): SagaBlock[] {
+  const blocks: SagaBlock[] = []
+  for (const part of (saga ?? '').split(/\n\s*\n/)) {
+    let lines: string[] = []
+    const flush = () => {
+      if (lines.length) blocks.push({ type: 'stycke', text: lines.join(' ').trim() })
+      lines = []
+    }
+    for (const line of part.split('\n').map((l) => l.trim()).filter(Boolean)) {
+      if (/^#{1,3}\s/.test(line)) {
+        flush()
+        blocks.push({ type: 'rubrik', text: line.replace(/^#+\s*/, '') })
+      } else lines.push(line)
+    }
+    flush()
+  }
+  return blocks
+}
+
 // ---------- Bildgenerering ----------
 
 /** Låter OpenAI måla seriebilden (Edge Function seriebild). Bilden laddas upp men kopplas inte till något minne. */

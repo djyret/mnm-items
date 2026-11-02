@@ -8,7 +8,7 @@ import { supabase } from '../lib/supabase'
 import type { CastMember, Chapter, Entry, EntryKind, Quote } from '../lib/types'
 import { ChapterTabs } from '../components/ChapterTabs'
 import { Icon } from '../components/Icon'
-import { Kronikoren } from '../components/Kronikoren'
+import { Kronikoren, Sagoskrivaren } from '../components/Kronikoren'
 import { MissingSetup } from './Kronikan'
 
 type EntryDraft = Pick<Entry, 'kind' | 'image_path' | 'caption' | 'quotes' | 'cast_names' | 'pet_names' | 'source_ids' | 'subzone' | 'url' | 'width' | 'height'>
@@ -270,7 +270,7 @@ function EntryRow({ entry, index, selected, isCover, cast, originals, onSelect }
 
 // ---------- Kapitelsidan ----------
 
-type ChapterDraft = Pick<Chapter, 'title' | 'played_on' | 'zone' | 'subzone' | 'summary' | 'story'>
+type ChapterDraft = Pick<Chapter, 'title' | 'played_on' | 'zone' | 'subzone' | 'summary' | 'story' | 'saga'>
 
 export function Kapitel() {
   const { id } = useParams()
@@ -648,6 +648,7 @@ export function Kapitel() {
               </div>
               <label className="field"><span>Sammanfattning</span><textarea rows={3} value={head.summary ?? ''} onChange={(e) => setHead({ ...head, summary: e.target.value || null })} placeholder="Kvällen i några meningar" /></label>
               <label className="field"><span>Berättelsen</span><textarea rows={10} value={head.story ?? ''} onChange={(e) => setHead({ ...head, story: e.target.value || null })} placeholder="Stycken separeras med en tom rad" /></label>
+              <label className="field"><span>Sagan</span><textarea rows={14} value={head.saga ?? ''} onChange={(e) => setHead({ ...head, saga: e.target.value || null })} placeholder="Avsnitt börjar med en rad ## Rubrik, stycken separeras med en tom rad" /></label>
               <div className="actions">
                 <button className="btn btn--primary">Spara</button>
                 <button type="button" className="btn btn--ghost" onClick={() => setHead(null)}>Avbryt</button>
@@ -676,10 +677,14 @@ export function Kapitel() {
                 <Kronikoren chapter={chapter} entries={entries} cast={cast} onChanged={load} bare />
               </section>
 
+              <section className="kr-panel-section">
+                <Sagoskrivaren chapter={chapter} onChanged={load} />
+              </section>
+
               <section className="kr-panel-section kr-panel-section--quiet">
                 <h2 className="panel-title">Kapitlet</h2>
                 <div className="actions">
-                  <button className="btn btn--small btn--ghost" onClick={() => setHead({ title: chapter.title, played_on: chapter.played_on, zone: chapter.zone, subzone: chapter.subzone, summary: chapter.summary, story: chapter.story })}>
+                  <button className="btn btn--small btn--ghost" onClick={() => setHead({ title: chapter.title, played_on: chapter.played_on, zone: chapter.zone, subzone: chapter.subzone, summary: chapter.summary, story: chapter.story, saga: chapter.saga })}>
                     Redigera kapitlet
                   </button>
                   <Link className="btn btn--small btn--ghost" to={`/kronikan/${chapter.id}`}>Läs kapitlet</Link>

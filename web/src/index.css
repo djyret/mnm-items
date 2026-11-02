@@ -1668,3 +1668,43 @@ blockquote.kr-note { font-family: var(--font-title); font-weight: 700; }
   .kr-show__roll { bottom: 3.2rem; padding: 0.2rem 0.6rem 0.3rem; border-width: 18px; border-image-width: 18px; font-size: 1.05rem; }
   .kr-read__top { flex-wrap: wrap; }
 }
+
+/* Sagan: en lång pergamentsida i bokformat */
+.kr-saga {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 1.6rem 2.6rem 1.2rem;
+  border: 30px solid transparent;
+  border-image: url('/bilder/pergament.webp') 56 fill / 30px stretch;
+  color: var(--ink);
+  font-size: 1.16rem;
+  line-height: 1.7;
+  filter: drop-shadow(0 14px 22px rgba(0, 0, 0, 0.6));
+}
+.kr-saga ::selection { background: rgba(163, 41, 28, 0.25); }
+.kr-saga__rubrik {
+  margin: 1.8rem 0 0.8rem;
+  font-family: var(--font-title);
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-align: center;
+  color: var(--ink-soft);
+  text-transform: none;
+}
+.kr-saga__rubrik:first-child { margin-top: 0.4rem; }
+.kr-saga__rubrik::after { content: ''; display: block; width: 12px; height: 12px; margin: 0.35rem auto 0; background: url('/bilder/spik.webp') center / cover; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5)); }
+.kr-saga__p { margin: 0 0 1rem; text-wrap: pretty; hyphens: auto; }
+.kr-saga__p--forsta::first-letter {
+  float: left;
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 3.3em;
+  line-height: 0.85;
+  padding: 0.06em 0.1em 0 0;
+  color: var(--pin);
+}
+.kr-saga .kr-scroll__empty a { color: var(--pin); font-weight: 600; }
+@media (max-width: 700px) {
+  .kr-saga { padding: 0.6rem 0.4rem 0.4rem; border-width: 20px; border-image-width: 20px; font-size: 1.08rem; }
+}
