@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import {
   KIND_LABELS, buildPrompt, foldSources, generateImage, deleteKronika, formatDay, imageFiles, kronikaUrl, loadCastAndStyle,
-  missingTables, sortEntries, storeImage, weekday,
+  missingTables, shotTime, sortEntries, storeImage, weekday,
 } from '../lib/kronikan'
 import { supabase } from '../lib/supabase'
 import type { CastMember, Chapter, Entry, EntryKind, Quote } from '../lib/types'
@@ -328,7 +328,8 @@ export function Kapitel() {
       return
     }
     setUploads((n) => n + files.length)
-    for (const f of files) {
+    // Äldst först, så skärmdumpar från en spelkväll hamnar i den ordning de togs
+    for (const f of [...files].sort((a, b) => shotTime(a) - shotTime(b))) {
       try {
         const { path, kind, width, height } = await storeImage(f)
         const { error } = await supabase.from('chronicle_entries').insert({ chapter_id: id, kind, image_path: path, width, height, position: Date.now() / 1000 })

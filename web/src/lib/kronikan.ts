@@ -68,6 +68,18 @@ export function imageFiles(list: DataTransferItemList | FileList | null | undefi
   return files.filter((f): f is File => !!f && f.type.startsWith('image/'))
 }
 
+/** När en skärmdump togs: tiden i filnamnet (t.ex. "Skärmbild 2026-10-26 143012.png"),
+ *  annars filens ändringstid. Namnet går först eftersom nedladdade filer får ny ändringstid. */
+export function shotTime(file: File): number {
+  const m = /(20\d{2})-?(\d{2})-?(\d{2})[ _T-]*(\d{2})[.:-]?(\d{2})[.:-]?(\d{2})/.exec(file.name)
+  if (m) {
+    const [y, mo, d, h, mi, s] = m.slice(1).map(Number)
+    const t = new Date(y, mo - 1, d, h, mi, s)
+    if (t.getMonth() === mo - 1 && t.getDate() === d && h < 24 && mi < 60 && s < 60) return t.getTime()
+  }
+  return file.lastModified
+}
+
 // ---------- Bildprompt ----------
 
 /** Namnfärg i ord, eftersom bildmodeller följer färgnamn bättre än hexkoder. */
