@@ -30,7 +30,8 @@ for (const t of TABLES) {
 
   const ins = await denied(await fetch(`${URL_}/rest/v1/${t}`, { method: 'POST', headers: H, body: '{}' }))
   check(`${t}: insert nekas`, ins.ok, ins.detail)
-  const upd = await denied(await fetch(`${URL_}/rest/v1/${t}?${key}=eq.${NONE}`, { method: 'PATCH', headers: H, body: '{}' }))
+  // Tom kropp ({}) kör ingen SQL alls och ger 204, så skicka en riktig kolumn (riktad mot ett id som inte finns)
+  const upd = await denied(await fetch(`${URL_}/rest/v1/${t}?${key}=eq.${NONE}`, { method: 'PATCH', headers: H, body: JSON.stringify({ [key]: NONE }) }))
   check(`${t}: update nekas`, upd.ok, upd.detail)
   const del = await denied(await fetch(`${URL_}/rest/v1/${t}?${key}=eq.${NONE}`, { method: 'DELETE', headers: H }))
   check(`${t}: delete nekas`, del.ok, del.detail)
