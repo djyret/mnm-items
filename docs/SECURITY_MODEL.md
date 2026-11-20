@@ -119,12 +119,21 @@ Att byta `visibility` är en vanlig update för Editors. Med "Editor ändrar all
 
 | Område | Tabeller / storage |
 |---|---|
-| `forradet` | `characters`, `items`, `item_events`, listning i `item-images` |
+| `forradet` | `characters`, `items`, `item_events`, `wishlist`, listning i `item-images` (även porträtt) |
 | `kronikan` | `chronicle_chapters` (plus kapitlets `visibility`), `chronicle_entries` (via `can_read_chapter`), `chronicle_cast`, listning i `kronikan` |
 | `stilbibeln` | `chronicle_settings` |
 
 Skrivregler (`can_edit()`) påverkas inte. Saknas en rad i `area_access` ser bara admin området.
 Webben döljer menyknappar och sidor via `useAreas()` / `RequireArea`, men det är databasen som spärrar.
+
+### Armory (migration `20261120160000_armory`)
+
+- `items.equipped_slot` är enda sanningen för utrustning. Triggern `items_equipment_sync` håller `status` i takt
+  (slot ⇒ `equippad`, eller `utlanad` när låntagaren bär den) och rensar slotten när itemet byter bärare, säljs
+  eller reserveras. `items_equipment_log` skriver `utrustad`/`avtagen` i `item_events` som anroparen, så RLS gäller.
+- Unikt index: en karaktär bär högst ett item per slot.
+- `equip_item(item, slot)` är `security invoker` (RLS avgör), körbar bara för `authenticated`; anon nekas.
+- `wishlist`: läs `can_view_area('forradet')`, skriv `can_edit()`, samma mönster som övriga tabeller.
 
 ## Storage
 

@@ -1,0 +1,442 @@
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { Link, useParams } from 'react-router-dom'
+import { StatusBadge } from '../components/Badges'
+import { ClassIcon } from '../components/ClassIcon'
+import { Icon } from '../components/Icon'
+import { ItemIcon, ItemTooltip } from '../components/ItemTooltip'
+import {
+  DOLL, EQUIP_SLOTS, canEquipOn, equipItem, equippedBy, fitsSlot, sameName, slotBase, slotLabel,
+  unequipItem, useChapters, wearerOf,
+} from '../lib/armory'
+import { useAuth } from '../lib/auth'
+import { CLASSES, STAT_GROUPS, SLOTS, statLabel } from '../lib/constants'
+import { useI18n } from '../lib/i18n'
+import { canUse, compressImage, deleteImages, uploadImage } from '../lib/items'
+import { useStore } from '../lib/store'
+import { imageUrl, supabase } from '../lib/supabase'
+import type { Character, Item, ItemEvent, WishlistItem } from '../lib/types'
+
+type Tab = 'equipped' | 'stash' | 'wishlist' | 'history'
+
+export function Armory() {
+  const { id } = useParams()
+  const { characters, items, loading } = useStore()
+  const { t } = useI18n()
+  const char = characters.find((c) => c.id === id)
+
+  if (!char) {
+    return (
+      <div className="page">
+        <div className="panel empty">
+          {loading ? t('common.loading') : <>{t('armory.notFound')} <Link to="/karaktarer">{t('armory.toCharacters')}</Link></>}
+        </div>
+      </div>
+    )
+  }
+  return <ArmoryFor char={char} items={items} />
+}
+
+function ArmoryFor({ char, items }: { char: Character; items: Item[] }) {
+  const { t } = useI18n()
+  const [selected, setSelected] = useState<string | null>(null)
+  const [tab, setTab] = useState<Tab>('equipped')
+  const worn = useMemo(() => equippedBy(items, char.id), [items, char.id])
+
+  const slotButton = (slot: string) => {
+    const item = worn.get(slot)
+    return (
+      <button
+        key={slot}
+        type="button"
+        className={`doll__slot${item ? ' doll__slot--filled' : ''}${selected === slot ? ' doll__slot--selected' : ''}`}
+        aria-pressed={selected === slot}
+        title={item ? `${slotLabel(slot)}: ${item.name}` : slotLabel(slot)}
+        onClick={() => setSelected(selected === slot ? null : slot)}
+      >
+        <ItemIcon src={item ? imageUrl(item.icon_path) : null} slot={slotBase(slot)} size="sm" />
+        <span className="doll__label">{item ? item.name : slotLabel(slot)}</span>
+      </button>
+    )
+  }
+
+  return (
+    <div className="page">
+      <Link to="/karaktarer" className="back"><Icon name="vanster" size={14} /> {t('nav.characters')}</Link>
+      <header className="armory__head">
+        <ClassIcon code={char.class} size={56} />
+        <div>
+          <h1 className="page-title armory__name">
+            {char.name} {char.is_main && <span className="badge badge--main">Main</span>}
+          </h1>
+          <div className="char__info">
+            {[char.level && `Level ${char.level}`, char.race, char.class && (CLASSES[char.class] || char.class)].filter(Boolean).join(' · ') || t('forradet.chars.noInfo')}
+            {char.player && <> · {t('forradet.chars.playedBy', { player: char.player })}</>}
+          </div>
+        </div>
+      </header>
+
+      <div className="armory">
+        <div className="panel doll">
+          <div className="doll__col">{DOLL.left.map(slotButton)}</div>
+          <Portrait char={char} />
+          <div className="doll__col">{DOLL.right.map(slotButton)}</div>
+          <div className="doll__row">{DOLL.bottom.map(slotButton)}</div>
+        </div>
+
+        <div className="armory__side">
+          {selected
+            ? <SlotPanel char={char} slot={selected} item={worn.get(selected) ?? null} items={items} />
+            : <div className="panel armory__hint">{t('armory.pickSlot')}</div>}
+          <BonusPanel worn={[...worn.values()]} />
+        </div>
+      </div>
+
+      <nav className="kr-tabs armory__tabs" aria-label={t('armory.tabsLabel')}>
+        {(['equipped', 'stash', 'wishlist', 'history'] as const).map((k) => (
+          <button key={k} type="button" className={`kr-tab${tab === k ? ' active' : ''}`} aria-pressed={tab === k} onClick={() => setTab(k)}>
+            {t(`armory.tab.${k}`)}
+          </button>
+        ))}
+      </nav>
+      {tab === 'equipped' && <EquippedList worn={worn} />}
+      {tab === 'stash' && <StashList char={char} items={items} />}
+      {tab === 'wishlist' && <Wishlist char={char} />}
+      {tab === 'history' && <History char={char} />}
+    </div>
+  )
+}
+
+// ---------- Porträtt ----------
+
+function Portrait({ char }: { char: Character }) {
+  const { canEdit } = useAuth()
+  const { reload } = useStore()
+  const { t } = useI18n()
+  const input = useRef<HTMLInputElement>(null)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const src = imageUrl(char.portrait_path)
+
+  async function upload(file: File) {
+    if (!file.type.startsWith('image/')) return
+    setBusy(true)
+    setError(null)
+    try {
+      const path = await uploadImage(await compressImage(file, 900), '-portrait')
+      const { error } = await supabase.from('characters').update({ portrait_path: path }).eq('id', char.id)
+      if (error) {
+        await deleteImages(path)
+        throw error
+      }
+      await deleteImages(char.portrait_path)
+      await reload()
+    } catch (e) {
+      setError((e as Error).message)
+    }
+    setBusy(false)
+  }
+
+  return (
+    <figure className="doll__portrait">
+      {src
+        ? <img src={src} alt={t('armory.portraitOf', { name: char.name })} />
+        : <div className="doll__noportrait"><ClassIcon code={char.class} size={96} /><span>{t('armory.noPortrait')}</span></div>}
+      {canEdit && (
+        <>
+          <button type="button" className="btn btn--small doll__upload" disabled={busy} onClick={() => input.current?.click()}>
+            {busy ? t('armory.uploading') : src ? t('armory.changePortrait') : t('armory.addPortrait')}
+          </button>
+          <input ref={input} type="file" accept="image/*" hidden onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
+        </>
+      )}
+      {error && <div className="alert">{error}</div>}
+    </figure>
+  )
+}
+
+// ---------- Vald slot ----------
+
+function SlotPanel({ char, slot, item, items }: { char: Character; slot: string; item: Item | null; items: Item[] }) {
+  const { canEdit } = useAuth()
+  const { reload, charById } = useStore()
+  const { t } = useI18n()
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  // Ägda eller lånade items med känd slot som passar här
+  const own = items.filter((i) => i.id !== item?.id && i.slots.length > 0 && fitsSlot(i, slot) && canEquipOn(i, char.id))
+  // Lediga items hos andra som karaktären kan bära (att låna)
+  const others = items.filter((i) =>
+    i.status === 'ledig' && i.holder_id !== char.id && i.slots.length > 0 && fitsSlot(i, slot) && canUse(i, char))
+
+  async function run(fn: () => Promise<string | null>) {
+    setBusy(true)
+    setError(null)
+    const err = await fn()
+    if (err) setError(err)
+    await reload()
+    setBusy(false)
+  }
+
+  return (
+    <div className="panel">
+      <h2 className="panel-title">{slotLabel(slot)}</h2>
+      {error && <div className="alert">{error}</div>}
+      {item ? (
+        <>
+          <Link to={`/item/${item.id}`} className="armory__tooltip"><ItemTooltip item={item} compact iconUrl={imageUrl(item.icon_path)} /></Link>
+          {item.status === 'utlanad' && (
+            <p className="note">{t('armory.borrowedFrom', { name: charById(item.holder_id)?.name ?? '?' })}</p>
+          )}
+          <div className="actions">
+            <Link className="btn btn--small" to={`/item/${item.id}`}>{t('armory.openItem')}</Link>
+            {canEdit && <button className="btn btn--small btn--ghost" disabled={busy} onClick={() => run(() => unequipItem(item.id))}>{t('armory.unequip')}</button>}
+          </div>
+        </>
+      ) : (
+        <p className="armory__empty">{t('armory.emptySlot')}</p>
+      )}
+
+      {canEdit && own.length > 0 && (
+        <>
+          <h3 className="armory__sub">{item ? t('armory.swapFor') : t('armory.putOn')}</h3>
+          <ul className="armory__list">
+            {own.map((i) => (
+              <li key={i.id}>
+                <ItemIcon src={imageUrl(i.icon_path)} slot={i.slots[0]} size="sm" />
+                <Link to={`/item/${i.id}`}>{i.name}</Link>
+                {i.equipped_slot && <small>{t('armory.nowIn', { slot: slotLabel(i.equipped_slot) })}</small>}
+                <button className="btn btn--small" disabled={busy} onClick={() => run(() => equipItem(i.id, slot))}>{t('armory.equip')}</button>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+      {canEdit && (
+        <div className="actions">
+          <Link className="btn btn--small btn--primary" to={`/ny?karaktar=${char.id}&slot=${slot}`}>{t('armory.addNew')}</Link>
+        </div>
+      )}
+
+      {others.length > 0 && (
+        <>
+          <h3 className="armory__sub">{t('armory.inStash')}</h3>
+          <ul className="armory__list">
+            {others.slice(0, 6).map((i) => (
+              <li key={i.id}>
+                <ItemIcon src={imageUrl(i.icon_path)} slot={i.slots[0]} size="sm" />
+                <Link to={`/item/${i.id}`}>{i.name}</Link>
+                <small>{t('armory.heldBy', { name: charById(i.holder_id)?.name ?? '?' })}</small>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+    </div>
+  )
+}
+
+// ---------- Summa av utrustningen ----------
+
+function BonusPanel({ worn }: { worn: Item[] }) {
+  const { t } = useI18n()
+  if (worn.length === 0) return null
+  const ac = worn.reduce((s, i) => s + (i.ac ?? 0), 0)
+  const totals: Record<string, number> = {}
+  for (const i of worn) {
+    for (const [k, v] of Object.entries(i.stats)) {
+      if (k === 'DMG' || k === 'DLY' || k === 'RANGE') continue
+      totals[k] = (totals[k] ?? 0) + v
+    }
+  }
+  const order = STAT_GROUPS.flat().filter((k) => totals[k])
+  const rest = Object.keys(totals).filter((k) => totals[k] && !order.includes(k))
+  return (
+    <div className="panel">
+      <h2 className="panel-title">{t('armory.bonus')}</h2>
+      <dl className="bonus">
+        <div><dt>AC</dt><dd>{ac}</dd></div>
+        {[...order, ...rest].map((k) => (
+          <div key={k}><dt>{statLabel(k)}</dt><dd>{totals[k] > 0 ? `+${totals[k]}` : totals[k]}</dd></div>
+        ))}
+      </dl>
+      <small className="bonus__note">{t('armory.bonusNote', { count: worn.length })}</small>
+    </div>
+  )
+}
+
+// ---------- Flikar ----------
+
+function EquippedList({ worn }: { worn: Map<string, Item> }) {
+  const { t } = useI18n()
+  const chapters = useChapters()
+  const title = (cid: string | null) => chapters.find((c) => c.id === cid)
+  if (worn.size === 0) return <div className="panel empty">{t('armory.nothingEquipped')}</div>
+  return (
+    <div className="panel">
+      <ul className="armory__list armory__list--wide">
+        {EQUIP_SLOTS.filter((s) => worn.has(s)).map((s) => {
+          const i = worn.get(s)!
+          const ch = title(i.found_chapter_id)
+          return (
+            <li key={s}>
+              <span className="armory__slotname">{slotLabel(s)}</span>
+              <ItemIcon src={imageUrl(i.icon_path)} slot={slotBase(s)} size="sm" />
+              <Link to={`/item/${i.id}`}>{i.name}</Link>
+              {ch && <small><Link to={`/kronikan/${ch.id}`}>{t('armory.foundIn', { title: ch.title })}</Link></small>}
+            </li>
+          )
+        })}
+      </ul>
+    </div>
+  )
+}
+
+function StashList({ char, items }: { char: Character; items: Item[] }) {
+  const { t } = useI18n()
+  const list = items.filter((i) =>
+    i.status !== 'sald' && !(i.equipped_slot && wearerOf(i) === char.id) &&
+    (i.holder_id === char.id || (i.status === 'utlanad' && i.lent_to_id === char.id)))
+  if (list.length === 0) return <div className="panel empty">{t('armory.stashEmpty')}</div>
+  return (
+    <div className="panel">
+      <ul className="armory__list armory__list--wide">
+        {list.map((i) => (
+          <li key={i.id}>
+            <ItemIcon src={imageUrl(i.icon_path)} slot={i.slots[0]} size="sm" />
+            <Link to={`/item/${i.id}`}>{i.name}</Link>
+            <StatusBadge item={i} />
+          </li>
+        ))}
+      </ul>
+      <Link className="btn btn--small" to={`/?karaktar=${char.id}`}>{t('armory.openInStash')}</Link>
+    </div>
+  )
+}
+
+function Wishlist({ char }: { char: Character }) {
+  const { canEdit } = useAuth()
+  const { wishlist, items, reload, charById } = useStore()
+  const { t, locale } = useI18n()
+  const [name, setName] = useState('')
+  const [slot, setSlot] = useState('')
+  const [note, setNote] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const mine = wishlist.filter((w) => w.character_id === char.id)
+    .sort((a, b) => Number(!!a.fulfilled_at) - Number(!!b.fulfilled_at))
+
+  async function run(q: PromiseLike<{ error: { message: string } | null }>) {
+    setBusy(true)
+    setError(null)
+    const { error } = await q
+    if (error) setError(error.message)
+    await reload()
+    setBusy(false)
+    return !error
+  }
+
+  async function add(e: React.FormEvent) {
+    e.preventDefault()
+    if (!name.trim()) return
+    const ok = await run(supabase.from('wishlist').insert({ character_id: char.id, name: name.trim(), slot: slot || null, note: note.trim() || null }))
+    if (ok) {
+      setName('')
+      setSlot('')
+      setNote('')
+    }
+  }
+
+  const matches = (w: WishlistItem) =>
+    items.filter((i) => i.status !== 'sald' && sameName(i.name, w.name) && wearerOf(i) !== char.id)
+
+  return (
+    <div className="panel">
+      {error && <div className="alert">{error}</div>}
+      {mine.length === 0 && <p className="armory__empty">{t('armory.wish.empty')}</p>}
+      <ul className="armory__list armory__list--wide">
+        {mine.map((w) => (
+          <li key={w.id} className={w.fulfilled_at ? 'armory__done' : undefined}>
+            <span className="armory__slotname">{w.slot ? slotLabel(w.slot) : '–'}</span>
+            <b>{w.name}</b>
+            {w.note && <small>{w.note}</small>}
+            {w.fulfilled_at
+              ? <small>{t('armory.wish.gotIt', { date: new Date(w.fulfilled_at).toLocaleDateString(locale) })}</small>
+              : matches(w).map((i) => (
+                <small key={i.id}><Link to={`/item/${i.id}`}>{t('armory.wish.inStash', { name: charById(i.holder_id)?.name ?? '?' })}</Link></small>
+              ))}
+            {canEdit && (
+              <span className="armory__rowactions">
+                {!w.fulfilled_at && (
+                  <button className="btn btn--small btn--ghost" disabled={busy}
+                    onClick={() => run(supabase.from('wishlist').update({ fulfilled_at: new Date().toISOString() }).eq('id', w.id))}>
+                    {t('armory.wish.markGot')}
+                  </button>
+                )}
+                <button className="btn btn--small btn--danger" disabled={busy}
+                  onClick={() => confirm(t('armory.wish.deleteConfirm', { name: w.name })) && run(supabase.from('wishlist').delete().eq('id', w.id))}>
+                  {t('common.delete')}
+                </button>
+              </span>
+            )}
+          </li>
+        ))}
+      </ul>
+      {canEdit && (
+        <form className="form armory__wishform" onSubmit={add}>
+          <label className="field"><span>{t('armory.wish.name')}</span><input required value={name} onChange={(e) => setName(e.target.value)} /></label>
+          <label className="field">
+            <span>{t('armory.wish.slot')}</span>
+            <select value={slot} onChange={(e) => setSlot(e.target.value)}>
+              <option value="">{t('armory.wish.anySlot')}</option>
+              {SLOTS.map((s) => <option key={s} value={s}>{slotLabel(s)}</option>)}
+            </select>
+          </label>
+          <label className="field field--wide"><span>{t('armory.wish.note')}</span><input value={note} onChange={(e) => setNote(e.target.value)} placeholder={t('armory.wish.notePlaceholder')} /></label>
+          <div className="actions field--wide"><button className="btn btn--primary" disabled={busy}>{t('armory.wish.add')}</button></div>
+        </form>
+      )}
+    </div>
+  )
+}
+
+function History({ char }: { char: Character }) {
+  const { items } = useStore()
+  const { t, locale } = useI18n()
+  const [events, setEvents] = useState<ItemEvent[] | null>(null)
+
+  useEffect(() => {
+    supabase
+      .from('item_events')
+      .select('*')
+      .in('kind', ['utrustad', 'avtagen'])
+      .or(`to_id.eq.${char.id},from_id.eq.${char.id}`)
+      .order('created_at', { ascending: false })
+      .limit(200)
+      .then(({ data }) => setEvents((data as ItemEvent[]) ?? []))
+  }, [char.id, items])
+
+  if (events === null) return <div className="panel empty">{t('common.loading')}</div>
+  if (events.length === 0) return <div className="panel empty">{t('armory.history.empty')}</div>
+  const nameOf = (id: string) => items.find((i) => i.id === id)
+  return (
+    <div className="panel">
+      <ul className="history">
+        {events.map((e) => {
+          const it = nameOf(e.item_id)
+          return (
+            <li key={e.id}>
+              <time>{new Date(e.created_at).toLocaleDateString(locale)}</time>
+              <span>
+                {t(e.kind === 'utrustad' ? 'armory.history.on' : 'armory.history.off')}{' '}
+                {it ? <Link to={`/item/${it.id}`}>{it.name}</Link> : '?'}
+                {e.note && ` (${slotLabel(e.note)})`}
+                {e.level != null && ` · Level ${e.level}`}
+              </span>
+            </li>
+          )
+        })}
+      </ul>
+    </div>
+  )
+}

@@ -1811,3 +1811,93 @@ blockquote.kr-note { font-family: var(--font-title); font-weight: 700; }
 /* Headern med skylten Loot & Lore: bandet under skylten är på valt språk (header.webp är den gamla Förrådet-skylten) */
 html[lang='sv'] .hero { background-image: url('/bilder/header-sv.webp'); }
 html[lang='en'] .hero { background-image: url('/bilder/header-en.webp'); }
+
+/* ---------- Character Armory ---------- */
+.char__portrait { width: 64px; height: 64px; object-fit: cover; border: 1px solid #111; box-shadow: inset 0 0 0 1px var(--iron); border-radius: 2px; }
+.char__name a { color: inherit; text-decoration: none; }
+.char__name a:hover { color: var(--bronze-light); }
+.item-equip { margin: 0.4rem 0 0; }
+
+.armory__head { display: flex; gap: 0.9rem; align-items: center; margin-bottom: 1rem; }
+.armory__head .page-title { margin: 0; }
+.armory { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 1rem; align-items: start; }
+.armory__side { min-width: 0; }
+.armory__hint { color: var(--text-dim); }
+.armory__tooltip { display: block; color: inherit; text-decoration: none; }
+.armory__sub { font-family: var(--font-title); font-size: 0.95rem; letter-spacing: 0.04em; color: var(--gold); margin: 1rem 0 0.4rem; }
+.armory__empty { color: var(--text-dim); margin: 0 0 0.5rem; }
+.armory__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.45rem; }
+.armory__list li { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.armory__list li > a { color: #f0e4c8; font-weight: 600; }
+.armory__list small { color: var(--text-dim); }
+.armory__list li > .btn { margin-left: auto; }
+.armory__list--wide li { padding: 0.35rem 0; border-bottom: 1px solid var(--iron-dark); }
+.armory__list--wide li:last-child { border-bottom: 0; }
+.armory__list--wide + .btn { margin-top: 0.8rem; }
+.armory__slotname { min-width: 6.5rem; font-family: var(--font-title); font-variant: small-caps; font-size: 0.85rem; color: var(--text-dim); }
+.armory__rowactions { margin-left: auto; display: flex; gap: 0.4rem; }
+.armory__done { opacity: 0.6; }
+.armory__done b { text-decoration: line-through; }
+.armory__wishform { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--iron-dark); }
+.armory__tabs { margin: 1rem 0 0.75rem; flex-wrap: wrap; }
+.armory__tabs .kr-tab { cursor: pointer; font-family: var(--font-title); }
+.armory__tabs .kr-tab:not(.active) { background: none; }
+
+/* Paper doll: slots runt porträttet som karaktärsfönstret i spelet */
+.doll { display: grid; grid-template-columns: 72px minmax(220px, 300px) 72px; grid-template-rows: 1fr auto; gap: 0.6rem 0.75rem; margin: 0; }
+.doll__col { display: flex; flex-direction: column; justify-content: center; gap: 0.3rem; }
+.doll__row { grid-column: 2; display: flex; justify-content: center; gap: 0.5rem; }
+.doll__slot {
+  appearance: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 72px;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+.doll__slot .item-icon { transition: box-shadow 0.15s; }
+.doll__slot:hover .item-icon { box-shadow: inset 0 0 0 1px var(--bronze-light), 0 0 8px rgba(224, 184, 114, 0.35); }
+.doll__slot:focus-visible { outline: none; }
+.doll__slot:focus-visible .item-icon,
+.doll__slot--selected .item-icon { outline: 2px solid var(--bronze-light); outline-offset: 1px; }
+.doll__slot--filled .item-icon { box-shadow: inset 0 0 0 1px var(--bronze), 0 0 6px rgba(224, 184, 114, 0.25); }
+.doll__label { max-width: 72px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--font-title); font-size: 0.66rem; line-height: 1.15; }
+.doll__slot--filled .doll__label { color: #f0e4c8; }
+.doll__portrait {
+  grid-column: 2;
+  grid-row: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 340px;
+  margin: 0;
+  background: radial-gradient(circle at 50% 35%, rgba(255, 230, 180, 0.06), transparent 70%), #17140f;
+  border: 1px solid #0a0907;
+  box-shadow: inset 0 0 0 1px #4a4741, inset 0 0 24px rgba(0, 0, 0, 0.8);
+  overflow: hidden;
+}
+.doll__portrait img { flex: 1; width: 100%; height: 100%; object-fit: cover; }
+.doll__noportrait { flex: 1; display: grid; place-items: center; align-content: center; gap: 0.6rem; color: var(--text-dim); font-style: italic; }
+.doll__upload { position: absolute; left: 50%; bottom: 0.6rem; transform: translateX(-50%); white-space: nowrap; }
+.doll__portrait .alert { position: absolute; inset: auto 0.5rem 3rem; }
+
+.bonus { display: grid; grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr)); gap: 0.3rem 0.9rem; margin: 0; }
+.bonus div { display: flex; justify-content: space-between; gap: 0.5rem; border-bottom: 1px solid var(--iron-dark); }
+.bonus dt { color: var(--text-dim); }
+.bonus dd { margin: 0; color: var(--gold); font-weight: 600; }
+.bonus__note { display: block; margin-top: 0.6rem; color: var(--text-dim); }
+
+@media (max-width: 900px) {
+  .armory { grid-template-columns: minmax(0, 1fr); }
+  .doll { justify-content: center; }
+}
+@media (max-width: 600px) {
+  .doll { grid-template-columns: minmax(0, 1fr); }
+  .doll__portrait { grid-column: 1; grid-row: auto; order: -1; min-height: 260px; }
+  .doll__col, .doll__row { grid-column: 1; flex-direction: row; flex-wrap: wrap; justify-content: center; }
+}

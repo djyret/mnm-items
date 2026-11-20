@@ -9,7 +9,7 @@ const KEY = src.match(/SUPABASE_KEY = '([^']+)'/)[1]
 const H = { apikey: KEY, 'Content-Type': 'application/json' }
 const NONE = '00000000-0000-0000-0000-000000000000'
 
-const TABLES = ['characters', 'items', 'item_events', 'chronicle_chapters', 'chronicle_entries', 'chronicle_cast', 'chronicle_settings']
+const TABLES = ['characters', 'items', 'item_events', 'wishlist', 'chronicle_chapters', 'chronicle_entries', 'chronicle_cast', 'chronicle_settings']
 const BUCKETS = ['item-images', 'kronikan']
 const FUNCTIONS = ['parse-item', 'berattelse', 'seriebild']
 
@@ -58,6 +58,8 @@ for (const f of FUNCTIONS) {
 
 const rpc = await denied(await fetch(`${URL_}/rest/v1/rpc/ai_usage_start`, { method: 'POST', headers: H, body: '{"fn":"seriebild"}' }))
 check('ai_usage_start: nekas', rpc.ok, rpc.detail)
+const equip = await denied(await fetch(`${URL_}/rest/v1/rpc/equip_item`, { method: 'POST', headers: H, body: JSON.stringify({ p_item: NONE, p_slot: 'HEAD' }) }))
+check('equip_item: nekas', equip.ok, equip.detail)
 const area = await denied(await fetch(`${URL_}/rest/v1/area_access?area=eq.forradet`, { method: 'PATCH', headers: H, body: '{"min_role":"visitor"}' }))
 check('area_access: ändring nekas', area.ok, area.detail)
 const mem = await denied(await fetch(`${URL_}/rest/v1/memberships?select=user_id`, { headers: H }))

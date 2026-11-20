@@ -1,10 +1,12 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { supabase } from './supabase'
-import type { Character, Item } from './types'
+import type { Character, Item, WishlistItem } from './types'
 
 interface Store {
   characters: Character[]
   items: Item[]
+  /** Alla karaktärers önskelistor (Armory och "önskas av" i förrådet) */
+  wishlist: WishlistItem[]
   loading: boolean
   error: string | null
   reload: () => Promise<void>
@@ -17,13 +19,15 @@ const StoreContext = createContext<Store | null>(null)
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [characters, setCharacters] = useState<Character[]>([])
   const [items, setItems] = useState<Item[]>([])
+  const [wishlist, setWishlist] = useState<WishlistItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   const reload = useCallback(async () => {
-    const [c, i] = await Promise.all([
+    const [c, i, w] = await Promise.all([
       supabase.from('characters').select('*').order('name'),
       supabase.from('items').select('*').order('created_at', { ascending: false }),
+      supabase.from('wishlist').select('*').order('created_at', { ascending: false }),
     ])
     if (c.error || i.error) {
       setError((c.error ?? i.error)!.message)
@@ -32,6 +36,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setCharacters(c.data as Character[])
       setItems(i.data as Item[])
     }
+    // Önskelistan är ett tillägg: fel där ska inte stänga förrådet
+    setWishlist(w.error ? [] : (w.data as WishlistItem[]))
     setLoading(false)
   }, [])
 
@@ -44,12 +50,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     return {
       characters,
       items,
+      wishlist,
       loading,
       error,
       reload,
       charById: (id) => (id ? map.get(id) : undefined),
     }
-  }, [characters, items, loading, error, reload])
+  }, [characters, items, wishlist, loading, error, reload])
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>
 }

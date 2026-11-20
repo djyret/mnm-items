@@ -5,7 +5,7 @@ import { CLASSES } from '../lib/constants'
 import { useAuth } from '../lib/auth'
 import { useI18n } from '../lib/i18n'
 import { useStore } from '../lib/store'
-import { supabase } from '../lib/supabase'
+import { imageUrl, supabase } from '../lib/supabase'
 import type { Character } from '../lib/types'
 
 type CharDraft = Pick<Character, 'name' | 'player' | 'class' | 'race' | 'level' | 'is_main' | 'notes'>
@@ -108,10 +108,12 @@ export function Karaktarer() {
               ) : (
                 <>
                   <div className="char__head">
-                    <ClassIcon code={c.class} size={64} />
+                    {c.portrait_path
+                      ? <img className="char__portrait" src={imageUrl(c.portrait_path)!} alt="" />
+                      : <ClassIcon code={c.class} size={64} />}
                     <div>
                   <div className="char__name">
-                    {c.name} {c.is_main && <span className="badge badge--main">Main</span>}
+                    <Link to={`/karaktar/${c.id}`}>{c.name}</Link> {c.is_main && <span className="badge badge--main">Main</span>}
                   </div>
                   <div className="char__info">
                     {[c.level && `Level ${c.level}`, c.race, c.class && (CLASSES[c.class] || c.class)].filter(Boolean).join(' · ') || t('forradet.chars.noInfo')}
@@ -126,6 +128,7 @@ export function Karaktarer() {
                     <span><b>{borrowed}</b> {t('forradet.chars.borrowed')}</span>
                   </div>
                   <div className="actions">
+                    <Link className="btn btn--primary" to={`/karaktar/${c.id}`}>{t('armory.open')}</Link>
                     <Link className="btn" to={`/alt?karaktar=${c.id}`}>{t('forradet.chars.whatCanUse', { name: c.name })}</Link>
                     {canEdit && <>
                       <button className="btn btn--ghost" onClick={() => setEditing(c.id)}>{t('common.edit')}</button>

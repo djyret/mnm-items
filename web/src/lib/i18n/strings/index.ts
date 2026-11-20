@@ -4,10 +4,11 @@ import * as common from './common'
 import * as forradet from './forradet'
 import * as kronikan from './kronikan'
 import * as admin from './admin'
+import * as armory from './armory'
 
 export const strings = {
-  sv: { ...common.sv, ...forradet.sv, ...kronikan.sv, ...admin.sv },
-  en: { ...common.en, ...forradet.en, ...kronikan.en, ...admin.en },
+  sv: { ...common.sv, ...forradet.sv, ...kronikan.sv, ...admin.sv, ...armory.sv },
+  en: { ...common.en, ...forradet.en, ...kronikan.en, ...admin.en, ...armory.en },
 }
 
 export type Key = keyof typeof strings.sv

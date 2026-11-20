@@ -4,6 +4,7 @@ import { useI18n } from '../lib/i18n'
 import { ClassIcon } from './ClassIcon'
 import { PriceInput } from './Money'
 import { useStore } from '../lib/store'
+import { useChapters } from '../lib/armory'
 import type { ItemDraft } from '../lib/types'
 import { Icon } from './Icon'
 
@@ -228,6 +229,7 @@ export function ItemFields({ draft, onChange }: Props) {
 export function OwnershipFields({ draft, onChange }: Props) {
   const { characters } = useStore()
   const { t, lang } = useI18n()
+  const chapters = useChapters()
   const set = <K extends keyof ItemDraft>(k: K, v: ItemDraft[K]) => onChange({ ...draft, [k]: v })
   const needsTarget = draft.status === 'utlanad' || draft.status === 'reserverad'
 
@@ -243,7 +245,17 @@ export function OwnershipFields({ draft, onChange }: Props) {
       <label className="field">
         <span>{t('forradet.form.status')}</span>
         <select value={draft.status} onChange={(e) => set('status', e.target.value as ItemDraft['status'])}>
-          {STATUSES.map((s) => <option key={s} value={s}>{statusLabel(s, lang)}</option>)}
+          {/* Utrustad sätts genom att välja slot (Armory/itemsidan), inte här */}
+          {STATUSES.filter((s) => s !== 'equippad' || draft.status === 'equippad').map((s) => (
+            <option key={s} value={s}>{statusLabel(s, lang)}</option>
+          ))}
+        </select>
+      </label>
+      <label className="field">
+        <span>{t('armory.item.foundChapter')}</span>
+        <select value={draft.found_chapter_id ?? ''} onChange={(e) => set('found_chapter_id', e.target.value || null)}>
+          <option value="">{t('armory.item.noChapter')}</option>
+          {chapters.map((c) => <option key={c.id} value={c.id}>{c.played_on} · {c.title}</option>)}
         </select>
       </label>
       {needsTarget && (

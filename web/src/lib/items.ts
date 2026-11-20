@@ -27,6 +27,8 @@ export const emptyDraft = (): ItemDraft => ({
   sold_price_cp: null,
   game_link: null,
   notes: null,
+  equipped_slot: null,
+  found_chapter_id: null,
 })
 
 export function parsedToDraft(p: ParsedItem, base: ItemDraft): ItemDraft {

@@ -13,6 +13,7 @@ import { AltVy } from './pages/AltVy'
 import { Forrad } from './pages/Forrad'
 import { ItemPage } from './pages/ItemPage'
 import { Karaktarer } from './pages/Karaktarer'
+import { Armory } from './pages/Armory'
 import { NyItem } from './pages/NyItem'
 import { Salda } from './pages/Salda'
 import { Hjalp } from './pages/Hjalp'
@@ -83,6 +84,7 @@ function Shell() {
           <Route path="/ny" element={F(<RequireEditor back={{ to: '/', label: 'Till förrådet' }}><NyItem /></RequireEditor>)} />
           <Route path="/item/:id" element={F(<ItemPage />)} />
           <Route path="/karaktarer" element={F(<Karaktarer />)} />
+          <Route path="/karaktar/:id" element={F(<Armory />)} />
           <Route path="/alt" element={F(<AltVy />)} />
           <Route path="/salda" element={F(<Salda />)} />
           <Route path="/kronikan" element={K(<Kronikan />)} />

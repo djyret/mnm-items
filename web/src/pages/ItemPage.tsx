@@ -13,6 +13,7 @@ import { useStore } from '../lib/store'
 import { imageUrl, supabase } from '../lib/supabase'
 import type { Item, ItemDraft, ItemEvent } from '../lib/types'
 import { Icon } from '../components/Icon'
+import { equipItem, sameName, slotLabel, slotsFor, unequipItem, useChapters, wearerOf } from '../lib/armory'
 
 /** item_events.kind som har en text; okända koder visas som de är. */
 const EVENT_KINDS = ['skapad', 'flyttad', 'utlanad', 'aterlamnad', 'sald', 'status', 'redigerad'] as const
@@ -31,7 +32,9 @@ function eventNote(note: string, t: (key: Key, vars?: Record<string, string>) =>
 
 export function ItemPage() {
   const { id } = useParams()
-  const { items, characters, charById, reload, loading } = useStore()
+  const { items, characters, wishlist, charById, reload, loading } = useStore()
+  const chapters = useChapters()
+  const [equipSlot, setEquipSlot] = useState('')
   const navigate = useNavigate()
   const { canEdit } = useAuth()
   const { t, locale } = useI18n()
@@ -149,9 +152,27 @@ export function ItemPage() {
     setBusy(false)
   }
 
+  async function equipAction(fn: () => Promise<string | null>) {
+    setBusy(true)
+    setError(null)
+    const err = await fn()
+    if (err) setError(err)
+    await reload()
+    setBusy(false)
+    setEquipSlot('')
+  }
+
   const img = imageUrl(item.image_path)
   const holder = charById(item.holder_id)
   const others = characters.filter((c) => c.id !== item.holder_id)
+  const wearer = charById(wearerOf(item))
+  const fits = slotsFor(item)
+  const canEquip = (item.status === 'ledig' || item.status === 'equippad' || item.status === 'utlanad') && !!wearer && fits.length > 0
+  const foundIn = chapters.find((c) => c.id === item.found_chapter_id)
+  const wishedBy = wishlist
+    .filter((w) => !w.fulfilled_at && sameName(w.name, item.name))
+    .map((w) => charById(w.character_id)?.name)
+    .filter(Boolean)
 
   return (
     <div className="page">
@@ -203,6 +224,15 @@ export function ItemPage() {
                 </div>
               </div>}
               {item.notes && <p className="note">{item.notes}</p>}
+              {item.equipped_slot && wearer && (
+                <p className="item-equip">
+                  <Link to={`/karaktar/${wearer.id}`}>{t('armory.item.wornBy', { name: wearer.name, slot: slotLabel(item.equipped_slot) })}</Link>
+                </p>
+              )}
+              {foundIn && (
+                <p className="item-equip">{t('armory.item.foundIn')} <Link to={`/kronikan/${foundIn.id}`}>{foundIn.title}</Link></p>
+              )}
+              {wishedBy.length > 0 && <p className="item-equip">{t('armory.item.wishedBy', { names: wishedBy.join(', ') })}</p>}
 
               {canEdit && item.status !== 'sald' && (
                 <div className="quick">
@@ -238,14 +268,23 @@ export function ItemPage() {
                     <input placeholder={t('forradet.itemPage.soldToOptional')} value={soldTo} onChange={(e) => setSoldTo(e.target.value)} />
                     <button className="btn" disabled={busy} onClick={sell}>{t('forradet.itemPage.markSold')}</button>
                   </div>
-                  <div className="quick__row">
-                    {(['ledig', 'equippad'] as const).filter((s) => s !== item.status).map((s) => (
-                      <button key={s} className="btn btn--ghost" disabled={busy}
-                        onClick={() => patch({ status: s, lent_to_id: null }, [item.id, 'status', { note: EVENT_NOTES[s] }])}>
-                        {t(`forradet.itemPage.mark.${s}`)}
+                  {canEquip && (
+                    <div className="quick__row">
+                      <span>{t('armory.item.equipOn', { name: wearer!.name })}</span>
+                      <select value={equipSlot} onChange={(e) => setEquipSlot(e.target.value)}>
+                        <option value="">{t('forradet.form.choose')}</option>
+                        {fits.map((s) => <option key={s} value={s}>{slotLabel(s)}</option>)}
+                      </select>
+                      <button className="btn" disabled={!equipSlot || busy} onClick={() => equipAction(() => equipItem(item.id, equipSlot))}>
+                        {t('armory.equip')}
                       </button>
-                    ))}
-                  </div>
+                      {item.equipped_slot && (
+                        <button className="btn btn--ghost" disabled={busy} onClick={() => equipAction(() => unequipItem(item.id))}>
+                          {t('armory.unequip')}
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
               {canEdit && item.status === 'sald' && (
@@ -287,10 +326,21 @@ export function ItemPage() {
                 <li key={e.id}>
                   <time>{new Date(e.created_at).toLocaleString(locale, { dateStyle: 'short', timeStyle: 'short' })}</time>
                   <span>
-                    {isEventKind(e.kind) ? t(`forradet.event.${e.kind}`) : e.kind}
-                    {e.from_id && ` ${t('forradet.history.from', { name: charById(e.from_id)?.name ?? '?' })}`}
-                    {e.to_id && ` ${t('forradet.history.to', { name: charById(e.to_id)?.name ?? '?' })}`}
-                    {e.note && ` – ${eventNote(e.note, t)}`}
+                    {e.kind === 'utrustad' || e.kind === 'avtagen' ? (
+                      <>
+                        {t(e.kind === 'utrustad' ? 'armory.history.on' : 'armory.history.off')}
+                        {' – '}{charById(e.to_id ?? e.from_id)?.name ?? '?'}
+                        {e.note && ` (${slotLabel(e.note)})`}
+                        {e.level != null && ` · Level ${e.level}`}
+                      </>
+                    ) : (
+                      <>
+                        {isEventKind(e.kind) ? t(`forradet.event.${e.kind}`) : e.kind}
+                        {e.from_id && ` ${t('forradet.history.from', { name: charById(e.from_id)?.name ?? '?' })}`}
+                        {e.to_id && ` ${t('forradet.history.to', { name: charById(e.to_id)?.name ?? '?' })}`}
+                        {e.note && ` – ${eventNote(e.note, t)}`}
+                      </>
+                    )}
                   </span>
                 </li>
               ))}

@@ -9,6 +9,8 @@ export interface Character {
   level: number | null
   is_main: boolean
   notes: string | null
+  /** Porträtt i bucket item-images */
+  portrait_path: string | null
   created_at: string
 }
 
@@ -38,6 +40,10 @@ export interface Item {
   sold_price_cp: number | null
   game_link: string | null
   notes: string | null
+  /** Slot där itemet sitter på (EAR_1, FINGER_2 …). Bäraren är låntagaren om itemet är utlånat, annars ägaren. */
+  equipped_slot: string | null
+  /** Krönikekapitlet där itemet hittades */
+  found_chapter_id: string | null
   created_at: string
   updated_at: string
 }
@@ -51,7 +57,22 @@ export interface ItemEvent {
   from_id: string | null
   to_id: string | null
   note: string | null
+  /** Bärarens nivå när itemet togs på eller av */
+  level: number | null
   created_at: string
+}
+
+/** En rad i en karaktärs önskelista. */
+export interface WishlistItem {
+  id: string
+  character_id: string
+  name: string
+  slot: string | null
+  item_id: string | null
+  note: string | null
+  created_by: string | null
+  created_at: string
+  fulfilled_at: string | null
 }
 
 /** Det parse-item-funktionen returnerar. */

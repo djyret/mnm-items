@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { isEquipSlot, slotLabel } from '../lib/armory'
 import { ItemFields, OwnershipFields } from '../components/ItemForm'
 import { ItemTooltip } from '../components/ItemTooltip'
 import { useI18n } from '../lib/i18n'
@@ -21,15 +22,20 @@ function readLastHolder(): string | null {
 }
 
 export function NyItem() {
-  const { reload, characters } = useStore()
+  const { reload, characters, charById } = useStore()
   const navigate = useNavigate()
   const { t } = useI18n()
+  // Från Armory: /ny?karaktar=<id>&slot=<SLOT> lägger itemet direkt i slotten
+  const [params] = useSearchParams()
+  const forChar = params.get('karaktar')
+  const slotParam = params.get('slot')
+  const intoSlot = forChar && isEquipSlot(slotParam) ? slotParam : null
   const [phase, setPhase] = useState<Phase>('tom')
   const [image, setImage] = useState<Blob | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
   const [icon, setIcon] = useState<Blob | null>(null)
   const [iconPreview, setIconPreview] = useState<string | null>(null)
-  const [draft, setDraft] = useState<ItemDraft>(() => ({ ...emptyDraft(), holder_id: readLastHolder() }))
+  const [draft, setDraft] = useState<ItemDraft>(() => ({ ...emptyDraft(), holder_id: forChar ?? readLastHolder() }))
   const [error, setError] = useState<string | null>(null)
   const [dragging, setDragging] = useState(false)
   const fileInput = useRef<HTMLInputElement>(null)
@@ -95,7 +101,14 @@ export function NyItem() {
       ])
       const { data, error } = await supabase
         .from('items')
-        .insert({ ...draft, name: draft.name.trim(), image_path, icon_path })
+        .insert({
+          ...draft,
+          name: draft.name.trim(),
+          image_path,
+          icon_path,
+          // Slotten gäller bara om itemet fortfarande ligger hos karaktären från Armory
+          equipped_slot: intoSlot && draft.holder_id === forChar && draft.status === 'ledig' ? intoSlot : null,
+        })
         .select('id')
         .single()
       if (error) throw error
@@ -106,7 +119,7 @@ export function NyItem() {
         /* privat läge */
       }
       await reload()
-      navigate(`/item/${data.id}`)
+      navigate(intoSlot ? `/karaktar/${forChar}` : `/item/${data.id}`)
     } catch (e) {
       setError((e as Error).message)
       setPhase('klar')
@@ -126,6 +139,9 @@ export function NyItem() {
   return (
     <div className="page">
       <h1 className="page-title">{t('forradet.new.title')}</h1>
+      {intoSlot && (
+        <p className="note">{t('armory.new.intoSlot', { slot: slotLabel(intoSlot), name: charById(forChar)?.name ?? '?' })}</p>
+      )}
 
       {phase === 'tom' && (
         <div
