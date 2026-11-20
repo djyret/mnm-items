@@ -1,6 +1,8 @@
-import type { ReactNode } from 'react'
+import { Fragment, type ReactNode } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { slotIcon } from '../lib/constants'
+import type { Access } from '../lib/auth'
+import { useI18n, type Key } from '../lib/i18n'
 import { Icon } from '../components/Icon'
 
 const MENU = `${import.meta.env.BASE_URL}ikoner/meny/`
@@ -8,152 +10,132 @@ const ICON = `${import.meta.env.BASE_URL}ikoner/`
 
 /** Bild av en menyknapp, så man känner igen den. */
 function Knapp({ namn, bild }: { namn: string; bild: string }) {
-  return <img className="help-btnpic" src={`${MENU}${bild}.webp`} alt={`knappen ${namn}`} title={namn} />
+  const { t } = useI18n()
+  return <img className="help-btnpic" src={`${MENU}${bild}.webp`} alt={t('admin.help.buttonAlt', { name: namn })} title={namn} />
 }
 
 /** Fetstil för en knapp eller ett fält på sidan. */
 const B = ({ children }: { children: ReactNode }) => <b className="help-ui">{children}</b>
 const Tangent = ({ children }: { children: ReactNode }) => <kbd>{children}</kbd>
 
-interface Amne {
-  id: string
-  titel: string
-  bild: string
-  kort: string
-  steg: ReactNode[]
-  tips?: ReactNode
+/**
+ * Gör om en hjälptext från ordboken till JSX: <b>…</b> blir fetstil, <k>…</k> en tangent
+ * och {namn} byts mot motsvarande nod i `delar` (bilder av menyknappar, länkar).
+ */
+function rich(text: string, delar: Record<string, ReactNode>): ReactNode {
+  const out: ReactNode[] = []
+  const re = /<(b|k)>(.*?)<\/\1>|\{(\w+)\}/g
+  let last = 0
+  let m: RegExpExecArray | null
+  while ((m = re.exec(text))) {
+    if (m.index > last) out.push(text.slice(last, m.index))
+    const key = out.length
+    if (m[1] === 'b') out.push(<B key={key}>{m[2]}</B>)
+    else if (m[1] === 'k') out.push(<Tangent key={key}>{m[2]}</Tangent>)
+    else out.push(<Fragment key={key}>{delar[m[3]] ?? m[0]}</Fragment>)
+    last = m.index + m[0].length
+  }
+  if (last < text.length) out.push(text.slice(last))
+  return out
 }
 
+interface Amne {
+  id: string
+  bild: string
+  titel: Key
+  kort: Key
+  steg: Key[]
+  tips?: Key
+}
+
+// id:t står i adressen (?amne=…) och hålls därför oförändrat
 const AMNEN: Amne[] = [
   {
     id: 'lagg-till',
-    titel: 'Lägga in ett nytt item',
     bild: `${ICON}rulle.webp`,
-    kort: 'Ta en bild på itemet i spelet och spara det här.',
+    titel: 'admin.help.add.title',
+    kort: 'admin.help.add.short',
     steg: [
-      <>I spelet: håll musen över itemet så att rutan med stats syns.</>,
-      <>Tryck <Tangent>Windows</Tangent> + <Tangent>Shift</Tangent> + <Tangent>S</Tangent> samtidigt. Skärmen blir grå.</>,
-      <>Dra med musen en ruta runt itemets stats-ruta. Släpp musknappen.</>,
-      <>Gå till den här sidan och klicka på <Knapp namn="Lägg till" bild="lagg-till" /></>,
-      <>Tryck <Tangent>Ctrl</Tangent> + <Tangent>V</Tangent>. Vänta några sekunder – sidan läser av bilden själv.</>,
-      <>Titta på rutan till vänster. Ser namnet och siffrorna rätt ut? Om något är fel kan du ändra det i fälten till höger.</>,
-      <>Längst ner vid <B>Finns på karaktär</B>: välj vilken karaktär som har itemet.</>,
-      <>Klicka på den guldiga knappen <B>Spara item</B>. Klart!</>,
+      'admin.help.add.s1', 'admin.help.add.s2', 'admin.help.add.s3', 'admin.help.add.s4',
+      'admin.help.add.s5', 'admin.help.add.s6', 'admin.help.add.s7', 'admin.help.add.s8',
     ],
-    tips: <>Sidan kommer ihåg vilken karaktär du valde förra gången. Lägger du in många items på samma karaktär behöver du bara kontrollera och trycka <B>Spara item</B>.</>,
+    tips: 'admin.help.add.tip',
   },
   {
     id: 'hitta',
-    titel: 'Hitta ett item',
     bild: `${ICON}kista.webp`,
-    kort: 'Sök på namn eller visa bara det du är intresserad av.',
-    steg: [
-      <>Klicka på <Knapp namn="Förråd" bild="forrad" /></>,
-      <>Skriv en del av namnet i rutan <B>Sök</B> till vänster. Listan ändras direkt.</>,
-      <>Vill du bara se till exempel hjälmar? Välj <B>HEAD</B> under <B>Slot</B>.</>,
-      <>Vill du se vad en viss klass kan använda? Klicka på klassens bild under <B>Kan användas av klass</B>. Klicka igen för att ta bort.</>,
-      <>Klicka på ett item för att se allt om det.</>,
-    ],
-    tips: <>Ser listan konstig ut efter att du filtrerat? Klicka på <B>Rensa filter</B> längst ner till vänster.</>,
+    titel: 'admin.help.find.title',
+    kort: 'admin.help.find.short',
+    steg: ['admin.help.find.s1', 'admin.help.find.s2', 'admin.help.find.s3', 'admin.help.find.s4', 'admin.help.find.s5'],
+    tips: 'admin.help.find.tip',
   },
   {
     id: 'lana-ut',
-    titel: 'Låna ut till en annan karaktär',
     bild: `${slotIcon('HANDS')}`,
-    kort: 'När någon annan får använda ett item en tid.',
-    steg: [
-      <>Klicka på <Knapp namn="Förråd" bild="forrad" /> och sedan på itemet.</>,
-      <>Till höger, vid <B>Låna ut till…</B>: välj karaktären som ska låna.</>,
-      <>Klicka på <B>Låna ut</B>.</>,
-      <>När itemet kommer tillbaka: öppna itemet igen och klicka på <B>Tillbaka till …</B></>,
-    ],
+    titel: 'admin.help.lend.title',
+    kort: 'admin.help.lend.short',
+    steg: ['admin.help.lend.s1', 'admin.help.lend.s2', 'admin.help.lend.s3', 'admin.help.lend.s4'],
   },
   {
     id: 'flytta',
-    titel: 'Ge bort ett item för gott',
     bild: `${slotIcon('BACKPACK')}`,
-    kort: 'När itemet byter ägare och inte ska tillbaka.',
-    steg: [
-      <>Öppna itemet (klicka på det i <Knapp namn="Förråd" bild="forrad" />).</>,
-      <>Vid <B>Flytta permanent till…</B>: välj den nya ägaren.</>,
-      <>Klicka på <B>Flytta</B>.</>,
-    ],
+    titel: 'admin.help.give.title',
+    kort: 'admin.help.give.short',
+    steg: ['admin.help.give.s1', 'admin.help.give.s2', 'admin.help.give.s3'],
   },
   {
     id: 'salja',
-    titel: 'Sälja ett item',
     bild: `${ICON}mynt.webp`,
-    kort: 'Skriv in vad du fick för det, så räknas allt ihop.',
+    titel: 'admin.help.sell.title',
+    kort: 'admin.help.sell.short',
     steg: [
-      <>Sälj itemet i spelet som vanligt.</>,
-      <>Öppna itemet här (klicka på det i <Knapp namn="Förråd" bild="forrad" />).</>,
-      <>Vid <B>Såld för</B> finns fyra rutor: <B>Platinum</B>, <B>Guld</B>, <B>Silver</B> och <B>Koppar</B>. Skriv priset du fick i rätt ruta. Exempel: 75 silver – skriv <B>75</B> i silverrutan. Lämnar du rutorna tomma används riktpriset.</>,
-      <>Skriv gärna vem som köpte i rutan <B>Såld till</B> (behövs inte).</>,
-      <>Klicka på <B>Markera såld</B>.</>,
-      <>Vill du se allt ni sålt och hur mycket det blivit? Klicka på <Knapp namn="Försäljning" bild="salda" /></>,
+      'admin.help.sell.s1', 'admin.help.sell.s2', 'admin.help.sell.s3',
+      'admin.help.sell.s4', 'admin.help.sell.s5', 'admin.help.sell.s6',
     ],
-    tips: <>Vet du vad ett item brukar gå för? Skriv det vid <B>Riktpris</B> och tryck <B>Spara riktpris</B> – då ser alla det, och sidan varnar om någon säljer billigare. 100 koppar = 1 silver, 100 silver = 1 guld, 100 guld = 1 platinum.</>,
+    tips: 'admin.help.sell.tip',
   },
   {
     id: 'alt',
-    titel: 'Vad kan min alt använda – och låna det',
     bild: `${ICON}ryggsack.webp`,
-    kort: 'Se vad som passar en karaktär och be om att få låna det.',
+    titel: 'admin.help.alt.title',
+    kort: 'admin.help.alt.short',
     steg: [
-      <>Klicka på <Knapp namn="Alts" bild="alt-vy" /></>,
-      <>Klicka på karaktären du vill kolla.</>,
-      <>Nu visas allt som karaktären kan använda, sorterat efter var det sitter (huvud, fötter …). Bästa först.</>,
-      <>Vill du låna något? Klicka i den lilla rutan uppe till höger på itemet. Rutan får en bock.</>,
-      <>Längst ner på sidan finns nu ett färdigt meddelande. Klicka på <B>Kopiera allt</B>.</>,
-      <>Gå till Discord och tryck <Tangent>Ctrl</Tangent> + <Tangent>V</Tangent> och skicka. Då ser alla vad de ska plocka ut ur banken åt dig.</>,
-      <>Klicka gärna på <B>Markera som reserverade</B>, så vet de andra att itemen är på väg till dig.</>,
+      'admin.help.alt.s1', 'admin.help.alt.s2', 'admin.help.alt.s3', 'admin.help.alt.s4',
+      'admin.help.alt.s5', 'admin.help.alt.s6', 'admin.help.alt.s7',
     ],
-    tips: <>Karaktären måste ha en klass vald, annars visas allt. Klass väljer du under <Knapp namn="Karaktärer" bild="karaktarer" /></>,
+    tips: 'admin.help.alt.tip',
   },
   {
     id: 'karaktar',
-    titel: 'Lägga till en karaktär',
     bild: `${ICON}hjalm.webp`,
-    kort: 'När någon gör en ny alt.',
-    steg: [
-      <>Klicka på <Knapp namn="Karaktärer" bild="karaktarer" /></>,
-      <>Klicka på <B>+ Ny karaktär</B> uppe till höger.</>,
-      <>Skriv namnet. Klicka på bilden för klassen. Fyll i ras och level om du vill.</>,
-      <>Klicka på <B>Spara</B>.</>,
-    ],
+    titel: 'admin.help.character.title',
+    kort: 'admin.help.character.short',
+    steg: ['admin.help.character.s1', 'admin.help.character.s2', 'admin.help.character.s3', 'admin.help.character.s4'],
   },
   {
     id: 'andra',
-    titel: 'Rätta eller ta bort ett item',
     bild: slotIcon('INVENTORY'),
-    kort: 'Om något blev fel när det lades in.',
-    steg: [
-      <>Öppna itemet (klicka på det i <Knapp namn="Förråd" bild="forrad" />).</>,
-      <>Klicka på <B>Redigera</B>.</>,
-      <>Ändra det som är fel. Slot och klasser väljer du genom att klicka på bilderna.</>,
-      <>Klicka på <B>Spara</B>.</>,
-      <>Ska itemet bort helt? Klicka på den röda knappen <B>Ta bort</B> och svara <B>OK</B>. Det går inte att ångra.</>,
-    ],
+    titel: 'admin.help.fix.title',
+    kort: 'admin.help.fix.short',
+    steg: ['admin.help.fix.s1', 'admin.help.fix.s2', 'admin.help.fix.s3', 'admin.help.fix.s4', 'admin.help.fix.s5'],
   },
 ]
 
-const FRAGOR: [string, ReactNode][] = [
-  ['Jag markerade fel item som sålt', <>Öppna itemet och klicka på <B>Ångra såld</B>.</>],
-  ['Sidan ser gammal ut eller något saknas', <>Tryck <Tangent>Ctrl</Tangent> + <Tangent>F5</Tangent> så hämtas den senaste versionen.</>],
-  ['Bilden lästes av fel', <>Ändra fälten för hand innan du sparar, eller öppna itemet senare och klicka <B>Redigera</B>.</>],
-  ['Ctrl + V gör ingenting', <>Kontrollera att du tog bilden med <Tangent>Windows</Tangent> + <Tangent>Shift</Tangent> + <Tangent>S</Tangent> precis innan. Du kan också dra in en bildfil, eller klicka i den stora rutan och välja en fil.</>],
-  ['Kan jag förstöra något?', <>Det enda som inte går att ångra är <B>Ta bort</B>. Allt annat går att ändra tillbaka.</>],
+const FRAGOR: [Key, Key][] = [
+  ['admin.help.faq.cantEdit.q', 'admin.help.faq.cantEdit.a'],
+  ['admin.help.faq.unsell.q', 'admin.help.faq.unsell.a'],
+  ['admin.help.faq.stale.q', 'admin.help.faq.stale.a'],
+  ['admin.help.faq.misread.q', 'admin.help.faq.misread.a'],
+  ['admin.help.faq.paste.q', 'admin.help.faq.paste.a'],
+  ['admin.help.faq.break.q', 'admin.help.faq.break.a'],
 ]
 
-const STATUSAR: [string, string, string][] = [
-  ['ledig', 'Ledig', 'Ligger hos ägaren och används inte.'],
-  ['equippad', 'Equippad', 'Ägaren har den på sig.'],
-  ['utlanad', 'Utlånad', 'Någon annan lånar den just nu.'],
-  ['reserverad', 'Reserverad', 'Sparas åt någon.'],
-  ['sald', 'Såld', 'Är såld och borta.'],
-]
+const STATUSAR = ['ledig', 'equippad', 'utlanad', 'reserverad', 'sald'] as const
+
+const ROLLER: Access[] = ['visitor', 'reader', 'editor', 'admin']
 
 export function Hjalp() {
+  const { t } = useI18n()
   const [params, setParams] = useSearchParams()
   const amne = AMNEN.find((a) => a.id === params.get('amne'))
   const visa = (id: string | null) => {
@@ -161,73 +143,94 @@ export function Hjalp() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  const delar: Record<string, ReactNode> = {
+    add: <Knapp namn={t('nav.add')} bild="lagg-till" />,
+    stash: <Knapp namn={t('nav.stash')} bild="forrad" />,
+    sales: <Knapp namn={t('nav.sales')} bild="salda" />,
+    alts: <Knapp namn={t('nav.alts')} bild="alt-vy" />,
+    characters: <Knapp namn={t('nav.characters')} bild="karaktarer" />,
+    help: <Link to="/hjalp">{t('nav.help')}</Link>,
+  }
+  const text = (key: Key) => rich(t(key), delar)
+
   if (amne) {
     return (
       <div className="page help">
-        <button type="button" className="btn btn--ghost" onClick={() => visa(null)}><Icon name="vanster" size={16} /> Tillbaka till alla ämnen</button>
+        <button type="button" className="btn btn--ghost" onClick={() => visa(null)}><Icon name="vanster" size={16} /> {t('admin.help.back')}</button>
         <div className="panel help-topic">
           <div className="help-topic__head">
             <img src={amne.bild} alt="" />
-            <h1 className="page-title">{amne.titel}</h1>
+            <h1 className="page-title">{t(amne.titel)}</h1>
           </div>
           <ol className="help-steps">
             {amne.steg.map((s, i) => (
-              <li key={i}>
+              <li key={s}>
                 <span className="help-steps__nr">{i + 1}</span>
-                <span className="help-steps__text">{s}</span>
+                <span className="help-steps__text">{text(s)}</span>
               </li>
             ))}
           </ol>
           {amne.tips && (
             <div className="help-tip">
-              <b>Tips:</b> {amne.tips}
+              <b>{t('admin.help.tip')}</b> {text(amne.tips)}
             </div>
           )}
         </div>
-        <button type="button" className="btn btn--ghost" onClick={() => visa(null)}><Icon name="vanster" size={16} /> Tillbaka till alla ämnen</button>
+        <button type="button" className="btn btn--ghost" onClick={() => visa(null)}><Icon name="vanster" size={16} /> {t('admin.help.back')}</button>
       </div>
     )
   }
 
   return (
     <div className="page help">
-      <h1 className="page-title">Hjälp – vad vill du göra?</h1>
-      <p className="help-intro">Klicka på det du vill göra, så visas det steg för steg.</p>
+      <h1 className="page-title">{t('admin.help.title')}</h1>
+      <p className="help-intro">{t('admin.help.intro')}</p>
       <div className="help-tiles">
         {AMNEN.map((a) => (
           <button key={a.id} type="button" className="panel help-tile" onClick={() => visa(a.id)}>
             <img src={a.bild} alt="" />
-            <span className="help-tile__title">{a.titel}</span>
-            <span className="help-tile__text">{a.kort}</span>
+            <span className="help-tile__title">{t(a.titel)}</span>
+            <span className="help-tile__text">{t(a.kort)}</span>
           </button>
         ))}
       </div>
 
       <div className="panel">
-        <h2 className="panel-title">Om något går fel</h2>
+        <h2 className="panel-title">{t('admin.help.account.title')}</h2>
+        <p>{t('admin.help.account.intro')}</p>
         <dl className="help-faq">
-          {FRAGOR.map(([f, s]) => (
-            <div key={f}>
-              <dt>{f}</dt>
-              <dd>{s}</dd>
+          {ROLLER.map((r) => (
+            <div key={r}>
+              <dt>{t(`role.${r}`)}</dt>
+              <dd>{t(`admin.help.account.${r}`)}</dd>
             </div>
           ))}
         </dl>
       </div>
 
       <div className="panel">
-        <h2 className="panel-title">Vad betyder orden på itemen?</h2>
-        <dl className="help-status">
-          {STATUSAR.map(([k, namn, text]) => (
-            <div key={k}>
-              <dt><span className={`badge badge--${k}`}>{namn}</span></dt>
-              <dd>{text}</dd>
+        <h2 className="panel-title">{t('admin.help.faq.title')}</h2>
+        <dl className="help-faq">
+          {FRAGOR.map(([f, s]) => (
+            <div key={f}>
+              <dt>{t(f)}</dt>
+              <dd>{text(s)}</dd>
             </div>
           ))}
         </dl>
-        <p className="note">
-          Ser du något du inte förstår? Fråga i gruppen – och tryck på <Link to="/hjalp">Hjälp</Link> igen när du vill.
-        </p>
+      </div>
+
+      <div className="panel">
+        <h2 className="panel-title">{t('admin.help.status.title')}</h2>
+        <dl className="help-status">
+          {STATUSAR.map((k) => (
+            <div key={k}>
+              <dt><span className={`badge badge--${k}`}>{t(`admin.help.status.${k}`)}</span></dt>
+              <dd>{t(`admin.help.status.${k}.text`)}</dd>
+            </div>
+          ))}
+        </dl>
+        <p className="note">{text('admin.help.note')}</p>
       </div>
     </div>
   )

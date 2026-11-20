@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ROLE_LABELS, deleteKronika, imageFiles, kronikaUrl, loadCastAndStyle, missingTables, storeImage } from '../lib/kronikan'
+import { ROLES, deleteKronika, imageFiles, kronikaUrl, loadCastAndStyle, missingTables, storeImage, withParts } from '../lib/kronikan'
+import { useI18n } from '../lib/i18n'
 import { useAuth } from '../lib/auth'
 import { supabase } from '../lib/supabase'
 import type { CastMember } from '../lib/types'
@@ -16,6 +17,7 @@ function CastForm({ initial, onSave, onCancel }: {
   onSave: (d: CastDraft) => Promise<void>
   onCancel: () => void
 }) {
+  const { t } = useI18n()
   const [d, setD] = useState(initial)
   const [busy, setBusy] = useState(false)
   const [uploading, setUploading] = useState(false)
@@ -63,26 +65,26 @@ function CastForm({ initial, onSave, onCancel }: {
         role="button"
         tabIndex={0}
       >
-        {uploading ? <span className="pulse">…</span> : d.ref_path ? <img src={kronikaUrl(d.ref_path)!} alt="" /> : <span>Referensbild: <kbd>Ctrl</kbd>+<kbd>V</kbd> eller klicka</span>}
+        {uploading ? <span className="pulse">…</span> : d.ref_path ? <img src={kronikaUrl(d.ref_path)!} alt="" /> : <span>{withParts(t('kronikan.style.refImage'), { keys: <><kbd>Ctrl</kbd>+<kbd>V</kbd></> })}</span>}
         <input ref={fileInput} type="file" accept="image/*" hidden onChange={(e) => setImage(imageFiles(e.target.files))} />
       </div>
       <div className="kr-cast-form__fields">
         <div className="form">
-          <label className="field"><span>Namn</span><input required value={d.name} onChange={(e) => set('name', e.target.value)} /></label>
-          <label className="field field--narrow"><span>Namnfärg</span><input type="color" value={d.tag_color} onChange={(e) => set('tag_color', e.target.value)} /></label>
+          <label className="field"><span>{t('kronikan.style.name')}</span><input required value={d.name} onChange={(e) => set('name', e.target.value)} /></label>
+          <label className="field field--narrow"><span>{t('kronikan.style.tagColor')}</span><input type="color" value={d.tag_color} onChange={(e) => set('tag_color', e.target.value)} /></label>
         </div>
         <div className="chips">
-          {(Object.keys(ROLE_LABELS) as CastMember['role'][]).map((r) => (
-            <button key={r} type="button" className={`chip${d.role === r ? ' is-active' : ''}`} onClick={() => set('role', r)}>{ROLE_LABELS[r]}</button>
+          {ROLES.map((r) => (
+            <button key={r} type="button" className={`chip${d.role === r ? ' is-active' : ''}`} onClick={() => set('role', r)}>{t(`kronikan.role.${r}`)}</button>
           ))}
         </div>
         <label className="field">
-          <span>Utseende (engelska fungerar bäst i bildprompten)</span>
-          <textarea rows={4} value={d.look} onChange={(e) => set('look', e.target.value)} placeholder="Ras, klass, ansikte, hår, kläder, vapen, magifärg …" />
+          <span>{t('kronikan.style.look')}</span>
+          <textarea rows={4} value={d.look} onChange={(e) => set('look', e.target.value)} placeholder={t('kronikan.style.lookPlaceholder')} />
         </label>
         <div className="actions">
-          <button className="btn btn--primary" disabled={busy || uploading}>Spara</button>
-          <button type="button" className="btn btn--ghost" onClick={onCancel}>Avbryt</button>
+          <button className="btn btn--primary" disabled={busy || uploading}>{t('common.save')}</button>
+          <button type="button" className="btn btn--ghost" onClick={onCancel}>{t('common.cancel')}</button>
         </div>
       </div>
     </form>
@@ -91,6 +93,7 @@ function CastForm({ initial, onSave, onCancel }: {
 
 export function Stilbibel() {
   const { canEdit } = useAuth()
+  const { t } = useI18n()
   const [cast, setCast] = useState<CastMember[]>([])
   const [style, setStyle] = useState('')
   const [savedStyle, setSavedStyle] = useState('')
@@ -127,7 +130,7 @@ export function Stilbibel() {
       ? await supabase.from('chronicle_cast').update(d).eq('id', id)
       : await supabase.from('chronicle_cast').insert({ ...d, position: cast.length + 1 })
     if (error) {
-      setError(error.code === '23505' ? `${d.name} finns redan i rollistan.` : error.message)
+      setError(error.code === '23505' ? t('kronikan.style.duplicate', { name: d.name }) : error.message)
       return
     }
     if (old?.ref_path && old.ref_path !== d.ref_path) deleteKronika(old.ref_path)
@@ -136,7 +139,7 @@ export function Stilbibel() {
   }
 
   async function removeCast(c: CastMember) {
-    if (!confirm(`Ta bort ${c.name} ur rollistan?`)) return
+    if (!confirm(t('kronikan.style.confirmRemove', { name: c.name }))) return
     const { error } = await supabase.from('chronicle_cast').delete().eq('id', c.id)
     if (error) return setError(error.message)
     await deleteKronika(c.ref_path)
@@ -144,31 +147,30 @@ export function Stilbibel() {
   }
 
   if (missingTables(error ?? undefined)) {
-    return <div className="page"><h1 className="page-title">Stilbibel</h1><MissingSetup /></div>
+    return <div className="page"><h1 className="page-title">{t('kronikan.style.title')}</h1><MissingSetup /></div>
   }
 
   return (
     <div className="page">
-      <Link to="/kronikan" className="back"><Icon name="vanster" size={14} /> Krönikan</Link>
-      <h1 className="page-title">Stilbibel</h1>
+      <Link to="/kronikan" className="back"><Icon name="vanster" size={14} /> {t('kronikan.title')}</Link>
+      <h1 className="page-title">{t('kronikan.style.title')}</h1>
       <p className="help-intro">
-        Det här håller seriebilderna lika från gång till gång. Varje bildprompt byggs av stilen nedan plus
-        utseendet på dem som är med i scenen. Lägg referensbilder på alla – ChatGPT följer en bild bättre än en beskrivning.
+        {t('kronikan.style.intro')}
       </p>
       {error && <div className="alert">{error}</div>}
 
       <div className="panel">
-        <h2 className="panel-title">Stil</h2>
+        <h2 className="panel-title">{t('kronikan.style.style')}</h2>
         <textarea className="kr-style" rows={9} value={style} onChange={(e) => setStyle(e.target.value)} disabled={loading} readOnly={!canEdit} />
         {canEdit && <div className="actions">
-          <button className="btn btn--primary" onClick={saveStyle} disabled={style === savedStyle}>Spara stilen</button>
-          {style !== savedStyle && <button className="btn btn--ghost" onClick={() => setStyle(savedStyle)}>Ångra</button>}
+          <button className="btn btn--primary" onClick={saveStyle} disabled={style === savedStyle}>{t('kronikan.style.saveStyle')}</button>
+          {style !== savedStyle && <button className="btn btn--ghost" onClick={() => setStyle(savedStyle)}>{t('kronikan.style.undo')}</button>}
         </div>}
       </div>
 
       <div className="results__head">
-        <h2 className="page-title kr-subtitle">Rollista</h2>
-        {canEdit && editing !== 'ny' && <button className="btn btn--primary" onClick={() => setEditing('ny')}>+ Lägg till</button>}
+        <h2 className="page-title kr-subtitle">{t('kronikan.style.cast')}</h2>
+        {canEdit && editing !== 'ny' && <button className="btn btn--primary" onClick={() => setEditing('ny')}>{t('kronikan.style.add')}</button>}
       </div>
       {editing === 'ny' && (
         <div className="panel"><CastForm initial={blank} onSave={(d) => saveCast(null, d)} onCancel={() => setEditing(null)} /></div>
@@ -181,15 +183,15 @@ export function Stilbibel() {
             ) : (
               <>
                 <div className="kr-castcard__img">
-                  {c.ref_path ? <img src={kronikaUrl(c.ref_path)!} alt={c.name} /> : <span>Ingen referensbild</span>}
+                  {c.ref_path ? <img src={kronikaUrl(c.ref_path)!} alt={c.name} /> : <span>{t('kronikan.style.noRef')}</span>}
                 </div>
                 <div className="kr-castcard__body">
                   <div className="char__name" style={{ color: c.tag_color }}>{c.name}</div>
-                  <div className="char__info">{ROLE_LABELS[c.role]}</div>
-                  <p className="kr-castcard__look">{c.look || <i>Inget utseende beskrivet</i>}</p>
+                  <div className="char__info">{t(`kronikan.role.${c.role}`)}</div>
+                  <p className="kr-castcard__look">{c.look || <i>{t('kronikan.style.noLook')}</i>}</p>
                   {canEdit && <div className="actions">
-                    <button className="btn btn--small btn--ghost" onClick={() => setEditing(c.id)}>Redigera</button>
-                    <button className="btn btn--small btn--danger" onClick={() => removeCast(c)}>Ta bort</button>
+                    <button className="btn btn--small btn--ghost" onClick={() => setEditing(c.id)}>{t('common.edit')}</button>
+                    <button className="btn btn--small btn--danger" onClick={() => removeCast(c)}>{t('common.delete')}</button>
                   </div>}
                 </div>
               </>

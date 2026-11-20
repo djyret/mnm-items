@@ -2,6 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, typ
 import { ChapterMissing } from '../components/ChapterMissing'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { Icon } from '../components/Icon'
+import { useI18n } from '../lib/i18n'
 import { foldSources, formatDay, kronikaUrl, shortId, sortEntries, storyParagraphs, weekday } from '../lib/kronikan'
 import { supabase } from '../lib/supabase'
 import type { Chapter, Entry } from '../lib/types'
@@ -174,6 +175,7 @@ function burn(el: HTMLElement, ember: HTMLCanvasElement, seed: string, done: () 
 export function Bildspel() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { t } = useI18n()
   const [chapter, setChapter] = useState<Chapter | null>(null)
   const [entries, setEntries] = useState<Entry[]>([])
   const [loading, setLoading] = useState(true)
@@ -408,21 +410,21 @@ export function Bildspel() {
       {(!started || current?.kind === 'titel' || current?.kind === 'slut') && (
         <div className="kr-show__card" key={started ? current?.kind : 'start'}>
           <header className="kr-plaque--title kr-show__plaque" style={{ '--tilt': '-1deg' } as CSSProperties}>
-            <h1>{current?.kind === 'slut' && started ? 'Slut' : chapter.title}</h1>
+            <h1>{current?.kind === 'slut' && started ? t('kronikan.show.end') : chapter.title}</h1>
             <span className="kr-plaque__meta">{current?.kind === 'slut' && started ? chapter.title : meta}</span>
           </header>
           {!started && (
             <>
               <button type="button" className="btn btn--primary kr-show__play" onClick={start} disabled={!beats.length}>
-                <Icon name="spela" size={18} /> Spela upp
+                <Icon name="spela" size={18} /> {t('kronikan.play')}
               </button>
-              <Link to={`/kronikan/${id}`} className="kr-show__back">Tillbaka till kapitlet</Link>
+              <Link to={`/kronikan/${id}`} className="kr-show__back">{t('kronikan.show.backToChapter')}</Link>
             </>
           )}
           {started && current?.kind === 'slut' && (
             <span className="kr-show__end">
-              <button type="button" className="btn btn--primary" onClick={() => { go(0); setPlaying(true) }}>Spela igen</button>
-              <button type="button" className="btn btn--ghost" onClick={close}>Tillbaka till kapitlet</button>
+              <button type="button" className="btn btn--primary" onClick={() => { go(0); setPlaying(true) }}>{t('kronikan.show.playAgain')}</button>
+              <button type="button" className="btn btn--ghost" onClick={close}>{t('kronikan.show.backToChapter')}</button>
             </span>
           )}
         </div>
@@ -445,16 +447,16 @@ export function Bildspel() {
         <div className="kr-show__bar">
           <div className="kr-show__progress" style={{ transform: `scaleX(${progress})` }} />
           <span className="kr-show__controls">
-            <button type="button" className="btn btn--small btn--ghost" onClick={() => go(beat - 1)} disabled={beat === 0} aria-label="Föregående" title="Föregående (←)">
+            <button type="button" className="btn btn--small btn--ghost" onClick={() => go(beat - 1)} disabled={beat === 0} aria-label={t('kronikan.show.prev')} title={`${t('kronikan.show.prev')} (←)`}>
               <Icon name="vanster" />
             </button>
-            <button type="button" className="btn btn--small" onClick={() => setPlaying((p) => !p)} aria-label={playing ? 'Pausa' : 'Spela'} title="Pausa / spela (mellanslag)">
+            <button type="button" className="btn btn--small" onClick={() => setPlaying((p) => !p)} aria-label={playing ? t('kronikan.show.pause') : t('kronikan.show.resume')} title={t('kronikan.show.pausePlay')}>
               <Icon name={playing ? 'paus' : 'spela'} />
             </button>
-            <button type="button" className="btn btn--small btn--ghost" onClick={() => go(beat + 1)} disabled={beat >= beats.length - 1} aria-label="Nästa" title="Nästa (→)">
+            <button type="button" className="btn btn--small btn--ghost" onClick={() => go(beat + 1)} disabled={beat >= beats.length - 1} aria-label={t('kronikan.show.next')} title={`${t('kronikan.show.next')} (→)`}>
               <Icon name="hoger" />
             </button>
-            <button type="button" className="btn btn--small btn--ghost" onClick={close} aria-label="Avsluta" title="Avsluta (Esc)">
+            <button type="button" className="btn btn--small btn--ghost" onClick={close} aria-label={t('kronikan.show.exit')} title={`${t('kronikan.show.exit')} (Esc)`}>
               <Icon name="stang" />
             </button>
           </span>

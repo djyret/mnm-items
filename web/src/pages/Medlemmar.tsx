@@ -1,15 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ROLE_LABEL, useAuth } from '../lib/auth'
+import { useAuth } from '../lib/auth'
+import { useI18n } from '../lib/i18n'
 import { supabase } from '../lib/supabase'
 import type { AppRole, Membership, MembershipStatus } from '../lib/types'
 
 const ROLES: AppRole[] = ['reader', 'editor', 'admin']
-
-const STATUS_LABEL: Record<MembershipStatus, string> = {
-  pending: 'Väntar',
-  active: 'Aktiv',
-  suspended: 'Spärrad',
-}
 
 /** Väntande överst, så nya konton syns direkt. */
 const STATUS_ORDER: Record<MembershipStatus, number> = { pending: 0, active: 1, suspended: 2 }
@@ -18,6 +13,7 @@ const STATUS_ORDER: Record<MembershipStatus, number> = { pending: 0, active: 1, 
  *  Visas på Admin-sidan, som redan kräver admin. */
 export function MembersPanel() {
   const { isAdmin, membership: me, reloadMembership } = useAuth()
+  const { t, locale } = useI18n()
   const [rows, setRows] = useState<Membership[]>([])
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState<string | null>(null)
@@ -49,16 +45,16 @@ export function MembersPanel() {
   return (
     <>
       <div className="panel">
-        <h3 className="panel-title">Medlemmar</h3>
+        <h3 className="panel-title">{t('admin.members.title')}</h3>
         {error && <div className="alert">{error}</div>}
         <p className="members__intro">
-          Nya konton dyker upp här när någon loggar in med Discord första gången. De kan ingenting förrän du godkänner dem.
-          {pending > 0 && <> <strong>{pending} väntar.</strong></>}
+          {t('admin.members.intro')}
+          {pending > 0 && <> <strong>{t('admin.members.pendingCount', { n: pending })}</strong></>}
         </p>
         {loading ? (
-          <div className="empty">Laddar …</div>
+          <div className="empty">{t('common.loading')}</div>
         ) : rows.length === 0 ? (
-          <div className="empty">Inga konton än.</div>
+          <div className="empty">{t('admin.members.empty')}</div>
         ) : (
           <ul className="members">
             {rows.map((m) => {
@@ -68,28 +64,33 @@ export function MembersPanel() {
                 <li key={m.user_id} className={`members__row members__row--${m.status}`}>
                   <div className="members__who">
                     <span>
-                      <strong>{m.display_name ?? 'Okänt namn'}</strong>
-                      {self && <span className="members__self"> (du)</span>}
+                      <strong>{m.display_name ?? t('admin.members.unknownName')}</strong>
+                      {self && <span className="members__self"> {t('admin.members.you')}</span>}
                     </span>
-                    <small>{STATUS_LABEL[m.status]} · sedan {new Date(m.created_at).toLocaleDateString('sv-SE')}</small>
+                    <small>
+                      {t('admin.members.since', {
+                        status: t(`admin.status.${m.status}`),
+                        date: new Date(m.created_at).toLocaleDateString(locale),
+                      })}
+                    </small>
                   </div>
                   <select
-                    aria-label={`Roll för ${m.display_name ?? 'kontot'}`}
+                    aria-label={t('admin.members.roleFor', { name: m.display_name ?? t('admin.members.theAccount') })}
                     value={m.role}
                     disabled={disabled}
                     onChange={(e) => update(m, e.target.value as AppRole, m.status)}
                   >
-                    {ROLES.map((r) => <option key={r} value={r}>{ROLE_LABEL[r]}</option>)}
+                    {ROLES.map((r) => <option key={r} value={r}>{t(`role.${r}`)}</option>)}
                   </select>
                   <div className="members__actions">
                     {m.status !== 'active' && (
                       <button className="btn btn--small btn--primary" disabled={disabled} onClick={() => update(m, m.role, 'active')}>
-                        {m.status === 'pending' ? 'Godkänn' : 'Återaktivera'}
+                        {m.status === 'pending' ? t('admin.members.approve') : t('admin.members.reactivate')}
                       </button>
                     )}
                     {m.status !== 'suspended' && !self && (
                       <button className="btn btn--small btn--ghost" disabled={disabled} onClick={() => update(m, m.role, 'suspended')}>
-                        Spärra
+                        {t('admin.members.suspend')}
                       </button>
                     )}
                   </div>

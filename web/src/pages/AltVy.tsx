@@ -5,13 +5,18 @@ import { ItemCard } from '../components/ItemCard'
 import { LoanRequest } from '../components/LoanRequest'
 import { CLASSES, SLOTS, slotIcon } from '../lib/constants'
 import { useAuth } from '../lib/auth'
+import { useI18n } from '../lib/i18n'
 import { canUse, itemScore } from '../lib/items'
 import { useStore } from '../lib/store'
+
+/** Slotgrupp för items utan slot (inte en spelkod, bara en nyckel här). */
+const NO_SLOT = '_other'
 
 /** Allt i förrådet en viss karaktär kan bära, grupperat per slot. */
 export function AltVy() {
   const { characters, items } = useStore()
   const { canEdit } = useAuth()
+  const { t } = useI18n()
   const [params, setParams] = useSearchParams()
   const charId = params.get('karaktar') ?? ''
   const char = characters.find((c) => c.id === charId)
@@ -39,7 +44,7 @@ export function AltVy() {
     })
     const bySlot = new Map<string, typeof usable>()
     for (const i of usable) {
-      for (const s of i.slots.length ? i.slots : ['ÖVRIGT']) {
+      for (const s of i.slots.length ? i.slots : [NO_SLOT]) {
         if (!bySlot.has(s)) bySlot.set(s, [])
         bySlot.get(s)!.push(i)
       }
@@ -55,9 +60,9 @@ export function AltVy() {
 
   return (
     <div className="page">
-      <h1 className="page-title">Vad kan min alt använda?</h1>
+      <h1 className="page-title">{t('forradet.alt.title')}</h1>
       <div className="panel alt-pick">
-        <h2 className="panel-title">Välj karaktär</h2>
+        <h2 className="panel-title">{t('forradet.alt.pick')}</h2>
         <div className="char-list">
           {characters.map((c) => (
             <button
@@ -70,7 +75,7 @@ export function AltVy() {
               <span className="char-row__label">
                 <span className="char-row__name">{c.name}</span>
                 <span className="char-row__sub">
-                  {[c.class && (CLASSES[c.class] || c.class), c.level && `lvl ${c.level}`].filter(Boolean).join(' · ') || 'Ingen klass'}
+                  {[c.class && (CLASSES[c.class] || c.class), c.level && `lvl ${c.level}`].filter(Boolean).join(' · ') || t('forradet.class.none')}
                 </span>
               </span>
             </button>
@@ -78,27 +83,29 @@ export function AltVy() {
         </div>
         {char && !char.class && (
           <p className="note">
-            {char.name} saknar klass, så alla items visas.{canEdit && <> <Link to="/karaktarer">Ange klass</Link> för en bättre lista.</>}
+            {t('forradet.alt.missingClass', { name: char.name })}{canEdit && <> <Link to="/karaktarer">{t('forradet.alt.setClass')}</Link> {t('forradet.alt.setClassRest')}</>}
           </p>
         )}
         {char?.class && (
           <p className="note">
-            Visar items för {CLASSES[char.class] || char.class}
-            {char.race ? ` (${char.race})` : ''} – sorterat på AC + stats.
+            {t('forradet.alt.showingFor', {
+              class: CLASSES[char.class] || char.class,
+              race: char.race ? ` (${char.race})` : '',
+            })}
           </p>
         )}
       </div>
 
-      {char && groups.length === 0 && <div className="panel empty">Inget i förrådet passar {char.name} just nu.</div>}
+      {char && groups.length === 0 && <div className="panel empty">{t('forradet.alt.nothing', { name: char.name })}</div>}
       {char && groups.length > 0 && (
-        <p className="note">Bocka i rutan uppe till höger på de items {char.name} vill låna. Sedan skapas ett meddelande till Discord längst ner.</p>
+        <p className="note">{t('forradet.alt.hint', { name: char.name })}</p>
       )}
 
       {groups.map(([slot, list]) => (
         <section key={slot} className="slot-group">
           <h2 className="slot-group__title">
             <img src={slotIcon(slot)} alt="" />
-            {slot} <small>{list.length}</small>
+            {slot === NO_SLOT ? t('forradet.alt.other') : slot} <small>{list.length}</small>
           </h2>
           <div className="grid">
             {list.map((i) => {
@@ -125,13 +132,13 @@ export function AltVy() {
             onClear={() => setPicked(new Set())}
           />
           <div className="loan-bar">
-            <span>{picked.size} {picked.size === 1 ? 'item valt' : 'items valda'} för {char.name}</span>
+            <span>{picked.size === 1 ? t('forradet.alt.pickedOne', { name: char.name }) : t('forradet.alt.pickedMany', { n: picked.size, name: char.name })}</span>
             <button
               type="button"
               className="btn btn--primary"
               onClick={() => document.getElementById('lan')?.scrollIntoView({ behavior: 'smooth' })}
             >
-              Visa Discord-meddelande
+              {t('forradet.alt.showMessage')}
             </button>
           </div>
         </>

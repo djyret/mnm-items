@@ -4,7 +4,8 @@ import { Link, useParams } from 'react-router-dom'
 import { ChapterTabs } from '../components/ChapterTabs'
 import { Icon } from '../components/Icon'
 import { useAuth } from '../lib/auth'
-import { formatDay, missingTables, sagaBlocks, weekday } from '../lib/kronikan'
+import { useI18n } from '../lib/i18n'
+import { formatDay, missingTables, sagaBlocks, weekday, withParts } from '../lib/kronikan'
 import { supabase } from '../lib/supabase'
 import type { Chapter } from '../lib/types'
 import { MissingSetup } from './Kronikan'
@@ -13,6 +14,7 @@ import { MissingSetup } from './Kronikan'
 export function KapitelSaga() {
   const { id } = useParams()
   const { canEdit } = useAuth()
+  const { t } = useI18n()
   const [chapter, setChapter] = useState<Chapter | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -28,7 +30,7 @@ export function KapitelSaga() {
 
   const blocks = useMemo(() => sagaBlocks(chapter?.saga ?? null), [chapter?.saga])
 
-  if (missingTables(error ?? undefined)) return <div className="page"><h1 className="page-title">Krönikan</h1><MissingSetup /></div>
+  if (missingTables(error ?? undefined)) return <div className="page"><h1 className="page-title">{t('kronikan.title')}</h1><MissingSetup /></div>
   if (!chapter || !id) {
     return <ChapterMissing loading={loading} />
   }
@@ -36,7 +38,7 @@ export function KapitelSaga() {
   return (
     <div className="page kr-read">
       <div className="kr-read__top">
-        <Link to="/kronikan" className="back"><Icon name="vanster" size={14} /> Krönikan</Link>
+        <Link to="/kronikan" className="back"><Icon name="vanster" size={14} /> {t('kronikan.title')}</Link>
         <span className="kr-read__actions"><ChapterTabs id={id} /></span>
       </div>
 
@@ -57,8 +59,11 @@ export function KapitelSaga() {
             )
           ) : (
             <div className="kr-scroll__empty">
-              <p>Sagan om den här kvällen är inte skriven än.</p>
-              {canEdit && <p>Låt krönikören skriva den i <Link to={`/kronikan/${id}/verkstad`}>verkstaden</Link> – knappen <b>Skriv sagan</b>.</p>}
+              <p>{t('kronikan.saga.notWritten')}</p>
+              {canEdit && <p>{withParts(t('kronikan.saga.letChronicler'), {
+                link: <Link to={`/kronikan/${id}/verkstad`}>{t('kronikan.workshopLink')}</Link>,
+                button: <b>{t('kronikan.sagaWriter.write')}</b>,
+              })}</p>}
             </div>
           )}
         </article>

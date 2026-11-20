@@ -110,10 +110,3 @@ export function useAuth(): Auth {
   if (!ctx) throw new Error('useAuth utanför AuthProvider')
   return ctx
 }
-
-export const ROLE_LABEL: Record<Access, string> = {
-  visitor: 'Besökare',
-  reader: 'Läsare',
-  editor: 'Redaktör',
-  admin: 'Admin',
-}

@@ -1,33 +1,36 @@
+import { Fragment, createElement, type ReactNode } from 'react'
 import { compressImage } from './items'
 import { callFunction } from './functions'
+import { getLang, locale, translate, type Lang } from './i18n'
 import { supabase } from './supabase'
 import type { CastMember, Chapter, Entry, EntryKind, Quote, Visibility } from './types'
 
 export const KRONIKA_BUCKET = 'kronikan'
 
-export const KIND_LABELS: Record<EntryKind, string> = {
-  serie: 'Seriebild',
-  skarmdump: 'Skärmdump',
-  anteckning: 'Anteckning',
-  klipp: 'Klipp',
+// Databaskoderna ändras aldrig; bara etiketterna översätts (kronikan.kind.*, .visibility.*, .role.*).
+export const KINDS: EntryKind[] = ['serie', 'skarmdump', 'anteckning', 'klipp']
+export const VISIBILITIES: Visibility[] = ['public', 'group', 'draft']
+export const ROLES: CastMember['role'][] = ['hjalte', 'husdjur', 'npc']
+
+/** Etiketter som slås upp i aktuellt språk varje gång de läses, så att språkbyte slår igenom. */
+function liveLabels<T extends string>(codes: T[], label: (code: T) => string): Record<T, string> {
+  const out = {} as Record<T, string>
+  for (const c of codes) Object.defineProperty(out, c, { enumerable: true, get: () => label(c) })
+  return out
 }
 
-export const VISIBILITY_LABELS: Record<Visibility, string> = {
-  public: 'Publik',
-  group: 'Gruppen',
-  draft: 'Utkast',
-}
+export const VISIBILITY_LABELS = liveLabels(VISIBILITIES, (v) => translate(getLang(), `kronikan.visibility.${v}`))
+export const VISIBILITY_HINTS = liveLabels(VISIBILITIES, (v) => translate(getLang(), `kronikan.visibilityHint.${v}`))
 
-export const VISIBILITY_HINTS: Record<Visibility, string> = {
-  public: 'Alla med länken kan läsa kapitlet.',
-  group: 'Bara inloggade i gänget kan läsa kapitlet.',
-  draft: 'Bara redaktörer ser kapitlet, t.ex. medan kvällen pågår.',
-}
-
-export const ROLE_LABELS: Record<CastMember['role'], string> = {
-  hjalte: 'Hjälte',
-  husdjur: 'Husdjur',
-  npc: 'NPC / fiende',
+/**
+ * Text med insprängda element: t('…', …) som "Lägg till i {link}." + { link: <Link …/> }.
+ * Platshållare som inte finns i parts lämnas orörda.
+ */
+export function withParts(text: string, parts: Record<string, ReactNode>): ReactNode {
+  return createElement(Fragment, null, ...text.split(/(\{\w+\})/).map((s) => {
+    const m = /^\{(\w+)\}$/.exec(s)
+    return m && m[1] in parts ? parts[m[1]] : s
+  }))
 }
 
 export function kronikaUrl(path: string | null | undefined): string | null {
@@ -41,7 +44,7 @@ export async function uploadKronika(blob: Blob): Promise<string> {
     contentType: 'image/webp',
     cacheControl: '31536000',
   })
-  if (error) throw new Error(`Uppladdning misslyckades: ${error.message}`)
+  if (error) throw new Error(translate(getLang(), 'kronikan.error.upload', { error: error.message }))
   return path
 }
 
@@ -121,7 +124,10 @@ export interface PromptInput {
   subzone: string | null
 }
 
-export function buildPrompt(style: string, chapter: Pick<Chapter, 'zone' | 'subzone'>, moment: PromptInput, cast: CastMember[]): string {
+/** Pratbubblornas språk följer den som bygger prompten; replikerna skickas med ordagrant. */
+export function buildPrompt(
+  style: string, chapter: Pick<Chapter, 'zone' | 'subzone'>, moment: PromptInput, cast: CastMember[], lang: Lang = getLang(),
+): string {
   const people = moment.cast_names
     .map((n) => cast.find((c) => c.name === n))
     .filter((c): c is CastMember => !!c)
@@ -152,7 +158,9 @@ export function buildPrompt(style: string, chapter: Pick<Chapter, 'zone' | 'subz
     parts.push('Also attached: in-game screenshots of the real moment. Use them for the location, layout, enemies and composition, redrawn in the style above.')
   }
   if (quotes.length) {
-    parts.push('', 'SPEECH BUBBLES (exact text, keep the Swedish):')
+    parts.push('', lang === 'sv'
+      ? 'SPEECH BUBBLES in Swedish (exact text, keep the Swedish):'
+      : 'SPEECH BUBBLES in English (exact text, keep the English):')
     for (const q of quotes) parts.push(`- ${q.who ? `${q.who} says` : 'Caption'}: "${q.text.trim()}"`)
   } else {
     parts.push('', 'No speech bubbles.')
@@ -183,7 +191,7 @@ export interface ChronicleDraft {
 
 /** Låter Claude läsa kapitlets minnen och skriva ett utkast (Edge Function berattelse). */
 export async function writeChronicle(chapterId: string): Promise<ChronicleDraft> {
-  const body = await callFunction<{ draft: ChronicleDraft }>('berattelse', { chapter_id: chapterId })
+  const body = await callFunction<{ draft: ChronicleDraft }>('berattelse', { chapter_id: chapterId, lang: getLang() })
   return body.draft
 }
 
@@ -194,7 +202,7 @@ export interface SagaDraft {
 
 /** Låter Claude skriva kvällen som en längre fantasysaga (Edge Function berattelse, mode saga). */
 export async function writeSaga(chapterId: string): Promise<SagaDraft> {
-  const body = await callFunction<{ saga: SagaDraft }>('berattelse', { chapter_id: chapterId, mode: 'saga' })
+  const body = await callFunction<{ saga: SagaDraft }>('berattelse', { chapter_id: chapterId, mode: 'saga', lang: getLang() })
   return body.saga
 }
 
@@ -287,12 +295,13 @@ export function tilt(id: string, max = 3): number {
 
 // ---------- Datum ----------
 
+// Följer aktuellt språk: "fredag 20 november 2026" / "Friday 20 November 2026"
 export function formatDay(iso: string): string {
-  return new Date(`${iso}T12:00:00`).toLocaleDateString('sv-SE', { day: 'numeric', month: 'long', year: 'numeric' })
+  return new Date(`${iso}T12:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
 export function weekday(iso: string): string {
-  return new Date(`${iso}T12:00:00`).toLocaleDateString('sv-SE', { weekday: 'long' })
+  return new Date(`${iso}T12:00:00`).toLocaleDateString(locale(), { weekday: 'long' })
 }
 
 // ---------- Laddning ----------

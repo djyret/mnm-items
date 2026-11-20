@@ -1,3 +1,4 @@
+import { getLang, translate } from './i18n'
 import { SUPABASE_KEY, SUPABASE_URL, supabase } from './supabase'
 
 // Gängordet låg här förut; städa bort det ur webbläsaren
@@ -14,7 +15,7 @@ try {
 export async function callFunction<T>(name: string, payload: unknown): Promise<T> {
   const { data } = await supabase.auth.getSession()
   const token = data.session?.access_token
-  if (!token) throw new Error('Logga in med Discord för att använda AI-funktionerna.')
+  if (!token) throw new Error(translate(getLang(), 'admin.fn.signIn'))
 
   const res = await fetch(`${SUPABASE_URL}/functions/v1/${name}`, {
     method: 'POST',
@@ -22,6 +23,6 @@ export async function callFunction<T>(name: string, payload: unknown): Promise<T
     body: JSON.stringify(payload),
   })
   const body = await res.json().catch(() => ({}))
-  if (!res.ok) throw new Error(body.error ?? `${name} svarade inte (${res.status})`)
+  if (!res.ok) throw new Error(body.error ?? translate(getLang(), 'admin.fn.noResponse', { name, status: res.status }))
   return body as T
 }

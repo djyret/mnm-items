@@ -1807,3 +1807,7 @@ blockquote.kr-note { font-family: var(--font-title); font-weight: 700; }
 .account__lang { display: inline-flex; gap: 0.35rem; padding-right: 0.9rem; border-right: 1px solid var(--bronze-dark); }
 .account__lang .account__link { color: var(--text-dim); }
 .account__lang .account__link.is-active { color: var(--text); text-decoration: none; cursor: default; }
+
+/* Headern med skylten Loot & Lore: bandet under skylten är på valt språk (header.webp är den gamla Förrådet-skylten) */
+html[lang='sv'] .hero { background-image: url('/bilder/header-sv.webp'); }
+html[lang='en'] .hero { background-image: url('/bilder/header-en.webp'); }

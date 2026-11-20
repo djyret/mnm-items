@@ -5,18 +5,9 @@ import { supabase } from './supabase'
 /** Områden som adminpanelen styr. Databasen spärrar läsningen; det här styr meny och sidor. */
 export type Area = 'forradet' | 'kronikan' | 'stilbibeln'
 
-export const AREAS: { area: Area; label: string; covers: string }[] = [
-  { area: 'forradet', label: 'Förrådet', covers: 'Förråd, Karaktärer, Alts och Försäljning' },
-  { area: 'kronikan', label: 'Krönikan', covers: 'Alla kapitel; kapitlens egen synlighet gäller också' },
-  { area: 'stilbibeln', label: 'Stilbibeln', covers: 'Stilprompten och sidan Stilbibel' },
-]
-
-export const MIN_ROLE_LABEL: Record<Access, string> = {
-  visitor: 'Alla, även utloggade',
-  reader: 'Inloggade i gänget',
-  editor: 'Redaktörer',
-  admin: 'Bara admin',
-}
+/** Namn och beskrivning slås upp vid rendering så att språkbytet slår igenom:
+ *  t(`admin.area.${area}`), t(`admin.area.${area}.covers`) och t(`admin.minRole.${nivå}`). */
+export const AREAS: Area[] = ['forradet', 'kronikan', 'stilbibeln']
 
 const RANK: Record<Access, number> = { visitor: 0, reader: 1, editor: 2, admin: 3 }
 

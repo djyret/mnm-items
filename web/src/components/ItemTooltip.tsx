@@ -1,4 +1,5 @@
-import { STAT_GROUPS, STAT_HELP, slotIcon, statLabel, weaponRatio } from '../lib/constants'
+import { STAT_GROUPS, slotIcon, statHelp, statLabel, weaponRatio } from '../lib/constants'
+import { useI18n } from '../lib/i18n'
 import type { ItemDraft } from '../lib/types'
 import { Icon } from './Icon'
 
@@ -21,6 +22,7 @@ export function ItemTooltip({ item, compact = false, iconUrl }: {
   compact?: boolean
   iconUrl?: string | null
 }) {
+  const { t, lang } = useI18n()
   const known = new Set(STAT_GROUPS.flat())
   const groups = STAT_GROUPS.map((g) => g.filter((k) => item.stats[k] != null)).filter((g) => g.length)
   const others = Object.keys(item.stats).filter((k) => !known.has(k))
@@ -31,7 +33,7 @@ export function ItemTooltip({ item, compact = false, iconUrl }: {
     <div className={`tooltip${compact ? ' tooltip--compact' : ''}`}>
       <div className="tooltip__title">
         <span className="tooltip__grip" aria-hidden />
-        <span className="tooltip__name">{item.name || 'Namnlöst item'}</span>
+        <span className="tooltip__name">{item.name || t('forradet.tooltip.unnamed')}</span>
         <span className="tooltip__x" aria-hidden><Icon name="stang" size={10} /></span>
       </div>
       <div className="tooltip__body">
@@ -39,16 +41,16 @@ export function ItemTooltip({ item, compact = false, iconUrl }: {
         <div className="tooltip__lines">
           {item.flags.length > 0 && <div>{item.flags.join(' ')}</div>}
           {item.slots.length > 0 && <div>Slot: {item.slots.join(' ')}</div>}
-          {item.ac != null && <div className="tooltip__ac" title={STAT_HELP.AC}>AC: {item.ac}</div>}
+          {item.ac != null && <div className="tooltip__ac" title={statHelp('AC', lang)}>AC: {item.ac}</div>}
           {groups.map((g) => (
             <div key={g.join()}>
               {g.map((k) => (
-                <span key={k} className="tooltip__stat" title={STAT_HELP[k]}>
+                <span key={k} className="tooltip__stat" title={statHelp(k, lang)}>
                   {statLabel(k)}: {['DMG', 'DLY', 'RANGE'].includes(k) ? item.stats[k] : fmt(item.stats[k])}
                 </span>
               ))}
               {g.includes('DLY') && ratio != null && (
-                <span className="tooltip__stat tooltip__ratio" title="DMG / DLY – högre är bättre">Ratio: {ratio.toFixed(3)}</span>
+                <span className="tooltip__stat tooltip__ratio" title={t('forradet.tooltip.ratioHelp')}>Ratio: {ratio.toFixed(3)}</span>
               )}
             </div>
           ))}

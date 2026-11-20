@@ -4,9 +4,10 @@ import { Link, useParams } from 'react-router-dom'
 import { ChapterTabs } from '../components/ChapterTabs'
 import { Icon } from '../components/Icon'
 import {
-  formatDay, kronikaUrl, loadCastAndStyle, missingTables, quoteVolume, shortId, sortEntries, storyParagraphs, tilt, weekday, foldSources,
+  formatDay, kronikaUrl, loadCastAndStyle, missingTables, quoteVolume, shortId, sortEntries, storyParagraphs, tilt, weekday, foldSources, withParts,
 } from '../lib/kronikan'
 import { useAuth } from '../lib/auth'
+import { useI18n } from '../lib/i18n'
 import { supabase } from '../lib/supabase'
 import type { CastMember, Chapter, Entry, Quote } from '../lib/types'
 import { MissingSetup } from './Kronikan'
@@ -113,6 +114,7 @@ function place(sizes: { w: number; h: number }[], small: boolean[], cols: number
 export function KapitelLas() {
   const { id } = useParams()
   const { canEdit } = useAuth()
+  const { t } = useI18n()
   const [chapter, setChapter] = useState<Chapter | null>(null)
   const [entries, setEntries] = useState<Entry[]>([])
   const [cast, setCast] = useState<CastMember[]>([])
@@ -232,7 +234,7 @@ export function KapitelLas() {
     if (ref) board.current?.querySelector(`[data-ref="${ref}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }
 
-  if (missingTables(error ?? undefined)) return <div className="page"><h1 className="page-title">Krönikan</h1><MissingSetup /></div>
+  if (missingTables(error ?? undefined)) return <div className="page"><h1 className="page-title">{t('kronikan.title')}</h1><MissingSetup /></div>
   if (!chapter || !id) {
     return <ChapterMissing loading={loading} />
   }
@@ -242,9 +244,9 @@ export function KapitelLas() {
   return (
     <div className="page kr-read">
       <div className="kr-read__top">
-        <Link to="/kronikan" className="back"><Icon name="vanster" size={14} /> Krönikan</Link>
+        <Link to="/kronikan" className="back"><Icon name="vanster" size={14} /> {t('kronikan.title')}</Link>
         <span className="kr-read__actions">
-          <Link to={`/kronikan/${id}/bildspel`} className="btn btn--small"><Icon name="spela" size={14} /> Spela upp</Link>
+          <Link to={`/kronikan/${id}/bildspel`} className="btn btn--small"><Icon name="spela" size={14} /> {t('kronikan.play')}</Link>
           <ChapterTabs id={id} />
         </span>
       </div>
@@ -258,7 +260,7 @@ export function KapitelLas() {
         </header>
 
         <div className="kr-read__body">
-          <aside className="kr-scroll" aria-label="Berättelsen">
+          <aside className="kr-scroll" aria-label={t('kronikan.field.story')}>
             {paragraphs.length ? (
               paragraphs.map((p, i) => (
                 <p
@@ -287,7 +289,7 @@ export function KapitelLas() {
             ) : (
               <div className="kr-scroll__empty">
                 {chapter.summary && <p>{chapter.summary}</p>}
-                <p>Berättelsen är inte skriven än.{canEdit && <> Låt krönikören skriva den i <Link to={`/kronikan/${id}/verkstad`}>verkstaden</Link>.</>}</p>
+                <p>{t('kronikan.read.noStory')}{canEdit && <> {withParts(t('kronikan.read.letChronicler'), { link: <Link to={`/kronikan/${id}/verkstad`}>{t('kronikan.workshopLink')}</Link> })}</>}</p>
               </div>
             )}
           </aside>
@@ -295,8 +297,8 @@ export function KapitelLas() {
           {pins.length === 0 ? (
             <div className="kr-board kr-board--empty">
               <div className="kr-note" style={{ '--tilt': '-2deg' } as CSSProperties}>
-                Tavlan är tom.
-                {canEdit && <small>Släng in kvällens skärmdumpar i <Link to={`/kronikan/${id}/verkstad`}>verkstaden</Link>.</small>}
+                {t('kronikan.read.emptyBoard')}
+                {canEdit && <small>{withParts(t('kronikan.read.emptyBoardHint'), { link: <Link to={`/kronikan/${id}/verkstad`}>{t('kronikan.workshopLink')}</Link> })}</small>}
               </div>
             </div>
           ) : (
@@ -326,13 +328,13 @@ export function KapitelLas() {
                 if (pin.type === 'affisch') {
                   return (
                     <div key={e.id} data-ref={ref} className={`kr-poster${cls}`} style={style}>
-                      <button type="button" className="kr-poster__open" onClick={() => open(e)} aria-label={e.caption ?? 'Visa seriebilden'}>
+                      <button type="button" className="kr-poster__open" onClick={() => open(e)} aria-label={e.caption ?? t('kronikan.read.showComic')}>
                         <img src={kronikaUrl(e.image_path)!} alt={e.caption ?? ''} loading="lazy" />
                       </button>
                       {folded.originals.get(e.id)?.slice(0, 1).map((o) => (
-                        <button key={o.id} type="button" className="kr-poster__original" onClick={() => open(o)} aria-label="Visa originalet från spelet">
+                        <button key={o.id} type="button" className="kr-poster__original" onClick={() => open(o)} aria-label={t('kronikan.read.showOriginal')}>
                           <img src={kronikaUrl(o.image_path)!} alt="" loading="lazy" />
-                          <span>Från spelet</span>
+                          <span>{t('kronikan.read.fromGame')}</span>
                         </button>
                       ))}
                     </div>
@@ -342,7 +344,7 @@ export function KapitelLas() {
                   return (
                     <button key={e.id} data-ref={ref} className={`kr-polaroid${cls}`} style={style} onClick={() => open(e)}>
                       <img src={kronikaUrl(e.image_path)!} alt="" loading="lazy" />
-                      <span>{e.caption ?? 'Utan bildtext'}</span>
+                      <span>{e.caption ?? t('kronikan.read.noCaption')}</span>
                     </button>
                   )
                 }
@@ -350,7 +352,7 @@ export function KapitelLas() {
                   return (
                     <div key={e.id} data-ref={ref} className={`kr-note${cls}`} style={style}>
                       {e.caption}
-                      {e.url && <a href={e.url} target="_blank" rel="noreferrer" className="kr-note__link"><Icon name="spela" size={14} /> Se klippet</a>}
+                      {e.url && <a href={e.url} target="_blank" rel="noreferrer" className="kr-note__link"><Icon name="spela" size={14} /> {t('kronikan.read.watchClip')}</a>}
                     </div>
                   )
                 }
@@ -374,10 +376,10 @@ export function KapitelLas() {
             <figcaption>
               <span>{current.caption}</span>
               <span className="kr-viewer__nav">
-                <button className="btn btn--small btn--ghost" onClick={() => step(-1)} aria-label="Föregående bild"><Icon name="vanster" /></button>
+                <button className="btn btn--small btn--ghost" onClick={() => step(-1)} aria-label={t('kronikan.read.prevPicture')}><Icon name="vanster" /></button>
                 <b>{viewing! + 1} / {pictures.length}</b>
-                <button className="btn btn--small btn--ghost" onClick={() => step(1)} aria-label="Nästa bild"><Icon name="hoger" /></button>
-                <button className="btn btn--small" onClick={() => dialog.current?.close()}>Stäng</button>
+                <button className="btn btn--small btn--ghost" onClick={() => step(1)} aria-label={t('kronikan.read.nextPicture')}><Icon name="hoger" /></button>
+                <button className="btn btn--small" onClick={() => dialog.current?.close()}>{t('kronikan.close')}</button>
               </span>
             </figcaption>
           </figure>

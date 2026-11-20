@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import {
-  KIND_LABELS, buildPrompt, foldSources, generateImage, deleteKronika, formatDay, imageFiles, kronikaUrl, loadCastAndStyle,
-  missingTables, shotTime, sortEntries, storeImage, weekday, VISIBILITY_HINTS, VISIBILITY_LABELS,
+  KINDS, VISIBILITIES, buildPrompt, foldSources, generateImage, deleteKronika, formatDay, imageFiles, kronikaUrl, loadCastAndStyle,
+  missingTables, shotTime, sortEntries, storeImage, weekday, withParts,
 } from '../lib/kronikan'
+import { useI18n } from '../lib/i18n'
 import { supabase } from '../lib/supabase'
-import type { CastMember, Chapter, Entry, EntryKind, Quote, Visibility } from '../lib/types'
+import type { CastMember, Chapter, Entry, Quote, Visibility } from '../lib/types'
 import { ChapterTabs } from '../components/ChapterTabs'
 import { Icon } from '../components/Icon'
 import { Kronikoren, Sagoskrivaren } from '../components/Kronikoren'
@@ -29,22 +30,23 @@ function PromptBox({ prompt, people, sources, onGenerate, generating, hasImage }
   generating: boolean
   hasImage: boolean
 }) {
+  const { t } = useI18n()
   const [copied, setCopied] = useState(false)
   const refs = people.filter((c) => c.ref_path)
   const missing = people.filter((c) => !c.ref_path)
   return (
     <div className="kr-prompt">
       <div className="loan__outhead">
-        <span className="guide__label">Bildprompt</span>
+        <span className="guide__label">{t('kronikan.prompt.label')}</span>
         <span className="kr-prompt__actions">
         <button
           type="button"
           className="btn btn--small btn--primary"
           onClick={onGenerate}
           disabled={generating}
-          title="OpenAI målar bilden med karaktärernas referensbilder och skärmdumparna som underlag. Kostar ca 60 öre per bild."
+          title={t('kronikan.prompt.paintTitle')}
         >
-          {generating ? 'Målar… (1–2 min)' : hasImage ? 'Måla en ny bild' : 'Måla bilden'}
+          {generating ? t('kronikan.prompt.painting') : hasImage ? t('kronikan.prompt.repaint') : t('kronikan.prompt.paint')}
         </button>
         <button
           type="button"
@@ -55,14 +57,14 @@ function PromptBox({ prompt, people, sources, onGenerate, generating, hasImage }
             setTimeout(() => setCopied(false), 1600)
           }}
         >
-          {copied ? 'Kopierad!' : 'Kopiera prompt'}
+          {copied ? t('kronikan.prompt.copied') : t('kronikan.prompt.copy')}
         </button>
         </span>
       </div>
       <textarea readOnly rows={10} value={prompt} onFocus={(e) => e.target.select()} />
       {sources.some((e) => e.image_path) && (
         <div className="kr-prompt__refs">
-          <span className="chips__label">Skärmdumpar från ögonblicket (skickas med; vid ChatGPT – dra in dem också):</span>
+          <span className="chips__label">{t('kronikan.prompt.shots')}</span>
           <div className="kr-refs kr-refs--wide">
             {sources.filter((e) => e.image_path).map((e) => (
               <a key={e.id} href={kronikaUrl(e.image_path)!} target="_blank" rel="noreferrer">
@@ -74,7 +76,7 @@ function PromptBox({ prompt, people, sources, onGenerate, generating, hasImage }
       )}
       {people.length > 0 && (
         <div className="kr-prompt__refs">
-          <span className="chips__label">Referensbilder (skickas med; vid ChatGPT – dra in dem tillsammans med prompten):</span>
+          <span className="chips__label">{t('kronikan.prompt.refs')}</span>
           <div className="kr-refs">
             {refs.map((c) => (
               <a key={c.id} href={kronikaUrl(c.ref_path)!} target="_blank" rel="noreferrer" title={c.name}>
@@ -85,7 +87,9 @@ function PromptBox({ prompt, people, sources, onGenerate, generating, hasImage }
           </div>
           {missing.length > 0 && (
             <small className="note">
-              Saknar referensbild: {missing.map((c) => c.name).join(', ')}. Lägg till i <Link to="/kronikan/stil">stilbibeln</Link>.
+              {withParts(t('kronikan.prompt.missingRefs', { names: missing.map((c) => c.name).join(', ') }), {
+                link: <Link to="/kronikan/stil">{t('kronikan.prompt.styleBibleLink')}</Link>,
+              })}
             </small>
           )}
         </div>
@@ -109,6 +113,7 @@ function EntryEditor({ draft, onChange, chapter, cast, petNames, sources, style,
   onGenerate: (prompt: string) => void
   generating: boolean
 }) {
+  const { t, lang } = useI18n()
   const set = <K extends keyof EntryDraft>(k: K, v: EntryDraft[K]) => onChange({ ...draft, [k]: v })
   const setQuote = (i: number, q: Partial<Quote>) => set('quotes', draft.quotes.map((x, j) => (j === i ? { ...x, ...q } : x)))
   const fileInput = useRef<HTMLInputElement>(null)
@@ -118,11 +123,11 @@ function EntryEditor({ draft, onChange, chapter, cast, petNames, sources, style,
   return (
     <div className="kr-editor">
       <div className="field">
-        <span>Sort</span>
+        <span>{t('kronikan.editor.kind')}</span>
         <div className="chips">
-          {(Object.keys(KIND_LABELS) as EntryKind[]).map((k) => (
+          {KINDS.map((k) => (
             <button key={k} type="button" className={`chip${draft.kind === k ? ' is-active' : ''}`} onClick={() => set('kind', k)}>
-              {KIND_LABELS[k]}
+              {t(`kronikan.kind.${k}`)}
             </button>
           ))}
         </div>
@@ -131,13 +136,13 @@ function EntryEditor({ draft, onChange, chapter, cast, petNames, sources, style,
       {hasImage && (
         <div className={`kr-editor__image${draft.image_path ? '' : ' kr-editor__image--empty'}`} onClick={() => fileInput.current?.click()} role="button" tabIndex={0}>
           {uploading || generating ? (
-            <span className="pulse">{generating ? 'Målar bilden… det tar en till två minuter' : 'Laddar upp…'}</span>
+            <span className="pulse">{generating ? t('kronikan.editor.painting') : t('kronikan.editor.uploading')}</span>
           ) : draft.image_path ? (
             <img src={kronikaUrl(draft.image_path)!} alt="" />
           ) : (
             <span>
-              {draft.kind === 'serie' ? 'Tryck Måla bilden nedan – eller klistra in en egen bild här' : 'Klistra in skärmdumpen här'} med <kbd>Ctrl</kbd>+<kbd>V</kbd>
-              <small>…eller klicka för att välja fil</small>
+              {withParts(t(draft.kind === 'serie' ? 'kronikan.editor.pasteComic' : 'kronikan.editor.pasteShot'), { keys: <><kbd>Ctrl</kbd>+<kbd>V</kbd></> })}
+              <small>{t('kronikan.editor.orPick')}</small>
             </span>
           )}
           <input ref={fileInput} type="file" accept="image/*" hidden onChange={(e) => {
@@ -149,17 +154,17 @@ function EntryEditor({ draft, onChange, chapter, cast, petNames, sources, style,
       )}
 
       <label className="field">
-        <span>{draft.kind === 'serie' ? 'Vad händer i bilden?' : 'Vad hände?'}</span>
+        <span>{draft.kind === 'serie' ? t('kronikan.editor.whatInPicture') : t('kronikan.editor.whatHappened')}</span>
         <textarea rows={3} value={draft.caption ?? ''} onChange={(e) => set('caption', e.target.value || null)}
-          placeholder={draft.kind === 'serie' ? 't.ex. Daremx portar upp till toppen medan Gabbex och Derinx dör bland skelett och fladdermöss' : ''} />
+          placeholder={draft.kind === 'serie' ? t('kronikan.editor.captionPlaceholder') : ''} />
       </label>
 
       {draft.kind === 'klipp' && (
-        <label className="field"><span>Länk till klippet</span><input value={draft.url ?? ''} onChange={(e) => set('url', e.target.value || null)} placeholder="YouTube, Medal, Twitch …" /></label>
+        <label className="field"><span>{t('kronikan.editor.clipLink')}</span><input value={draft.url ?? ''} onChange={(e) => set('url', e.target.value || null)} placeholder="YouTube, Medal, Twitch …" /></label>
       )}
 
       <div className="field">
-        <span>Med i bild</span>
+        <span>{t('kronikan.editor.inPicture')}</span>
         <div className="chips">
           {cast.map((c) => (
             <button key={c.id} type="button" className={`chip${draft.cast_names.includes(c.name) ? ' is-active' : ''}`}
@@ -184,38 +189,38 @@ function EntryEditor({ draft, onChange, chapter, cast, petNames, sources, style,
 
       {people.filter((c) => c.role === 'husdjur').map((c) => (
         <label key={c.id} className="field">
-          <span>Vad hette {c.name} den här gången?</span>
-          <input value={draft.pet_names[c.name] ?? ''} placeholder="Namnet efter summon – tomt ger ingen namnskylt"
+          <span>{t('kronikan.editor.petName', { name: c.name })}</span>
+          <input value={draft.pet_names[c.name] ?? ''} placeholder={t('kronikan.editor.petPlaceholder')}
             onChange={(e) => set('pet_names', { ...draft.pet_names, [c.name]: e.target.value })} />
         </label>
       ))}
 
       <div className="field">
-        <span>Repliker</span>
+        <span>{t('kronikan.editor.quotes')}</span>
         {draft.quotes.map((q, i) => (
           <div key={i} className="quick__row kr-quote">
             <select value={q.who} onChange={(e) => setQuote(i, { who: e.target.value })}>
-              <option value="">Berättarruta</option>
+              <option value="">{t('kronikan.editor.narrator')}</option>
               {cast.map((c) => <option key={c.id} value={c.name}>{c.name}</option>)}
             </select>
-            <input value={q.text} onChange={(e) => setQuote(i, { text: e.target.value })} placeholder="t.ex. NU!!!" />
-            <button type="button" className="icon-btn" aria-label="Ta bort repliken" onClick={() => set('quotes', draft.quotes.filter((_, j) => j !== i))}><Icon name="stang" size={16} /></button>
+            <input value={q.text} onChange={(e) => setQuote(i, { text: e.target.value })} placeholder={t('kronikan.editor.quotePlaceholder')} />
+            <button type="button" className="icon-btn" aria-label={t('kronikan.editor.removeQuote')} onClick={() => set('quotes', draft.quotes.filter((_, j) => j !== i))}><Icon name="stang" size={16} /></button>
           </div>
         ))}
         <div className="chips chips--add">
-          <button type="button" className="chip" onClick={() => set('quotes', [...draft.quotes, { who: draft.cast_names[0] ?? '', text: '' }])}><Icon name="plus" size={14} /> Replik</button>
+          <button type="button" className="chip" onClick={() => set('quotes', [...draft.quotes, { who: draft.cast_names[0] ?? '', text: '' }])}><Icon name="plus" size={14} /> {t('kronikan.editor.addQuote')}</button>
         </div>
       </div>
 
       {draft.kind !== 'anteckning' && draft.kind !== 'klipp' && (
         <label className="field">
-          <span>Delområde, om annat än kapitlets</span>
-          <input value={draft.subzone ?? ''} onChange={(e) => set('subzone', e.target.value || null)} placeholder={chapter.subzone ?? 't.ex. The Keep'} />
+          <span>{t('kronikan.editor.subzone')}</span>
+          <input value={draft.subzone ?? ''} onChange={(e) => set('subzone', e.target.value || null)} placeholder={chapter.subzone ?? t('kronikan.editor.subzonePlaceholder')} />
         </label>
       )}
 
       {draft.kind === 'serie' && (() => {
-        const prompt = buildPrompt(style, chapter, draft, cast)
+        const prompt = buildPrompt(style, chapter, draft, cast, lang)
         return <PromptBox prompt={prompt} people={people} sources={sources} onGenerate={() => onGenerate(prompt)} generating={generating} hasImage={!!draft.image_path} />
       })()}
 
@@ -235,6 +240,7 @@ function EntryRow({ entry, index, selected, isCover, cast, originals, onSelect }
   cast: CastMember[]
   onSelect: () => void
 }) {
+  const { t } = useI18n()
   const url = kronikaUrl(entry.image_path)
   const color = (name: string) => cast.find((c) => c.name === name)?.tag_color
   const waiting = entry.kind === 'serie' && !url
@@ -244,18 +250,18 @@ function EntryRow({ entry, index, selected, isCover, cast, originals, onSelect }
         <span className="kr-row__nr">{index + 1}</span>
         <span className={`kr-row__thumb${waiting && !originals[0] ? ' kr-row__thumb--wait' : ''}`}>
           {url ? <img src={url} alt="" loading="lazy" />
-            : waiting && originals[0] ? <><img src={kronikaUrl(originals[0].image_path)!} alt="" loading="lazy" /><span className="kr-row__waiting">Väntar på seriebild</span></>
-            : waiting ? <span>Väntar på bild</span>
+            : waiting && originals[0] ? <><img src={kronikaUrl(originals[0].image_path)!} alt="" loading="lazy" /><span className="kr-row__waiting">{t('kronikan.row.waitingComic')}</span></>
+            : waiting ? <span>{t('kronikan.row.waitingImage')}</span>
             : <Icon name={entry.kind === 'klipp' ? 'spela' : 'plus'} size={18} />}
-          {url && originals[0] && <img className="kr-row__original" src={kronikaUrl(originals[0].image_path)!} alt="Originalet från spelet" loading="lazy" />}
+          {url && originals[0] && <img className="kr-row__original" src={kronikaUrl(originals[0].image_path)!} alt={t('kronikan.row.original')} loading="lazy" />}
         </span>
         <span className="kr-row__body">
           <span className="kr-row__meta">
-            <span className={`badge kr-kind kr-kind--${entry.kind}`}>{KIND_LABELS[entry.kind]}</span>
-            {isCover && <span className="badge badge--main">Omslag</span>}
+            <span className={`badge kr-kind kr-kind--${entry.kind}`}>{t(`kronikan.kind.${entry.kind}`)}</span>
+            {isCover && <span className="badge badge--main">{t('kronikan.row.cover')}</span>}
           </span>
           <span className={`kr-row__caption${entry.caption ? '' : ' is-empty'}`}>
-            {entry.caption ?? (entry.quotes[0] ? `”${entry.quotes[0].text}”` : 'Ingen bildtext')}
+            {entry.caption ?? (entry.quotes[0] ? `”${entry.quotes[0].text}”` : t('kronikan.row.noCaption'))}
           </span>
           {entry.cast_names.length > 0 && (
             <span className="kr-cast">
@@ -275,6 +281,7 @@ type ChapterDraft = Pick<Chapter, 'title' | 'played_on' | 'zone' | 'subzone' | '
 export function Kapitel() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { t } = useI18n()
   const [chapter, setChapter] = useState<Chapter | null>(null)
   const [entries, setEntries] = useState<Entry[]>([])
   const [cast, setCast] = useState<CastMember[]>([])
@@ -360,12 +367,12 @@ export function Kapitel() {
   }, [addImages])
 
   if (missingTables(error ?? undefined)) {
-    return <div className="page"><h1 className="page-title">Krönikan</h1><MissingSetup /></div>
+    return <div className="page"><h1 className="page-title">{t('kronikan.title')}</h1><MissingSetup /></div>
   }
   if (!chapter) {
     return (
       <div className="page">
-        <div className="panel empty">{loading ? 'Laddar…' : <>Kapitlet finns inte. <Link to="/kronikan">Till krönikan</Link></>}</div>
+        <div className="panel empty">{loading ? t('common.loading') : <>{t('kronikan.workshop.notFound')} <Link to="/kronikan">{t('kronikan.toChronicle')}</Link></>}</div>
       </div>
     )
   }
@@ -462,7 +469,7 @@ export function Kapitel() {
   }
 
   async function remove(e: Entry): Promise<boolean> {
-    if (!confirm(e.image_path ? 'Ta bort minnet och bilden?' : 'Ta bort minnet?')) return false
+    if (!confirm(e.image_path ? t('kronikan.workshop.confirmRemoveWithImage') : t('kronikan.workshop.confirmRemove'))) return false
     const { error } = await supabase.from('chronicle_entries').delete().eq('id', e.id)
     if (error) setError(error.message)
     else await deleteKronika(e.image_path)
@@ -478,7 +485,7 @@ export function Kapitel() {
   }
 
   async function removeChapter() {
-    if (!confirm(`Ta bort kapitlet "${chapter!.title}" med alla ${entries.length} minnen och bilder?`)) return
+    if (!confirm(t('kronikan.workshop.confirmRemoveChapter', { title: chapter!.title, n: entries.length }))) return
     const { error } = await supabase.from('chronicle_chapters').delete().eq('id', chapter!.id)
     if (error) return setError(error.message)
     await deleteKronika(...entries.map((e) => e.image_path))
@@ -515,7 +522,7 @@ export function Kapitel() {
 
   /** Byt valt minne; osparade ändringar slängs bara efter en fråga. */
   function select(e: Entry | null, how: 'edit' | 'comic' | 'new' = 'edit') {
-    if (dirty && !confirm('Du har osparade ändringar. Släng dem?')) return
+    if (dirty && !confirm(t('kronikan.workshop.confirmDiscard'))) return
     if (editing) cancelEdit()
     if (how === 'comic' && e) startComic(e)
     else if (how === 'new') startEdit(null)
@@ -533,8 +540,8 @@ export function Kapitel() {
   }
 
   const kindTitle = editing === 'ny'
-    ? (draft.source_ids.length ? 'Ny seriebild av skärmdumpen' : 'Nytt ögonblick')
-    : `${KIND_LABELS[draft.kind]} ${index + 1} av ${visible.length}`
+    ? (draft.source_ids.length ? t('kronikan.workshop.newComicFromShot') : t('kronikan.workshop.newMoment'))
+    : t('kronikan.workshop.position', { kind: t(`kronikan.kind.${draft.kind}`), n: index + 1, total: visible.length })
 
   return (
     <div
@@ -548,7 +555,7 @@ export function Kapitel() {
       }}
     >
       <div className="kr-read__top">
-        <Link to="/kronikan" className="back"><Icon name="vanster" size={14} /> Krönikan</Link>
+        <Link to="/kronikan" className="back"><Icon name="vanster" size={14} /> {t('kronikan.title')}</Link>
         <ChapterTabs id={chapter.id} />
       </div>
 
@@ -556,21 +563,21 @@ export function Kapitel() {
 
       <div className={`kr-bench${editing ? ' is-editing' : ''}`}>
         {/* Kvällens minnen i ordning: välj ett för att arbeta med det i panelen */}
-        <section className="kr-bench__list" aria-label="Kvällens minnen">
+        <section className="kr-bench__list" aria-label={t('kronikan.workshop.listLabel')}>
           <header className="kr-bench__head">
             <h1 className="page-title">
               {chapter.title}
-              {chapter.visibility !== 'public' && <span className={`kr-vis kr-vis--${chapter.visibility}`}>{VISIBILITY_LABELS[chapter.visibility]}</span>}
+              {chapter.visibility !== 'public' && <span className={`kr-vis kr-vis--${chapter.visibility}`}>{t(`kronikan.visibility.${chapter.visibility}`)}</span>}
             </h1>
             <span className="kr-zone">{[`${weekday(chapter.played_on)} ${formatDay(chapter.played_on)}`, chapter.zone, chapter.subzone].filter(Boolean).join(' · ')}</span>
             <span className="kr-bench__count">
-              {visible.length} minnen{waiting > 0 && <> · <b>{waiting} väntar på bild</b></>}
-              {uploads > 0 && <span className="pulse"> · laddar upp {uploads}…</span>}
+              {t(visible.length === 1 ? 'kronikan.memoryOne' : 'kronikan.memories', { n: visible.length })}{waiting > 0 && <> · <b>{t('kronikan.workshop.waiting', { n: waiting })}</b></>}
+              {uploads > 0 && <span className="pulse"> · {t('kronikan.workshop.uploadingN', { n: uploads })}</span>}
             </span>
           </header>
           {visible.length === 0 ? (
             <div className="kr-bench__empty">
-              Inga minnen än. Klistra in kvällens skärmdumpar med <kbd>Ctrl</kbd>+<kbd>V</kbd>, eller dra in dem här.
+              {withParts(t('kronikan.workshop.empty'), { keys: <><kbd>Ctrl</kbd>+<kbd>V</kbd></> })}
             </div>
           ) : (
             <ol className="kr-rows">
@@ -583,18 +590,18 @@ export function Kapitel() {
         </section>
 
         {/* Samlad kontrollpanel: kapitlet när inget är valt, annars det valda minnet */}
-        <aside className="kr-bench__panel" aria-label={editing ? kindTitle : 'Kapitlet'}>
+        <aside className="kr-bench__panel" aria-label={editing ? kindTitle : t('kronikan.chapter')}>
           {editing ? (
             <div className="kr-inspector">
               <div className="kr-inspector__head">
                 <button type="button" className="btn btn--small btn--ghost" onClick={() => select(null)} disabled={saving}>
-                  <Icon name="vanster" size={14} /> Kapitlet
+                  <Icon name="vanster" size={14} /> {t('kronikan.chapter')}
                 </button>
                 <h2 className="panel-title">{kindTitle}</h2>
                 {selected && (
                   <span className="kr-inspector__nav">
-                    <button type="button" className="btn btn--small btn--ghost" aria-label="Föregående minne" title="Föregående minne" disabled={index === 0} onClick={() => select(visible[index - 1])}><Icon name="upp" size={16} /></button>
-                    <button type="button" className="btn btn--small btn--ghost" aria-label="Nästa minne" title="Nästa minne" disabled={index === visible.length - 1} onClick={() => select(visible[index + 1])}><Icon name="ner" size={16} /></button>
+                    <button type="button" className="btn btn--small btn--ghost" aria-label={t('kronikan.workshop.prev')} title={t('kronikan.workshop.prev')} disabled={index === 0} onClick={() => select(visible[index - 1])}><Icon name="upp" size={16} /></button>
+                    <button type="button" className="btn btn--small btn--ghost" aria-label={t('kronikan.workshop.next')} title={t('kronikan.workshop.next')} disabled={index === visible.length - 1} onClick={() => select(visible[index + 1])}><Icon name="ner" size={16} /></button>
                   </span>
                 )}
               </div>
@@ -602,23 +609,23 @@ export function Kapitel() {
               {selected && (
                 <div className="kr-inspector__tools">
                   {selected.kind === 'skarmdump' && selected.image_path && (
-                    <button type="button" className="btn btn--small" onClick={() => select(selected, 'comic')}>Gör seriebild av den</button>
+                    <button type="button" className="btn btn--small" onClick={() => select(selected, 'comic')}>{t('kronikan.workshop.makeComic')}</button>
                   )}
-                  <button type="button" className="btn btn--small btn--ghost" disabled={index === 0} onClick={() => move(index, -1)}><Icon name="upp" size={14} /> Flytta upp</button>
-                  <button type="button" className="btn btn--small btn--ghost" disabled={index === visible.length - 1} onClick={() => move(index, 1)}><Icon name="ner" size={14} /> Flytta ner</button>
+                  <button type="button" className="btn btn--small btn--ghost" disabled={index === 0} onClick={() => move(index, -1)}><Icon name="upp" size={14} /> {t('kronikan.workshop.moveUp')}</button>
+                  <button type="button" className="btn btn--small btn--ghost" disabled={index === visible.length - 1} onClick={() => move(index, 1)}><Icon name="ner" size={14} /> {t('kronikan.workshop.moveDown')}</button>
                   {selected.image_path && chapter.cover_id !== selected.id && (
-                    <button type="button" className="btn btn--small btn--ghost" onClick={() => patchChapter({ cover_id: selected.id })}>Gör till omslag</button>
+                    <button type="button" className="btn btn--small btn--ghost" onClick={() => patchChapter({ cover_id: selected.id })}>{t('kronikan.workshop.makeCover')}</button>
                   )}
                 </div>
               )}
 
               {selectedOriginals.length > 0 && (
                 <div className="kr-originals">
-                  <span className="chips__label">Bygger på skärmdumpen – visas inuti seriebilden:</span>
+                  <span className="chips__label">{t('kronikan.workshop.basedOn')}</span>
                   {selectedOriginals.map((o) => (
                     <div key={o.id} className="kr-originals__item">
-                      <img src={kronikaUrl(o.image_path)!} alt={o.caption ?? 'Skärmdump'} />
-                      <button type="button" className="btn btn--small btn--ghost" onClick={() => unfold(o)}>Gör till eget minne</button>
+                      <img src={kronikaUrl(o.image_path)!} alt={o.caption ?? t('kronikan.kind.skarmdump')} />
+                      <button type="button" className="btn btn--small btn--ghost" onClick={() => unfold(o)}>{t('kronikan.workshop.unfold')}</button>
                     </div>
                   ))}
                 </div>
@@ -628,12 +635,12 @@ export function Kapitel() {
 
               <div className="kr-inspector__foot">
                 <button className="btn btn--primary" onClick={saveEntry} disabled={saving || uploads > 0 || generating || (!dirty && editing !== 'ny')}>
-                  {saving ? 'Sparar…' : editing === 'ny' ? 'Spara minnet' : dirty ? 'Spara' : 'Sparat'}
+                  {saving ? t('kronikan.workshop.saving') : editing === 'ny' ? t('kronikan.workshop.saveMemory') : dirty ? t('common.save') : t('kronikan.workshop.saved')}
                 </button>
-                <button className="btn btn--ghost" onClick={() => select(null)} disabled={saving}>{dirty ? 'Avbryt' : 'Stäng'}</button>
+                <button className="btn btn--ghost" onClick={() => select(null)} disabled={saving}>{dirty ? t('common.cancel') : t('kronikan.close')}</button>
                 {selected && (
                   <button type="button" className="btn btn--small btn--ghost btn--danger-text kr-inspector__delete" disabled={saving}
-                    onClick={async () => { if (await remove(selected)) setEditing(null) }}>Ta bort</button>
+                    onClick={async () => { if (await remove(selected)) setEditing(null) }}>{t('common.delete')}</button>
                 )}
               </div>
             </div>
@@ -643,37 +650,37 @@ export function Kapitel() {
               if (!head.title.trim()) return
               if (await patchChapter({ ...head, title: head.title.trim() })) setHead(null)
             }}>
-              <h2 className="panel-title">Redigera kapitlet</h2>
-              <label className="field"><span>Titel</span><input required value={head.title} onChange={(e) => setHead({ ...head, title: e.target.value })} /></label>
+              <h2 className="panel-title">{t('kronikan.workshop.editChapter')}</h2>
+              <label className="field"><span>{t('kronikan.field.title')}</span><input required value={head.title} onChange={(e) => setHead({ ...head, title: e.target.value })} /></label>
               <div className="form">
-                <label className="field"><span>Spelkväll</span><input type="date" value={head.played_on} onChange={(e) => setHead({ ...head, played_on: e.target.value })} /></label>
-                <label className="field"><span>Zon</span><input value={head.zone ?? ''} onChange={(e) => setHead({ ...head, zone: e.target.value || null })} /></label>
-                <label className="field"><span>Delområde</span><input value={head.subzone ?? ''} onChange={(e) => setHead({ ...head, subzone: e.target.value || null })} /></label>
+                <label className="field"><span>{t('kronikan.field.playedOn')}</span><input type="date" value={head.played_on} onChange={(e) => setHead({ ...head, played_on: e.target.value })} /></label>
+                <label className="field"><span>{t('kronikan.field.zone')}</span><input value={head.zone ?? ''} onChange={(e) => setHead({ ...head, zone: e.target.value || null })} /></label>
+                <label className="field"><span>{t('kronikan.field.subzone')}</span><input value={head.subzone ?? ''} onChange={(e) => setHead({ ...head, subzone: e.target.value || null })} /></label>
               </div>
-              <label className="field"><span>Sammanfattning</span><textarea rows={3} value={head.summary ?? ''} onChange={(e) => setHead({ ...head, summary: e.target.value || null })} placeholder="Kvällen i några meningar" /></label>
-              <label className="field"><span>Berättelsen</span><textarea rows={10} value={head.story ?? ''} onChange={(e) => setHead({ ...head, story: e.target.value || null })} placeholder="Stycken separeras med en tom rad" /></label>
-              <label className="field"><span>Sagan</span><textarea rows={14} value={head.saga ?? ''} onChange={(e) => setHead({ ...head, saga: e.target.value || null })} placeholder="Avsnitt börjar med en rad ## Rubrik, stycken separeras med en tom rad" /></label>
+              <label className="field"><span>{t('kronikan.field.summary')}</span><textarea rows={3} value={head.summary ?? ''} onChange={(e) => setHead({ ...head, summary: e.target.value || null })} placeholder={t('kronikan.workshop.summaryPlaceholder')} /></label>
+              <label className="field"><span>{t('kronikan.field.story')}</span><textarea rows={10} value={head.story ?? ''} onChange={(e) => setHead({ ...head, story: e.target.value || null })} placeholder={t('kronikan.workshop.storyPlaceholder')} /></label>
+              <label className="field"><span>{t('kronikan.field.saga')}</span><textarea rows={14} value={head.saga ?? ''} onChange={(e) => setHead({ ...head, saga: e.target.value || null })} placeholder={t('kronikan.workshop.sagaPlaceholder')} /></label>
               <div className="actions">
-                <button className="btn btn--primary">Spara</button>
-                <button type="button" className="btn btn--ghost" onClick={() => setHead(null)}>Avbryt</button>
-                <button type="button" className="btn btn--danger" onClick={removeChapter}>Ta bort kapitlet</button>
+                <button className="btn btn--primary">{t('common.save')}</button>
+                <button type="button" className="btn btn--ghost" onClick={() => setHead(null)}>{t('common.cancel')}</button>
+                <button type="button" className="btn btn--danger" onClick={removeChapter}>{t('kronikan.workshop.removeChapter')}</button>
               </div>
             </form>
           ) : (
             <div className="kr-chapter-panel">
               <section className="kr-panel-section">
-                <h2 className="panel-title">Lägg till</h2>
+                <h2 className="panel-title">{t('kronikan.workshop.add')}</h2>
                 <div className="dropzone kr-drop" onClick={() => fileInput.current?.click()} role="button" tabIndex={0}
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.current?.click() } }}>
-                  <b>Klistra in kvällens bilder</b>
-                  <span><kbd>Ctrl</kbd>+<kbd>V</kbd> var som helst på sidan, dra hit eller klicka</span>
+                  <b>{t('kronikan.workshop.pasteImages')}</b>
+                  <span>{withParts(t('kronikan.workshop.pasteHint'), { keys: <><kbd>Ctrl</kbd>+<kbd>V</kbd></> })}</span>
                   <input ref={fileInput} type="file" accept="image/*" multiple hidden onChange={(e) => {
                     addImages(imageFiles(e.target.files))
                     e.target.value = ''
                   }} />
                 </div>
-                <button className="btn" onClick={() => select(null, 'new')} title="Beskriv en scen och låt den målas">
-                  <Icon name="plus" size={16} /> Nytt ögonblick
+                <button className="btn" onClick={() => select(null, 'new')} title={t('kronikan.workshop.newMomentTitle')}>
+                  <Icon name="plus" size={16} /> {t('kronikan.workshop.newMoment')}
                 </button>
               </section>
 
@@ -686,21 +693,21 @@ export function Kapitel() {
               </section>
 
               <section className="kr-panel-section kr-panel-section--quiet">
-                <h2 className="panel-title">Kapitlet</h2>
+                <h2 className="panel-title">{t('kronikan.chapter')}</h2>
                 <label className="field">
-                  <span>Vem får läsa</span>
+                  <span>{t('kronikan.workshop.whoMayRead')}</span>
                   <select value={chapter.visibility} onChange={(e) => patchChapter({ visibility: e.target.value as Visibility })}>
-                    {(Object.keys(VISIBILITY_LABELS) as Visibility[]).map((v) => <option key={v} value={v}>{VISIBILITY_LABELS[v]}</option>)}
+                    {VISIBILITIES.map((v) => <option key={v} value={v}>{t(`kronikan.visibility.${v}`)}</option>)}
                   </select>
-                  <small>{VISIBILITY_HINTS[chapter.visibility]}</small>
+                  <small>{t(`kronikan.visibilityHint.${chapter.visibility}`)}</small>
                 </label>
                 <div className="actions">
                   <button className="btn btn--small btn--ghost" onClick={() => setHead({ title: chapter.title, played_on: chapter.played_on, zone: chapter.zone, subzone: chapter.subzone, summary: chapter.summary, story: chapter.story, saga: chapter.saga })}>
-                    Redigera kapitlet
+                    {t('kronikan.workshop.editChapter')}
                   </button>
-                  <Link className="btn btn--small btn--ghost" to={`/kronikan/${chapter.id}`}>Läs kapitlet</Link>
+                  <Link className="btn btn--small btn--ghost" to={`/kronikan/${chapter.id}`}>{t('kronikan.workshop.readChapter')}</Link>
                 </div>
-                <p className="note">Välj ett minne i listan för att redigera det, måla en seriebild eller flytta det.</p>
+                <p className="note">{t('kronikan.workshop.pickHint')}</p>
               </section>
             </div>
           )}

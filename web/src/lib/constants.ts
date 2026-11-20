@@ -1,3 +1,4 @@
+import { getLang, translate, type Lang } from './i18n'
 import type { Status } from './types'
 
 /** Klasskoder sedda i spelet. Listan i filtren kompletteras med det som finns i databasen. */
@@ -56,35 +57,43 @@ export const STAT_GROUPS: string[][] = [
   ['SV_FIRE', 'SV_COLD', 'SV_POISON', 'SV_DISEASE', 'SV_MAGIC', 'SV_CORRUPTION', 'SV_HOLY', 'SV_ELEC'],
 ]
 
-/** Förklaringar från Referensfiler/MnM Stats.txt, visas när man hovrar. */
-export const STAT_HELP: Record<string, string> = {
-  STR: 'Bärvikt (1 STR = 2 weight), melee/ranged-skada och shield block',
-  STA: 'Mer HP (ca 1 STA = 1 HP), mindre risk att bli dazed',
-  AGI: 'Skademitigering',
-  DEX: 'Träffchans, proc-frekvens på vapen, channeling för casters',
-  WIS: 'Mana (om WIS > INT, 4 mana per WIS) och starkare heals',
-  INT: 'Mana (om INT > WIS) och starkare skadespells',
-  CHA: 'Handelspriser och charm (verkar inte ge effekt än)',
-  AC: 'Mitigerar fysisk skada',
-  HP: 'Hur mycket skada du tål',
-  MANA: 'Används för att kasta spells',
-  DMG: 'Vapenskada – jämför med Ratio (DMG/DLY)',
-  DLY: 'Attackfördröjning – lägre är snabbare',
+/** Stats med förklaring (från Referensfiler/MnM Stats.txt), visas när man hovrar. Texterna ligger i i18n. */
+const STAT_HELP_KEYS = ['STR', 'STA', 'AGI', 'DEX', 'WIS', 'INT', 'CHA', 'AC', 'HP', 'MANA', 'DMG', 'DLY'] as const
+type StatHelpKey = (typeof STAT_HELP_KEYS)[number]
+
+export function statHelp(key: string, lang: Lang = getLang()): string | undefined {
+  return (STAT_HELP_KEYS as readonly string[]).includes(key)
+    ? translate(lang, `forradet.statHelp.${key as StatHelpKey}`)
+    : undefined
 }
 
 export function weaponRatio(stats: Record<string, number>): number | null {
   return stats.DMG && stats.DLY ? stats.DMG / stats.DLY : null
 }
 
-export const STATUS_LABELS: Record<Status, string> = {
+/** Statuskoderna i databasen, i visningsordning. */
+export const STATUSES: Status[] = ['ledig', 'equippad', 'utlanad', 'reserverad', 'sald']
+
+/** Visningsetikett för en status. Slås upp vid anrop så att språkbytet slår igenom. */
+export function statusLabel(s: Status, lang: Lang = getLang()): string {
+  return translate(lang, `forradet.status.${s}`)
+}
+
+/**
+ * Fasta texter som skrivs i item_events.note. De är data och lagras på svenska som förut;
+ * historiken på itemsidan översätter dem vid visning.
+ */
+export const EVENT_NOTES = {
   ledig: 'Ledig',
   equippad: 'Equippad',
   utlanad: 'Utlånad',
   reserverad: 'Reserverad',
   sald: 'Såld',
-}
-
-export const STATUSES = Object.keys(STATUS_LABELS) as Status[]
+  guideRemoved: 'Riktpris borttaget',
+  /** Följs av priset, t.ex. "Riktpris 2p 15g". */
+  guideSet: 'Riktpris ',
+  unsold: 'Ångrade försäljning',
+} as const
 
 export const KNOWN_FLAGS = ['MAGIC', 'UNIQUE', 'LORE', 'NORENT', 'QUEST']
 

@@ -1,5 +1,6 @@
 import { STAT_GROUPS, normalizeStatKey } from './constants'
 import { callFunction } from './functions'
+import { getLang, translate } from './i18n'
 import { IMAGE_BUCKET, supabase } from './supabase'
 import type { Character, Item, ItemDraft, ParsedItem } from './types'
 
@@ -82,7 +83,7 @@ export async function compressImage(file: Blob, maxWidth = 1400): Promise<Blob> 
   canvas.getContext('2d')!.drawImage(bmp, 0, 0, canvas.width, canvas.height)
   bmp.close()
   return new Promise((resolve, reject) =>
-    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('Kunde inte konvertera bilden'))), 'image/webp', 0.88),
+    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error(translate(getLang(), 'forradet.error.convertImage')))), 'image/webp', 0.88),
   )
 }
 
@@ -99,7 +100,7 @@ export async function uploadImage(blob: Blob, suffix = ''): Promise<string> {
     contentType: 'image/webp',
     cacheControl: '31536000',
   })
-  if (error) throw new Error(`Uppladdning misslyckades: ${error.message}`)
+  if (error) throw new Error(translate(getLang(), 'forradet.error.upload', { error: error.message }))
   return path
 }
 
@@ -121,7 +122,7 @@ export async function cropIcon(image: Blob, box: NonNullable<ParsedItem['icon_bo
   canvas.getContext('2d')!.drawImage(bmp, sx, sy, side, side, 0, 0, size, size)
   bmp.close()
   return new Promise((resolve, reject) =>
-    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('Kunde inte klippa ikonen'))), 'image/webp', 0.9),
+    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error(translate(getLang(), 'forradet.error.cropIcon')))), 'image/webp', 0.9),
   )
 }
 

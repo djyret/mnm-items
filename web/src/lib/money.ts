@@ -1,12 +1,19 @@
+import { getLang, translate, type Lang } from './i18n'
+
 /** Spelets valuta: 100 koppar = 1 silver, 100 silver = 1 guld, 100 guld = 1 platinum. */
 export const COINS = [
-  { key: 'p', name: 'Platinum', value: 1_000_000 },
-  { key: 'g', name: 'Guld', value: 10_000 },
-  { key: 's', name: 'Silver', value: 100 },
-  { key: 'c', name: 'Koppar', value: 1 },
+  { key: 'p', value: 1_000_000 },
+  { key: 'g', value: 10_000 },
+  { key: 's', value: 100 },
+  { key: 'c', value: 1 },
 ] as const
 
 export type CoinKey = (typeof COINS)[number]['key']
+
+/** Valörens namn på aktuellt språk (Platinum, Guld/Gold, …). */
+export function coinName(key: CoinKey, lang: Lang = getLang()): string {
+  return translate(lang, `forradet.coin.${key}`)
+}
 export type Purse = Record<CoinKey, number>
 
 export function toPurse(cp: number | null | undefined): Purse {

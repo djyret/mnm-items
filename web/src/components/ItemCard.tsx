@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
-import { STATUS_LABELS } from '../lib/constants'
+import { statusLabel } from '../lib/constants'
+import { useI18n } from '../lib/i18n'
 import { useStore } from '../lib/store'
 import { imageUrl } from '../lib/supabase'
 import type { Item } from '../lib/types'
@@ -25,6 +26,7 @@ export function ItemCard({ item, own = false, selected, onSelect }: {
   onSelect?: (id: string) => void
 }) {
   const { charById } = useStore()
+  const { t, lang } = useI18n()
   const holder = charById(item.holder_id)
   const target =
     item.status === 'utlanad' || item.status === 'reserverad'
@@ -41,10 +43,10 @@ export function ItemCard({ item, own = false, selected, onSelect }: {
           <span
             role="checkbox"
             aria-checked={!!selected}
-            aria-label={`Välj ${item.name}`}
+            aria-label={t('forradet.card.select', { name: item.name })}
             tabIndex={0}
             className={`card__check${selected ? ' is-on' : ''}`}
-            title={selected ? 'Vald – klicka för att ta bort' : 'Välj för lån'}
+            title={selected ? t('forradet.card.selected') : t('forradet.card.selectForLoan')}
             onClick={(e) => {
               e.preventDefault()
               e.stopPropagation()
@@ -63,14 +65,14 @@ export function ItemCard({ item, own = false, selected, onSelect }: {
       <div className="card__foot">
         <span className="card__from">
           <PersonIcon />
-          Från: <b>{holder?.name ?? '—'}</b>
+          {t('forradet.card.from')} <b>{holder?.name ?? '—'}</b>
         </span>
         <span className="card__tags">
           {item.status === 'sald'
             ? item.sold_price_cp != null && <Money cp={item.sold_price_cp} />
-            : item.price_cp != null && <span title="Riktpris"><Money cp={item.price_cp} /></span>}
+            : item.price_cp != null && <span title={t('forradet.price.guide')}><Money cp={item.price_cp} /></span>}
           <span className={`badge badge--${item.status}`}>
-            {STATUS_LABELS[item.status]}
+            {statusLabel(item.status, lang)}
             {target && <><Icon name="hoger" size={12} /> {target}</>}
           </span>
         </span>

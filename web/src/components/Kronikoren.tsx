@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { kronikaUrl, writeChronicle, writeSaga, type ChronicleDraft, type SagaDraft, type SceneDraft } from '../lib/kronikan'
+import { useI18n } from '../lib/i18n'
+import { kronikaUrl, withParts, writeChronicle, writeSaga, type ChronicleDraft, type SagaDraft, type SceneDraft } from '../lib/kronikan'
 import { supabase } from '../lib/supabase'
 import type { CastMember, Chapter, Entry } from '../lib/types'
 
@@ -34,6 +35,7 @@ export function Kronikoren({ chapter, entries, cast, onChanged, bare = false }: 
   /** Inuti verkstadens kontrollpanel: ingen egen ram */
   bare?: boolean
 }) {
+  const { t } = useI18n()
   // Utkastet sparas lokalt så det inte går förlorat om man lämnar sidan
   const [draft, setDraft] = useState<ChronicleDraft | null>(() => readDraft(chapter.id))
   const [writing, setWriting] = useState(false)
@@ -119,22 +121,22 @@ export function Kronikoren({ chapter, entries, cast, onChanged, bare = false }: 
       <div className={`${bare ? '' : 'panel '}kr-writer`}>
         <div className="kr-writer__intro">
           <div>
-            <h2 className="panel-title">Krönikören</h2>
-            <p className="note">Läser kvällens {shots} bilder – chatt, stridslogg, namnskyltar – och föreslår berättelse, bildtexter och seriescener.</p>
+            <h2 className="panel-title">{t('kronikan.writer.title')}</h2>
+            <p className="note">{t('kronikan.writer.intro', { n: shots })}</p>
           </div>
           <button className="btn btn--primary" onClick={write} disabled={writing || entries.length === 0}>
-            {writing ? 'Krönikören skriver…' : chapter.story ? 'Skriv om krönikan' : 'Skriv kvällens krönika'}
+            {writing ? t('kronikan.writer.writingButton') : chapter.story ? t('kronikan.writer.rewriteChronicle') : t('kronikan.writer.writeChronicle')}
           </button>
         </div>
-        {writing && <p className="pulse center">Läser skärmdumparna och skriver…</p>}
+        {writing && <p className="pulse center">{t('kronikan.writer.reading')}</p>}
         {error && <div className="alert">{error}</div>}
       </div>
     )
   }
 
-  const use = (k: string, onUse: () => Promise<unknown>, label = 'Använd') =>
+  const use = (k: string, onUse: () => Promise<unknown>, label = t('kronikan.writer.use')) =>
     done.has(k) ? (
-      <span className="badge badge--ledig">Klart</span>
+      <span className="badge badge--ledig">{t('kronikan.writer.done')}</span>
     ) : (
       <button className="btn btn--small" disabled={busy} onClick={() => run(async () => { await onUse(); mark(k) })}>{label}</button>
     )
@@ -142,50 +144,50 @@ export function Kronikoren({ chapter, entries, cast, onChanged, bare = false }: 
   return (
     <div className={`${bare ? '' : 'panel '}kr-writer`}>
       <div className="loan__head">
-        <h2 className="panel-title">Krönikörens utkast</h2>
+        <h2 className="panel-title">{t('kronikan.writer.draftTitle')}</h2>
         <div className="actions kr-head-actions">
-          <button className="btn btn--primary btn--small" disabled={busy} onClick={() => run(useAll)}>Använd allt</button>
-          <button className="btn btn--ghost btn--small" disabled={writing || busy} onClick={write}>{writing ? 'Skriver…' : 'Skriv om'}</button>
-          <button className="btn btn--ghost btn--small" disabled={busy} onClick={() => setDraft(null)}>Släng utkastet</button>
+          <button className="btn btn--primary btn--small" disabled={busy} onClick={() => run(useAll)}>{t('kronikan.writer.useAll')}</button>
+          <button className="btn btn--ghost btn--small" disabled={writing || busy} onClick={write}>{writing ? t('kronikan.writer.writing') : t('kronikan.writer.rewrite')}</button>
+          <button className="btn btn--ghost btn--small" disabled={busy} onClick={() => setDraft(null)}>{t('kronikan.writer.discard')}</button>
         </div>
       </div>
-      {writing && <p className="pulse center">Skriver ett nytt utkast…</p>}
+      {writing && <p className="pulse center">{t('kronikan.writer.writingNew')}</p>}
       {error && <div className="alert">{error}</div>}
 
       <div className="kr-suggest">
         <div className="kr-suggest__row">
-          <span className="guide__label">Titel</span>
+          <span className="guide__label">{t('kronikan.field.title')}</span>
           <input value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} />
           {use('title', () => patch({ title: draft.title }))}
         </div>
         <div className="kr-suggest__row">
-          <span className="guide__label">Sammanfattning</span>
+          <span className="guide__label">{t('kronikan.field.summary')}</span>
           <textarea rows={2} value={draft.summary} onChange={(e) => setDraft({ ...draft, summary: e.target.value })} />
           {use('summary', () => patch({ summary: draft.summary }))}
         </div>
         <div className="kr-suggest__row">
-          <span className="guide__label">Berättelsen</span>
+          <span className="guide__label">{t('kronikan.field.story')}</span>
           <textarea rows={12} value={draft.story} onChange={(e) => setDraft({ ...draft, story: e.target.value })} />
           {use('story', () => patch({ story: draft.story }))}
         </div>
         {emptyCaptions.length > 0 && (
           <div className="kr-suggest__row">
-            <span className="guide__label">Bildtexter</span>
-            <p className="note">{emptyCaptions.length} bilder saknar bildtext och har fått ett förslag.</p>
-            {use('captions', fillCaptions, `Fyll i ${emptyCaptions.length}`)}
+            <span className="guide__label">{t('kronikan.writer.captions')}</span>
+            <p className="note">{t('kronikan.writer.captionsMissing', { n: emptyCaptions.length })}</p>
+            {use('captions', fillCaptions, t('kronikan.writer.fillIn', { n: emptyCaptions.length }))}
           </div>
         )}
       </div>
 
       {draft.scenes.length > 0 && (
         <>
-          <h3 className="guide__label kr-scenes-title">Förslag på seriebilder</h3>
+          <h3 className="guide__label kr-scenes-title">{t('kronikan.writer.scenes')}</h3>
           <div className="kr-scenes">
             {draft.scenes.map((s, i) => (
               <div key={i} className="kr-scene">
                 <div className="kr-scene__head">
                   <b>{s.title}</b>
-                  {use(`scene${i}`, () => createScene(s, i), 'Skapa ögonblick')}
+                  {use(`scene${i}`, () => createScene(s, i), t('kronikan.writer.createMoment'))}
                 </div>
                 <p className="kr-entry__caption">{s.caption}</p>
                 {s.quotes.length > 0 && (
@@ -218,6 +220,7 @@ const sagaKey = (id: string) => `mnm:saga:v1:${id}`
 
 /** Låter Claude skriva kvällen som en längre, målande saga. Utkastet kan putsas innan det sparas. */
 export function Sagoskrivaren({ chapter, onChanged }: { chapter: Chapter; onChanged: () => Promise<void> }) {
+  const { t } = useI18n()
   const [draft, setDraft] = useState<SagaDraft | null>(() => {
     try {
       const raw = localStorage.getItem(sagaKey(chapter.id))
@@ -266,25 +269,25 @@ export function Sagoskrivaren({ chapter, onChanged }: { chapter: Chapter; onChan
     <div className="kr-writer">
       <div className="kr-writer__intro">
         <div>
-          <h2 className="panel-title">Sagan</h2>
-          <p className="note">Kvällen berättad som en längre fantasysaga – med stämning, tankar och dialog. Läses under fliken Saga.</p>
+          <h2 className="panel-title">{t('kronikan.field.saga')}</h2>
+          <p className="note">{t('kronikan.sagaWriter.intro')}</p>
         </div>
         <div className="actions kr-head-actions">
-          {chapter.saga && !draft && <Link className="btn btn--small btn--ghost" to={`/kronikan/${chapter.id}/saga`}>Läs sagan</Link>}
+          {chapter.saga && !draft && <Link className="btn btn--small btn--ghost" to={`/kronikan/${chapter.id}/saga`}>{t('kronikan.sagaWriter.read')}</Link>}
           <button className="btn btn--primary" onClick={write} disabled={writing || busy}>
-            {writing ? 'Bardens penna rör sig…' : draft || chapter.saga ? 'Skriv om sagan' : 'Skriv sagan'}
+            {writing ? t('kronikan.sagaWriter.writingButton') : draft || chapter.saga ? t('kronikan.sagaWriter.rewrite') : t('kronikan.sagaWriter.write')}
           </button>
         </div>
       </div>
-      {writing && <p className="pulse center">Läser skärmdumparna och diktar – det tar en stund…</p>}
+      {writing && <p className="pulse center">{t('kronikan.sagaWriter.reading')}</p>}
       {error && <div className="alert">{error}</div>}
       {draft && (
         <div className="kr-suggest">
-          <p className="note">Förslag på titel: <b>{draft.title}</b></p>
+          <p className="note">{withParts(t('kronikan.sagaWriter.suggestedTitle'), { title: <b>{draft.title}</b> })}</p>
           <textarea rows={16} value={draft.saga} onChange={(e) => setDraft({ ...draft, saga: e.target.value })} />
           <div className="actions">
-            <button className="btn btn--primary btn--small" disabled={busy} onClick={save}>{chapter.saga ? 'Ersätt sagan' : 'Spara sagan'}</button>
-            <button className="btn btn--ghost btn--small" disabled={busy} onClick={() => setDraft(null)}>Släng utkastet</button>
+            <button className="btn btn--primary btn--small" disabled={busy} onClick={save}>{chapter.saga ? t('kronikan.sagaWriter.replace') : t('kronikan.sagaWriter.save')}</button>
+            <button className="btn btn--ghost btn--small" disabled={busy} onClick={() => setDraft(null)}>{t('kronikan.writer.discard')}</button>
           </div>
         </div>
       )}

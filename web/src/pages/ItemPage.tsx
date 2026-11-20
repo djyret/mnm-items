@@ -5,22 +5,28 @@ import { ItemFields, OwnershipFields } from '../components/ItemForm'
 import { ItemTooltip } from '../components/ItemTooltip'
 import { Money, PriceInput } from '../components/Money'
 import { formatPrice } from '../lib/money'
-import { STATUS_LABELS } from '../lib/constants'
+import { EVENT_NOTES, STATUSES } from '../lib/constants'
 import { compressImage, cropIcon, deleteImages, logEvent, parseImage, uploadImage } from '../lib/items'
 import { useAuth } from '../lib/auth'
+import { useI18n, type Key } from '../lib/i18n'
 import { useStore } from '../lib/store'
 import { imageUrl, supabase } from '../lib/supabase'
 import type { Item, ItemDraft, ItemEvent } from '../lib/types'
 import { Icon } from '../components/Icon'
 
-const EVENT_TEXT: Record<string, string> = {
-  skapad: 'Lades till',
-  flyttad: 'Flyttades',
-  utlanad: 'Lånades ut',
-  aterlamnad: 'Lämnades tillbaka',
-  sald: 'Såldes',
-  status: 'Ändrade status',
-  redigerad: 'Redigerades',
+/** item_events.kind som har en text; okända koder visas som de är. */
+const EVENT_KINDS = ['skapad', 'flyttad', 'utlanad', 'aterlamnad', 'sald', 'status', 'redigerad'] as const
+type EventKind = (typeof EVENT_KINDS)[number]
+const isEventKind = (k: string): k is EventKind => (EVENT_KINDS as readonly string[]).includes(k)
+
+/** Fasta anteckningar (lagrade på svenska) översätts; fritext som köparnamn visas som den är. */
+function eventNote(note: string, t: (key: Key, vars?: Record<string, string>) => string): string {
+  const status = STATUSES.find((s) => EVENT_NOTES[s] === note)
+  if (status) return t(`forradet.status.${status}`)
+  if (note === EVENT_NOTES.guideRemoved) return t('forradet.note.guideRemoved')
+  if (note === EVENT_NOTES.unsold) return t('forradet.note.unsold')
+  if (note.startsWith(EVENT_NOTES.guideSet)) return t('forradet.note.guideSet', { price: note.slice(EVENT_NOTES.guideSet.length) })
+  return note
 }
 
 export function ItemPage() {
@@ -28,6 +34,7 @@ export function ItemPage() {
   const { items, characters, charById, reload, loading } = useStore()
   const navigate = useNavigate()
   const { canEdit } = useAuth()
+  const { t, locale } = useI18n()
   const item = items.find((i) => i.id === id)
   const [events, setEvents] = useState<ItemEvent[]>([])
   const [editing, setEditing] = useState(false)
@@ -55,7 +62,7 @@ export function ItemPage() {
   if (!item) {
     return (
       <div className="page">
-        <div className="panel empty">{loading ? 'Laddar…' : <>Itemet finns inte. <Link to="/">Till förrådet</Link></>}</div>
+        <div className="panel empty">{loading ? t('common.loading') : <>{t('forradet.itemPage.notFound')} <Link to="/">{t('forradet.itemPage.toStash')}</Link></>}</div>
       </div>
     )
   }
@@ -111,7 +118,7 @@ export function ItemPage() {
   }
 
   async function remove() {
-    if (!confirm(`Ta bort "${item!.name}" permanent? Det går inte att ångra.`)) return
+    if (!confirm(t('forradet.itemPage.deleteConfirm', { name: item!.name }))) return
     setBusy(true)
     const { error } = await supabase.from('items').delete().eq('id', item!.id)
     if (error) {
@@ -131,7 +138,7 @@ export function ItemPage() {
     try {
       const blob = await compressImage(await (await fetch(img)).blob())
       const parsed = await parseImage(blob)
-      if (!parsed.icon_box) throw new Error('Hittade ingen ikon i bilden')
+      if (!parsed.icon_box) throw new Error(t('forradet.itemPage.noIcon'))
       const icon_path = await uploadImage(await cropIcon(blob, parsed.icon_box), '-icon')
       await supabase.from('items').update({ icon_path }).eq('id', item!.id)
       await deleteImages(item!.icon_path)
@@ -148,13 +155,13 @@ export function ItemPage() {
 
   return (
     <div className="page">
-      <Link to="/" className="back"><Icon name="vanster" size={14} /> Förrådet</Link>
+      <Link to="/" className="back"><Icon name="vanster" size={14} /> {t('nav.stash')}</Link>
       <div className="item-layout">
         <div className="item-layout__main">
           <ItemTooltip item={editing && draft ? draft : item} iconUrl={imageUrl(item.icon_path)} />
           {img && (
-            <a href={img} target="_blank" rel="noreferrer" title="Öppna originalbild">
-              <img className="shot" src={img} alt={`Screenshot av ${item.name}`} />
+            <a href={img} target="_blank" rel="noreferrer" title={t('forradet.itemPage.openOriginal')}>
+              <img className="shot" src={img} alt={t('forradet.itemPage.screenshotOf', { name: item.name })} />
             </a>
           )}
         </div>
@@ -164,33 +171,33 @@ export function ItemPage() {
 
           {!editing && (
             <div className="panel">
-              <h2 className="panel-title">Status</h2>
+              <h2 className="panel-title">{t('forradet.itemPage.status')}</h2>
               <div className="card__meta">
                 <HolderBadge item={item} />
                 <StatusBadge item={item} />
               </div>
               {item.status === 'sald' && (
                 <p className="price-line">
-                  Såld för: {item.sold_price_cp != null ? <Money cp={item.sold_price_cp} /> : 'inget pris angivet'}
-                  {item.price_cp != null && <span className="price-line__guide"> · riktpris <Money cp={item.price_cp} /></span>}
+                  {t('forradet.itemPage.soldFor')} {item.sold_price_cp != null ? <Money cp={item.sold_price_cp} /> : t('forradet.itemPage.noPrice')}
+                  {item.price_cp != null && <span className="price-line__guide"> · {t('forradet.itemPage.guideInline')} <Money cp={item.price_cp} /></span>}
                 </p>
               )}
 
               {!canEdit && item.status !== 'sald' && item.price_cp != null && (
-                <p className="price-line">Riktpris: <Money cp={item.price_cp} /></p>
+                <p className="price-line">{t('forradet.itemPage.guide')} <Money cp={item.price_cp} /></p>
               )}
               {canEdit && <div className="guide">
-                <span className="guide__label">Riktpris – vad den brukar gå för</span>
+                <span className="guide__label">{t('forradet.form.guidePrice')}</span>
                 <div className="guide__row">
                   <PriceInput value={guide} onChange={setGuide} />
                   <button className="btn btn--small" disabled={busy || guide === item.price_cp}
-                    onClick={() => patch({ price_cp: guide }, [item.id, 'redigerad', { note: guide == null ? 'Riktpris borttaget' : `Riktpris ${formatPrice(guide)}` }])}>
-                    Spara riktpris
+                    onClick={() => patch({ price_cp: guide }, [item.id, 'redigerad', { note: guide == null ? EVENT_NOTES.guideRemoved : EVENT_NOTES.guideSet + formatPrice(guide) }])}>
+                    {t('forradet.itemPage.saveGuide')}
                   </button>
                   {item.price_cp != null && (
                     <button className="btn btn--danger btn--small" disabled={busy}
-                      onClick={() => patch({ price_cp: null }, [item.id, 'redigerad', { note: 'Riktpris borttaget' }])}>
-                      Ta bort
+                      onClick={() => patch({ price_cp: null }, [item.id, 'redigerad', { note: EVENT_NOTES.guideRemoved }])}>
+                      {t('common.delete')}
                     </button>
                   )}
                 </div>
@@ -201,41 +208,41 @@ export function ItemPage() {
                 <div className="quick">
                   {item.status === 'utlanad' ? (
                     <div className="quick__row">
-                      <span>Utlånad till <b>{charById(item.lent_to_id)?.name ?? '?'}</b></span>
-                      <button className="btn" disabled={busy} onClick={giveBack}>Tillbaka till {holder?.name ?? 'ägaren'}</button>
+                      <span>{t('forradet.itemPage.lentTo')} <b>{charById(item.lent_to_id)?.name ?? '?'}</b></span>
+                      <button className="btn" disabled={busy} onClick={giveBack}>{t('forradet.itemPage.backTo', { name: holder?.name ?? t('forradet.itemPage.theOwner') })}</button>
                     </div>
                   ) : (
                     <div className="quick__row">
                       <select value={lendTo} onChange={(e) => setLendTo(e.target.value)}>
-                        <option value="">Låna ut till…</option>
+                        <option value="">{t('forradet.itemPage.lendTo')}</option>
                         {others.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                       </select>
-                      <button className="btn" disabled={!lendTo || busy} onClick={lend}>Låna ut</button>
+                      <button className="btn" disabled={!lendTo || busy} onClick={lend}>{t('forradet.itemPage.lend')}</button>
                     </div>
                   )}
                   <div className="quick__row">
                     <select value={moveTo} onChange={(e) => setMoveTo(e.target.value)}>
-                      <option value="">Flytta permanent till…</option>
+                      <option value="">{t('forradet.itemPage.moveTo')}</option>
                       {others.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                     </select>
-                    <button className="btn" disabled={!moveTo || busy} onClick={move}>Flytta</button>
+                    <button className="btn" disabled={!moveTo || busy} onClick={move}>{t('forradet.itemPage.move')}</button>
                   </div>
                   <div className="quick__row quick__row--sell">
                     <span className="guide__label">
-                      Såld för{item.price_cp != null ? ' – tomt = riktpriset' : ''}
+                      {item.price_cp != null ? t('forradet.itemPage.soldForBlankGuide') : t('forradet.form.soldFor')}
                     </span>
                     <PriceInput value={soldPrice} onChange={setSoldPrice} />
                     {soldPrice != null && item.price_cp != null && soldPrice < item.price_cp && (
-                      <span className="warn price-warn">Under riktpriset ({formatPrice(item.price_cp)})!</span>
+                      <span className="warn price-warn">{t('forradet.itemPage.belowGuide', { price: formatPrice(item.price_cp) })}</span>
                     )}
-                    <input placeholder="Såld till (valfritt)" value={soldTo} onChange={(e) => setSoldTo(e.target.value)} />
-                    <button className="btn" disabled={busy} onClick={sell}>Markera såld</button>
+                    <input placeholder={t('forradet.itemPage.soldToOptional')} value={soldTo} onChange={(e) => setSoldTo(e.target.value)} />
+                    <button className="btn" disabled={busy} onClick={sell}>{t('forradet.itemPage.markSold')}</button>
                   </div>
                   <div className="quick__row">
                     {(['ledig', 'equippad'] as const).filter((s) => s !== item.status).map((s) => (
                       <button key={s} className="btn btn--ghost" disabled={busy}
-                        onClick={() => patch({ status: s, lent_to_id: null }, [item.id, 'status', { note: STATUS_LABELS[s] }])}>
-                        Markera {STATUS_LABELS[s].toLowerCase()}
+                        onClick={() => patch({ status: s, lent_to_id: null }, [item.id, 'status', { note: EVENT_NOTES[s] }])}>
+                        {t(`forradet.itemPage.mark.${s}`)}
                       </button>
                     ))}
                   </div>
@@ -243,8 +250,8 @@ export function ItemPage() {
               )}
               {canEdit && item.status === 'sald' && (
                 <button className="btn btn--ghost" disabled={busy}
-                  onClick={() => patch({ status: 'ledig', sold_to: null, sold_price_cp: null }, [item.id, 'status', { note: 'Ångrade försäljning' }])}>
-                  Ångra såld
+                  onClick={() => patch({ status: 'ledig', sold_to: null, sold_price_cp: null }, [item.id, 'status', { note: EVENT_NOTES.unsold }])}>
+                  {t('forradet.itemPage.undoSold')}
                 </button>
               )}
             </div>
@@ -252,38 +259,38 @@ export function ItemPage() {
 
           {editing && draft ? (
             <div className="panel">
-              <h2 className="panel-title">Redigera</h2>
+              <h2 className="panel-title">{t('common.edit')}</h2>
               <ItemFields draft={draft} onChange={setDraft} />
               <OwnershipFields draft={draft} onChange={setDraft} />
               <div className="actions">
-                <button className="btn btn--primary" disabled={busy} onClick={saveEdit}>Spara</button>
-                <button className="btn btn--ghost" onClick={() => setEditing(false)}>Avbryt</button>
+                <button className="btn btn--primary" disabled={busy} onClick={saveEdit}>{t('common.save')}</button>
+                <button className="btn btn--ghost" onClick={() => setEditing(false)}>{t('common.cancel')}</button>
               </div>
             </div>
           ) : canEdit && (
             <div className="actions">
-              <button className="btn" onClick={() => { setDraft({ ...item }); setEditing(true) }}>Redigera</button>
+              <button className="btn" onClick={() => { setDraft({ ...item }); setEditing(true) }}>{t('common.edit')}</button>
               {img && (
                 <button className="btn btn--ghost" disabled={busy} onClick={fetchIcon}>
-                  {item.icon_path ? 'Läs om ikonen' : 'Hämta ikon ur bilden'}
+                  {item.icon_path ? t('forradet.itemPage.rereadIcon') : t('forradet.itemPage.fetchIcon')}
                 </button>
               )}
-              <button className="btn btn--danger" disabled={busy} onClick={remove}>Ta bort</button>
+              <button className="btn btn--danger" disabled={busy} onClick={remove}>{t('common.delete')}</button>
             </div>
           )}
 
           <div className="panel">
-            <h2 className="panel-title">Historik</h2>
-            {events.length === 0 && <small>Ingen historik.</small>}
+            <h2 className="panel-title">{t('forradet.history.title')}</h2>
+            {events.length === 0 && <small>{t('forradet.history.empty')}</small>}
             <ul className="history">
               {events.map((e) => (
                 <li key={e.id}>
-                  <time>{new Date(e.created_at).toLocaleString('sv-SE', { dateStyle: 'short', timeStyle: 'short' })}</time>
+                  <time>{new Date(e.created_at).toLocaleString(locale, { dateStyle: 'short', timeStyle: 'short' })}</time>
                   <span>
-                    {EVENT_TEXT[e.kind] ?? e.kind}
-                    {e.from_id && ` från ${charById(e.from_id)?.name ?? '?'}`}
-                    {e.to_id && ` till ${charById(e.to_id)?.name ?? '?'}`}
-                    {e.note && ` – ${e.note}`}
+                    {isEventKind(e.kind) ? t(`forradet.event.${e.kind}`) : e.kind}
+                    {e.from_id && ` ${t('forradet.history.from', { name: charById(e.from_id)?.name ?? '?' })}`}
+                    {e.to_id && ` ${t('forradet.history.to', { name: charById(e.to_id)?.name ?? '?' })}`}
+                    {e.note && ` – ${eventNote(e.note, t)}`}
                   </span>
                 </li>
               ))}

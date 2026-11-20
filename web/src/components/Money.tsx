@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { COINS, fromPurse, toPurse, type CoinKey } from '../lib/money'
+import { useI18n } from '../lib/i18n'
+import { COINS, coinName, fromPurse, toPurse, type CoinKey } from '../lib/money'
 
 const coinSrc = (key: CoinKey) => `${import.meta.env.BASE_URL}ikoner/mynt/${key}.webp`
 
@@ -9,15 +10,16 @@ function Coin({ k, name }: { k: CoinKey; name: string }) {
 
 /** Pris med mynt; tomma valörer döljs. */
 export function Money({ cp }: { cp: number | null | undefined }) {
+  const { t, lang, locale } = useI18n()
   if (cp == null) return null
   const purse = toPurse(cp)
   const shown = COINS.filter((c) => purse[c.key])
   return (
-    <span className="money" title={`${cp.toLocaleString('sv-SE')} koppar`}>
+    <span className="money" title={t('forradet.money.inCopper', { n: cp.toLocaleString(locale) })}>
       {(shown.length ? shown : [COINS[3]]).map((c) => (
         <span key={c.key} className="money__part">
           {purse[c.key]}
-          <Coin k={c.key} name={c.name} />
+          <Coin k={c.key} name={coinName(c.key, lang)} />
         </span>
       ))}
     </span>
@@ -26,6 +28,7 @@ export function Money({ cp }: { cp: number | null | undefined }) {
 
 /** Fyra fält i fallande valör: platinum, guld, silver, koppar. Tomt i alla = inget pris (null). */
 export function PriceInput({ value, onChange }: { value: number | null; onChange: (cp: number | null) => void }) {
+  const { lang } = useI18n()
   const [text, setText] = useState<Record<CoinKey, string>>(() => purseText(value))
 
   // Synka in värden som ändras utifrån (t.ex. formuläret nollställs)
@@ -35,25 +38,28 @@ export function PriceInput({ value, onChange }: { value: number | null; onChange
 
   return (
     <div className="price-input">
-      {COINS.map((c) => (
-        <label key={c.key} className="price-input__coin">
-          <span className="price-input__label">
-            <Coin k={c.key} name={c.name} />
-            {c.name}
-          </span>
-          <input
-            inputMode="numeric"
-            value={text[c.key]}
-            placeholder="0"
-            aria-label={c.name}
-            onChange={(e) => {
-              const next = { ...text, [c.key]: e.target.value.replace(/\D/g, '') }
-              setText(next)
-              onChange(toCp(next))
-            }}
-          />
-        </label>
-      ))}
+      {COINS.map((c) => {
+        const name = coinName(c.key, lang)
+        return (
+          <label key={c.key} className="price-input__coin">
+            <span className="price-input__label">
+              <Coin k={c.key} name={name} />
+              {name}
+            </span>
+            <input
+              inputMode="numeric"
+              value={text[c.key]}
+              placeholder="0"
+              aria-label={name}
+              onChange={(e) => {
+                const next = { ...text, [c.key]: e.target.value.replace(/\D/g, '') }
+                setText(next)
+                onChange(toCp(next))
+              }}
+            />
+          </label>
+        )
+      })}
     </div>
   )
 }

@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { AREAS, MIN_ROLE_LABEL, useAreas, type Area } from '../lib/access'
+import { AREAS, useAreas, type Area } from '../lib/access'
 import { useAuth, type Access } from '../lib/auth'
+import { useI18n } from '../lib/i18n'
 import { VISIBILITY_HINTS, VISIBILITY_LABELS, formatDay } from '../lib/kronikan'
 import { supabase } from '../lib/supabase'
 import type { Chapter, Visibility } from '../lib/types'
@@ -12,18 +13,19 @@ const LEVELS: Access[] = ['visitor', 'reader', 'editor', 'admin']
 /** Adminpanelen: vem som ser vilka delar, synlighet per kapitel och medlemmar. */
 export function Admin() {
   const { isAdmin, loading } = useAuth()
+  const { t } = useI18n()
   if (loading) return null
   if (!isAdmin) {
     return (
       <div className="page">
-        <h2 className="page-title">Admin</h2>
-        <div className="panel empty">Bara admin kommer åt adminpanelen.</div>
+        <h2 className="page-title">{t('admin.title')}</h2>
+        <div className="panel empty">{t('admin.onlyAdmin')}</div>
       </div>
     )
   }
   return (
     <div className="page admin">
-      <h2 className="page-title">Admin</h2>
+      <h2 className="page-title">{t('admin.title')}</h2>
       <AreaPanel />
       <ChapterPanel />
       <MembersPanel />
@@ -33,6 +35,7 @@ export function Admin() {
 
 function AreaPanel() {
   const { minRole, reload } = useAreas()
+  const { t } = useI18n()
   const [busy, setBusy] = useState<Area | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -41,32 +44,30 @@ function AreaPanel() {
     setBusy(area)
     const { data, error } = await supabase.from('area_access').update({ min_role: level }).eq('area', area).select('area')
     if (error) setError(error.message)
-    else if (!data?.length) setError('Ändringen sparades inte. Är du fortfarande inloggad som admin?')
+    else if (!data?.length) setError(t('admin.notSaved'))
     await reload()
     setBusy(null)
   }
 
   return (
     <div className="panel">
-      <h3 className="panel-title">Vem ser vad</h3>
-      <p className="members__intro">
-        Lägsta nivå som får se varje del. Det spärras i databasen, inte bara i menyn. Admin ser alltid allt.
-      </p>
+      <h3 className="panel-title">{t('admin.areas.title')}</h3>
+      <p className="members__intro">{t('admin.areas.intro')}</p>
       {error && <div className="alert">{error}</div>}
       <ul className="admin-list">
-        {AREAS.map(({ area, label, covers }) => (
+        {AREAS.map((area) => (
           <li key={area} className="admin-list__row">
             <div className="members__who">
-              <strong>{label}</strong>
-              <small>{covers}</small>
+              <strong>{t(`admin.area.${area}`)}</strong>
+              <small>{t(`admin.area.${area}.covers`)}</small>
             </div>
             <select
-              aria-label={`Vem ser ${label}`}
+              aria-label={t('admin.areas.selectLabel', { area: t(`admin.area.${area}`) })}
               value={minRole[area]}
               disabled={busy === area}
               onChange={(e) => change(area, e.target.value as Access)}
             >
-              {LEVELS.map((l) => <option key={l} value={l}>{MIN_ROLE_LABEL[l]}</option>)}
+              {LEVELS.map((l) => <option key={l} value={l}>{t(`admin.minRole.${l}`)}</option>)}
             </select>
           </li>
         ))}
@@ -78,6 +79,7 @@ function AreaPanel() {
 type ChapterRow = Pick<Chapter, 'id' | 'title' | 'played_on' | 'visibility'>
 
 function ChapterPanel() {
+  const { t } = useI18n()
   const [rows, setRows] = useState<ChapterRow[]>([])
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState<string | null>(null)
@@ -110,16 +112,16 @@ function ChapterPanel() {
 
   return (
     <div className="panel">
-      <h3 className="panel-title">Kapitel</h3>
+      <h3 className="panel-title">{t('admin.chapters.title')}</h3>
       <p className="members__intro">
         {(Object.keys(VISIBILITY_LABELS) as Visibility[]).map((v) => `${counts[v]} ${VISIBILITY_LABELS[v].toLowerCase()}`).join(' · ')}.
         {' '}{VISIBILITY_HINTS.public} {VISIBILITY_HINTS.group} {VISIBILITY_HINTS.draft}
       </p>
       {error && <div className="alert">{error}</div>}
       {loading ? (
-        <div className="empty">Laddar …</div>
+        <div className="empty">{t('common.loading')}</div>
       ) : error ? null : rows.length === 0 ? (
-        <div className="empty">Inga kapitel än.</div>
+        <div className="empty">{t('admin.chapters.empty')}</div>
       ) : (
         <ul className="admin-list">
           {rows.map((c) => (
@@ -129,7 +131,7 @@ function ChapterPanel() {
                 <small>{formatDay(c.played_on)}</small>
               </div>
               <select
-                aria-label={`Vem får läsa ${c.title}`}
+                aria-label={t('admin.chapters.selectLabel', { title: c.title })}
                 value={c.visibility}
                 disabled={busy === c.id}
                 onChange={(e) => change(c.id, e.target.value as Visibility)}

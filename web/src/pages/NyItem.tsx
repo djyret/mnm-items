@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ItemFields, OwnershipFields } from '../components/ItemForm'
 import { ItemTooltip } from '../components/ItemTooltip'
+import { useI18n } from '../lib/i18n'
 import { compressImage, cropIcon, emptyDraft, logEvent, parseImage, parsedToDraft, uploadImage } from '../lib/items'
 import { useStore } from '../lib/store'
 import { supabase } from '../lib/supabase'
@@ -22,6 +23,7 @@ function readLastHolder(): string | null {
 export function NyItem() {
   const { reload, characters } = useStore()
   const navigate = useNavigate()
+  const { t } = useI18n()
   const [phase, setPhase] = useState<Phase>('tom')
   const [image, setImage] = useState<Blob | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
@@ -41,7 +43,7 @@ export function NyItem() {
 
   const handleFile = useCallback(async (file: Blob) => {
     if (!file.type.startsWith('image/')) {
-      setError('Det där är ingen bild.')
+      setError(t('forradet.new.notImage'))
       return
     }
     setError(null)
@@ -61,10 +63,10 @@ export function NyItem() {
         setIconPreview(URL.createObjectURL(ic))
       }
     } catch (e) {
-      setError(`${(e as Error).message}. Fyll i fälten för hand.`)
+      setError(t('forradet.new.fillByHand', { error: (e as Error).message }))
     }
     setPhase('klar')
-  }, [])
+  }, [t])
 
   // Ctrl+V var som helst på sidan
   useEffect(() => {
@@ -81,7 +83,7 @@ export function NyItem() {
 
   async function save() {
     if (!draft.name.trim()) {
-      setError('Itemet behöver ett namn.')
+      setError(t('forradet.new.needsName'))
       return
     }
     setPhase('sparar')
@@ -123,7 +125,7 @@ export function NyItem() {
 
   return (
     <div className="page">
-      <h1 className="page-title">Lägg till item</h1>
+      <h1 className="page-title">{t('forradet.new.title')}</h1>
 
       {phase === 'tom' && (
         <div
@@ -143,9 +145,9 @@ export function NyItem() {
           role="button"
           tabIndex={0}
         >
-          <div className="dropzone__big">Klistra in screenshot med <kbd>Ctrl</kbd>+<kbd>V</kbd></div>
-          <div>…eller dra hit en bild, eller klicka för att välja fil</div>
-          <small>Tips: <kbd>Win</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> i spelet, markera statsrutan, sedan Ctrl+V här.</small>
+          <div className="dropzone__big">{t('forradet.new.pasteWith')} <kbd>Ctrl</kbd>+<kbd>V</kbd></div>
+          <div>{t('forradet.new.orDrop')}</div>
+          <small>{t('forradet.new.tip')} <kbd>Win</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> {t('forradet.new.tipRest')}</small>
           <input
             ref={fileInput}
             type="file"
@@ -154,7 +156,7 @@ export function NyItem() {
             onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
           />
           <button type="button" className="btn btn--ghost" onClick={(e) => { e.stopPropagation(); setPhase('klar') }}>
-            Fyll i utan bild
+            {t('forradet.new.noImage')}
           </button>
         </div>
       )}
@@ -162,7 +164,7 @@ export function NyItem() {
       {phase === 'laser' && (
         <div className="panel center">
           {preview && <img className="shot" src={preview} alt="" />}
-          <p className="pulse">Läser av statsrutan…</p>
+          <p className="pulse">{t('forradet.new.reading')}</p>
         </div>
       )}
 
@@ -172,18 +174,18 @@ export function NyItem() {
         <div className="new-layout">
           <div className="new-layout__preview">
             <ItemTooltip item={draft} iconUrl={iconPreview} />
-            {preview && <img className="shot" src={preview} alt="Originalbild" />}
+            {preview && <img className="shot" src={preview} alt={t('forradet.new.original')} />}
           </div>
           <div className="panel">
-            <h2 className="panel-title">Kontrollera avläsningen</h2>
+            <h2 className="panel-title">{t('forradet.new.check')}</h2>
             <ItemFields draft={draft} onChange={setDraft} />
-            <h2 className="panel-title">Var finns det?</h2>
+            <h2 className="panel-title">{t('forradet.new.where')}</h2>
             <OwnershipFields draft={draft} onChange={setDraft} />
             <div className="actions">
               <button className="btn btn--primary" onClick={save} disabled={phase === 'sparar'}>
-                {phase === 'sparar' ? 'Sparar…' : 'Spara item'}
+                {phase === 'sparar' ? t('forradet.new.saving') : t('forradet.new.save')}
               </button>
-              <button className="btn btn--ghost" onClick={reset} disabled={phase === 'sparar'}>Börja om</button>
+              <button className="btn btn--ghost" onClick={reset} disabled={phase === 'sparar'}>{t('forradet.new.restart')}</button>
             </div>
           </div>
         </div>

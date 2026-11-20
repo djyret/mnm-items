@@ -1,10 +1,12 @@
 import { CLASSES, classIcon } from '../lib/constants'
+import { useI18n } from '../lib/i18n'
 
 /** Klassikon i en mörk ruta; okänd klass visar koden. */
 export function ClassIcon({ code, size = 40 }: { code: string | null | undefined; size?: number }) {
+  const { t } = useI18n()
   const src = code ? classIcon(code) : null
   return (
-    <span className="class-icon" style={{ width: size, height: size }} title={code ? CLASSES[code] || code : 'Ingen klass'}>
+    <span className="class-icon" style={{ width: size, height: size }} title={code ? CLASSES[code] || code : t('forradet.class.none')}>
       {src ? <img src={src} alt={code ?? ''} /> : <span>{code ?? '?'}</span>}
     </span>
   )

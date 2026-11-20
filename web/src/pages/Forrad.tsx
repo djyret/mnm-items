@@ -3,7 +3,8 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { ClassPicker } from '../components/ClassIcon'
 import { ItemCard } from '../components/ItemCard'
 import { EditorOnly } from '../components/RequireEditor'
-import { CLASSES, SLOTS, STATUSES, STATUS_LABELS, STAT_LABELS, statLabel, weaponRatio } from '../lib/constants'
+import { CLASSES, SLOTS, STATUSES, STAT_LABELS, statLabel, statusLabel, weaponRatio } from '../lib/constants'
+import { useI18n } from '../lib/i18n'
 import { itemScore } from '../lib/items'
 import { useStore } from '../lib/store'
 import type { Item } from '../lib/types'
@@ -20,6 +21,7 @@ export function Forrad() {
   const { items, characters, loading } = useStore()
   const [params, setParams] = useSearchParams()
   const [newStat, setNewStat] = useState('')
+  const { t, lang } = useI18n()
 
   const q = params.get('q') ?? ''
   const slot = params.get('slot') ?? ''
@@ -54,7 +56,7 @@ export function Forrad() {
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase()
     const out = items.filter((i) => {
-      if (needle && ![i.name, i.effect, i.description, i.notes].some((t) => t?.toLowerCase().includes(needle))) return false
+      if (needle && ![i.name, i.effect, i.description, i.notes].some((s) => s?.toLowerCase().includes(needle))) return false
       if (slot && !i.slots.includes(slot)) return false
       if (cls && !(i.classes.includes(cls) || i.classes.includes('ALL'))) return false
       if (holder && i.holder_id !== holder && i.lent_to_id !== holder) return false
@@ -67,7 +69,7 @@ export function Forrad() {
       return true
     })
     const by = (f: (i: Item) => number) => (a: Item, b: Item) => f(b) - f(a)
-    if (sort === 'namn') out.sort((a, b) => a.name.localeCompare(b.name, 'sv'))
+    if (sort === 'namn') out.sort((a, b) => a.name.localeCompare(b.name, lang))
     else if (sort === 'ac') out.sort(by((i) => i.ac ?? -999))
     else if (sort === 'poang') out.sort(by(itemScore))
     else if (sort === 'pris') out.sort(by((i) => i.price_cp ?? -1))
@@ -77,47 +79,47 @@ export function Forrad() {
       out.sort(by((i) => i.stats[k] ?? -999))
     }
     return out
-  }, [items, q, slot, cls, holder, status, mins, sort])
+  }, [items, q, slot, cls, holder, status, mins, sort, lang])
 
   const activeFilters = [...params.keys()].filter((k) => k !== 'sort').length
 
   return (
     <div className="page forrad">
       <aside className="filters panel">
-        <h2 className="panel-title">Sök &amp; filtrera</h2>
+        <h2 className="panel-title">{t('forradet.filters.title')}</h2>
         <label className="field">
-          <span>Sök</span>
-          <input type="search" value={q} onChange={(e) => update('q', e.target.value || null)} placeholder="Namn, effect, text…" />
+          <span>{t('forradet.filters.search')}</span>
+          <input type="search" value={q} onChange={(e) => update('q', e.target.value || null)} placeholder={t('forradet.filters.searchPlaceholder')} />
         </label>
         <label className="field">
           <span>Slot</span>
           <select value={slot} onChange={(e) => update('slot', e.target.value || null)}>
-            <option value="">Alla</option>
+            <option value="">{t('forradet.filters.all')}</option>
             {allSlots.map((s) => <option key={s}>{s}</option>)}
           </select>
         </label>
         <div className="field">
-          <span>Kan användas av klass{cls ? `: ${CLASSES[cls] || cls}` : ''}</span>
+          <span>{t('forradet.filters.usableBy')}{cls ? `: ${CLASSES[cls] || cls}` : ''}</span>
           <ClassPicker classes={allClasses} value={cls} onChange={(v) => update('klass', v || null)} />
         </div>
         <label className="field">
-          <span>Karaktär</span>
+          <span>{t('forradet.filters.character')}</span>
           <select value={holder} onChange={(e) => update('karaktar', e.target.value || null)}>
-            <option value="">Alla</option>
+            <option value="">{t('forradet.filters.all')}</option>
             {characters.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </label>
         <label className="field">
-          <span>Status</span>
+          <span>{t('forradet.form.status')}</span>
           <select value={status} onChange={(e) => update('status', e.target.value === 'aktiva' ? null : e.target.value)}>
-            <option value="aktiva">Alla utom sålda</option>
-            <option value="alla">Alla</option>
-            {STATUSES.map((s) => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
+            <option value="aktiva">{t('forradet.filters.allButSold')}</option>
+            <option value="alla">{t('forradet.filters.all')}</option>
+            {STATUSES.map((s) => <option key={s} value={s}>{statusLabel(s, lang)}</option>)}
           </select>
         </label>
 
         <div className="field">
-          <span>Minsta värde</span>
+          <span>{t('forradet.filters.minValue')}</span>
           {mins.map(([k, v], idx) => (
             <div key={k} className="min-row">
               <span className="min-row__key">{k === 'AC' ? 'AC' : statLabel(k)} ≥</span>
@@ -126,7 +128,7 @@ export function Forrad() {
                 value={v}
                 onChange={(e) => setMins(mins.map((m, j) => (j === idx ? [k, Number(e.target.value) || 0] : m)))}
               />
-              <button className="icon-btn" aria-label="Ta bort" onClick={() => setMins(mins.filter((_, j) => j !== idx))}><Icon name="stang" size={14} /></button>
+              <button className="icon-btn" aria-label={t('forradet.filters.removeMin')} onClick={() => setMins(mins.filter((_, j) => j !== idx))}><Icon name="stang" size={14} /></button>
             </div>
           ))}
           <select
@@ -137,38 +139,38 @@ export function Forrad() {
               setNewStat('')
             }}
           >
-            <option value="">+ Lägg till stat-filter</option>
+            <option value="">{t('forradet.filters.addStat')}</option>
             <option value="AC">AC</option>
             {allStats.map((s) => <option key={s} value={s}>{statLabel(s)}</option>)}
           </select>
         </div>
 
         <label className="field">
-          <span>Sortera</span>
+          <span>{t('forradet.filters.sort')}</span>
           <select value={sort} onChange={(e) => update('sort', e.target.value === 'nyast' ? null : e.target.value)}>
-            <option value="nyast">Senast tillagda</option>
-            <option value="namn">Namn</option>
+            <option value="nyast">{t('forradet.sort.newest')}</option>
+            <option value="namn">{t('forradet.sort.name')}</option>
             <option value="ac">AC</option>
-            <option value="poang">Bäst totalt (AC + stats)</option>
-            <option value="ratio">Vapenratio (DMG/DLY)</option>
-            <option value="pris">Pris (högst först)</option>
+            <option value="poang">{t('forradet.sort.best')}</option>
+            <option value="ratio">{t('forradet.sort.ratio')}</option>
+            <option value="pris">{t('forradet.sort.price')}</option>
             {allStats.map((s) => <option key={s} value={`stat:${s}`}>{statLabel(s)}</option>)}
           </select>
         </label>
         {activeFilters > 0 && (
-          <button className="btn btn--ghost" onClick={() => setParams({}, { replace: true })}>Rensa filter</button>
+          <button className="btn btn--ghost" onClick={() => setParams({}, { replace: true })}>{t('forradet.filters.clear')}</button>
         )}
       </aside>
 
       <section className="results">
         <div className="results__head">
-          <span>{loading ? 'Laddar…' : `${filtered.length} av ${items.length} items`}</span>
-          <EditorOnly><Link to="/ny" className="btn btn--primary">+ Lägg till item</Link></EditorOnly>
+          <span>{loading ? t('common.loading') : t('forradet.stash.count', { shown: filtered.length, total: items.length })}</span>
+          <EditorOnly><Link to="/ny" className="btn btn--primary">{t('forradet.stash.add')}</Link></EditorOnly>
         </div>
         {!loading && items.length === 0 && (
           <div className="panel empty">
-            <p>Förrådet är tomt.</p>
-            <EditorOnly><Link to="/ny" className="btn btn--primary">Lägg in ert första item</Link></EditorOnly>
+            <p>{t('forradet.stash.empty')}</p>
+            <EditorOnly><Link to="/ny" className="btn btn--primary">{t('forradet.stash.addFirst')}</Link></EditorOnly>
           </div>
         )}
         <div className="grid">

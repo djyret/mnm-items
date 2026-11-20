@@ -35,7 +35,7 @@ const NAV: [string, Key, string, Area | null][] = [
 ]
 const MENU = `${import.meta.env.BASE_URL}ikoner/meny/`
 /** Menyknappar som har en målad engelsk version i ikoner/meny/en/; övriga visar den svenska bilden. */
-const EN_MENU = new Set<string>([])
+const EN_MENU = new Set<string>(['forrad'])
 const menuSrc = (lang: string, icon: string, suffix: string) =>
   `${MENU}${lang === 'en' && EN_MENU.has(icon) ? 'en/' : ''}${icon}${suffix}.webp`
 

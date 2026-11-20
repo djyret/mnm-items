@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { CLASSES, KNOWN_FLAGS, SLOTS, STATUSES, STATUS_LABELS, slotIcon, statLabel } from '../lib/constants'
+import { CLASSES, KNOWN_FLAGS, SLOTS, STATUSES, slotIcon, statLabel, statusLabel } from '../lib/constants'
+import { useI18n } from '../lib/i18n'
 import { ClassIcon } from './ClassIcon'
 import { PriceInput } from './Money'
 import { useStore } from '../lib/store'
@@ -65,6 +66,7 @@ function SlotPicker({ value, onChange }: { value: string[]; onChange: (v: string
 
 /** Klassval med ikoner; ALL betyder alla klasser och avmarkerar enskilda. */
 function ClassMultiPicker({ value, onChange }: { value: string[]; onChange: (v: string[]) => void }) {
+  const { t } = useI18n()
   const all = value.includes('ALL')
   const unknown = value.filter((v) => v !== 'ALL' && !(v in CLASSES))
   return (
@@ -93,7 +95,7 @@ function ClassMultiPicker({ value, onChange }: { value: string[]; onChange: (v: 
       </div>
       {unknown.length > 0 && (
         <small className="warn">
-          Okänd klasskod från avläsningen – klicka för att ta bort:
+          {t('forradet.form.unknownClass')}
           {unknown.map((u) => (
             <button key={u} type="button" className="chip chip--warn" onClick={() => onChange(value.filter((v) => v !== u))}>
               {u} <Icon name="stang" size={12} />
@@ -107,18 +109,19 @@ function ClassMultiPicker({ value, onChange }: { value: string[]; onChange: (v: 
 
 export function ItemFields({ draft, onChange }: Props) {
   const set = <K extends keyof ItemDraft>(k: K, v: ItemDraft[K]) => onChange({ ...draft, [k]: v })
+  const { t } = useI18n()
   const statKeys = Object.keys(draft.stats)
   const flags = [...KNOWN_FLAGS, ...draft.flags.filter((f) => !KNOWN_FLAGS.includes(f))]
 
   return (
     <div className="form">
       <label className="field field--wide">
-        <span>Namn</span>
+        <span>{t('forradet.form.name')}</span>
         <input value={draft.name} onChange={(e) => set('name', e.target.value)} />
       </label>
 
       <div className="field field--wide">
-        <span>Flaggor</span>
+        <span>{t('forradet.form.flags')}</span>
         <div className="chips">
           {flags.map((f) => (
             <button
@@ -166,7 +169,7 @@ export function ItemFields({ draft, onChange }: Props) {
 
       <fieldset className="field field--wide stats-edit">
         <legend>Stats</legend>
-        {statKeys.length === 0 && <small>Inga stats – lägg till nedan.</small>}
+        {statKeys.length === 0 && <small>{t('forradet.form.noStats')}</small>}
         <div className="stats-edit__grid">
           {statKeys.map((k) => (
             <label key={k} className="stat-chip">
@@ -179,7 +182,7 @@ export function ItemFields({ draft, onChange }: Props) {
               <button
                 type="button"
                 className="icon-btn"
-                aria-label={`Ta bort ${k}`}
+                aria-label={t('forradet.form.removeStat', { stat: k })}
                 onClick={() => {
                   const { [k]: _, ...rest } = draft.stats
                   set('stats', rest)
@@ -191,7 +194,7 @@ export function ItemFields({ draft, onChange }: Props) {
           ))}
         </div>
         <div className="chips chips--add">
-          <span className="chips__label">Lägg till:</span>
+          <span className="chips__label">{t('forradet.form.addStat')}</span>
           {QUICK_STATS.filter((k) => !(k in draft.stats)).map((k) => (
             <button key={k} type="button" className="chip" onClick={() => set('stats', { ...draft.stats, [k]: 1 })}>
               + {statLabel(k)}
@@ -205,16 +208,16 @@ export function ItemFields({ draft, onChange }: Props) {
         <input value={draft.effect ?? ''} onChange={(e) => set('effect', e.target.value || null)} />
       </label>
       <label className="field field--wide">
-        <span>Beskrivning</span>
+        <span>{t('forradet.form.description')}</span>
         <textarea rows={2} value={draft.description ?? ''} onChange={(e) => set('description', e.target.value || null)} />
       </label>
 
       <div className="field field--wide">
-        <span>Klasser{draft.classes.length ? `: ${draft.classes.join(' ')}` : ''}</span>
+        <span>{t('forradet.form.classes')}{draft.classes.length ? `: ${draft.classes.join(' ')}` : ''}</span>
         <ClassMultiPicker value={draft.classes} onChange={(v) => set('classes', v)} />
       </div>
       <label className="field">
-        <span>Raser</span>
+        <span>{t('forradet.form.races')}</span>
         <ListInput value={draft.races} onChange={(v) => set('races', v)} placeholder="ALL" />
       </label>
     </div>
@@ -224,29 +227,30 @@ export function ItemFields({ draft, onChange }: Props) {
 /** Var itemet finns och vad som händer med det. */
 export function OwnershipFields({ draft, onChange }: Props) {
   const { characters } = useStore()
+  const { t, lang } = useI18n()
   const set = <K extends keyof ItemDraft>(k: K, v: ItemDraft[K]) => onChange({ ...draft, [k]: v })
   const needsTarget = draft.status === 'utlanad' || draft.status === 'reserverad'
 
   return (
     <div className="form">
       <label className="field">
-        <span>Finns på karaktär</span>
+        <span>{t('forradet.form.holder')}</span>
         <select value={draft.holder_id ?? ''} onChange={(e) => set('holder_id', e.target.value || null)}>
-          <option value="">— Välj —</option>
+          <option value="">{t('forradet.form.choose')}</option>
           {characters.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
       </label>
       <label className="field">
-        <span>Status</span>
+        <span>{t('forradet.form.status')}</span>
         <select value={draft.status} onChange={(e) => set('status', e.target.value as ItemDraft['status'])}>
-          {STATUSES.map((s) => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
+          {STATUSES.map((s) => <option key={s} value={s}>{statusLabel(s, lang)}</option>)}
         </select>
       </label>
       {needsTarget && (
         <label className="field">
-          <span>{draft.status === 'utlanad' ? 'Utlånad till' : 'Reserverad för'}</span>
+          <span>{draft.status === 'utlanad' ? t('forradet.form.lentTo') : t('forradet.form.reservedFor')}</span>
           <select value={draft.lent_to_id ?? ''} onChange={(e) => set('lent_to_id', e.target.value || null)}>
-            <option value="">— Välj —</option>
+            <option value="">{t('forradet.form.choose')}</option>
             {characters.filter((c) => c.id !== draft.holder_id).map((c) => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
@@ -255,22 +259,22 @@ export function OwnershipFields({ draft, onChange }: Props) {
       )}
       {draft.status === 'sald' && (
         <label className="field">
-          <span>Såld till</span>
-          <input value={draft.sold_to ?? ''} onChange={(e) => set('sold_to', e.target.value || null)} placeholder="Köparens namn" />
+          <span>{t('forradet.form.soldTo')}</span>
+          <input value={draft.sold_to ?? ''} onChange={(e) => set('sold_to', e.target.value || null)} placeholder={t('forradet.form.buyerPlaceholder')} />
         </label>
       )}
       <div className="field field--wide">
-        <span>Riktpris – vad den brukar gå för</span>
+        <span>{t('forradet.form.guidePrice')}</span>
         <PriceInput value={draft.price_cp} onChange={(v) => set('price_cp', v)} />
       </div>
       {draft.status === 'sald' && (
         <div className="field field--wide">
-          <span>Såld för</span>
+          <span>{t('forradet.form.soldFor')}</span>
           <PriceInput value={draft.sold_price_cp} onChange={(v) => set('sold_price_cp', v)} />
         </div>
       )}
       <label className="field field--wide">
-        <span>Anteckning</span>
+        <span>{t('forradet.form.notes')}</span>
         <input value={draft.notes ?? ''} onChange={(e) => set('notes', e.target.value || null)} />
       </label>
     </div>
