@@ -118,7 +118,7 @@ function ChapterPanel() {
       {error && <div className="alert">{error}</div>}
       {loading ? (
         <div className="empty">Laddar …</div>
-      ) : rows.length === 0 ? (
+      ) : error ? null : rows.length === 0 ? (
         <div className="empty">Inga kapitel än.</div>
       ) : (
         <ul className="admin-list">

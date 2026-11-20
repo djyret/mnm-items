@@ -67,8 +67,10 @@ export function MembersPanel() {
               return (
                 <li key={m.user_id} className={`members__row members__row--${m.status}`}>
                   <div className="members__who">
-                    <strong>{m.display_name ?? 'Okänt namn'}</strong>
-                    {self && <span className="members__self"> (du)</span>}
+                    <span>
+                      <strong>{m.display_name ?? 'Okänt namn'}</strong>
+                      {self && <span className="members__self"> (du)</span>}
+                    </span>
                     <small>{STATUS_LABEL[m.status]} · sedan {new Date(m.created_at).toLocaleDateString('sv-SE')}</small>
                   </div>
                   <select
