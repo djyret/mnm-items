@@ -59,7 +59,7 @@ const SCHEMA = {
           },
           quotes: {
             type: "array",
-            description: "0–3 korta pratbubblor på svenska",
+            description: "0–3 korta pratbubblor, på krönikans språk",
             items: {
               type: "object",
               additionalProperties: false,
@@ -121,6 +121,11 @@ Skriv karaktärerna med sina namn och använd spelets egna namn på platser, mon
 Exempel på tonen (bara tonen – låna inga detaljer):
 "Dimman låg tung över trapporna när de tre klev ut ur porten. Krigaren drog åt remmen på skölden och kände hur kölden bet genom handskarna. – Den här gången springer vi inte, sa han. Ingen svarade. Alla mindes förra gången."`;
 
+// Språket följer den som klickar (webbens språkval). Svenska är grundprompten; för engelska läggs detta till sist.
+const ENGLISH = `
+
+LANGUAGE: Write everything you return – title, summary, story, saga, captions, scene titles, scene captions, speech bubbles and "why" – in natural English, not Swedish. Keep character names and the game's own names for places, monsters and items exactly as they are. Quotes taken from the screenshots may stay in the language they were written in.`;
+
 interface Entry {
   id: string;
   kind: string;
@@ -143,7 +148,8 @@ Deno.serve(async (req) => {
   let ok = false;
 
   try {
-    const { chapter_id, mode } = await req.json();
+    const { chapter_id, mode, lang } = await req.json();
+    const english = lang === "en";
     if (typeof chapter_id !== "string") return json({ error: "chapter_id saknas" }, 400);
     const saga = mode === "saga";
 
@@ -211,7 +217,7 @@ Deno.serve(async (req) => {
       max_tokens: 32000,
       betas: ["server-side-fallback-2026-07-01"],
       fallbacks: "default",
-      system: saga ? SAGA_SYSTEM : SYSTEM,
+      system: (saga ? SAGA_SYSTEM : SYSTEM) + (english ? ENGLISH : ""),
       // Sagan får tänka mer: bågen och språket är hela poängen
       output_config: { effort: saga ? "high" : "medium", format: { type: "json_schema", schema: saga ? SAGA_SCHEMA : SCHEMA } },
       messages: [{ role: "user", content }],
