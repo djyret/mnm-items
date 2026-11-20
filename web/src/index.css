@@ -1844,9 +1844,13 @@ html[lang='en'] .hero { background-image: url('/bilder/header-en.webp'); }
 .armory__tabs .kr-tab:not(.active) { background: none; }
 
 /* Paper doll: slots runt porträttet som karaktärsfönstret i spelet */
-.doll { display: grid; grid-template-columns: 72px minmax(220px, 300px) 72px; grid-template-rows: 1fr auto; gap: 0.6rem 0.75rem; margin: 0; }
-.doll__col { display: flex; flex-direction: column; justify-content: center; gap: 0.3rem; }
-.doll__row { grid-column: 2; display: flex; justify-content: center; gap: 0.5rem; }
+.doll { display: grid; grid-template-columns: 72px minmax(340px, 380px) 72px; grid-template-rows: auto 1fr auto; grid-template-areas: ". top ." "left portrait right" "left bottom right"; gap: 0.6rem 0.75rem; margin: 0; }
+.doll__col { display: flex; flex-direction: column; justify-content: space-between; gap: 0.3rem; }
+.doll__col--left { grid-area: left; }
+.doll__col--right { grid-area: right; }
+.doll__row { display: flex; justify-content: space-between; gap: 0.5rem; }
+.doll__row--top { grid-area: top; }
+.doll__row--bottom { grid-area: bottom; justify-content: space-around; }
 .doll__slot {
   appearance: none;
   display: flex;
@@ -1869,12 +1873,11 @@ html[lang='en'] .hero { background-image: url('/bilder/header-en.webp'); }
 .doll__label { max-width: 72px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--font-title); font-size: 0.66rem; line-height: 1.15; }
 .doll__slot--filled .doll__label { color: #f0e4c8; }
 .doll__portrait {
-  grid-column: 2;
-  grid-row: 1;
+  grid-area: portrait;
   position: relative;
   display: flex;
   flex-direction: column;
-  min-height: 340px;
+  min-height: 380px;
   margin: 0;
   background: radial-gradient(circle at 50% 35%, rgba(255, 230, 180, 0.06), transparent 70%), #17140f;
   border: 1px solid #0a0907;
@@ -1897,7 +1900,31 @@ html[lang='en'] .hero { background-image: url('/bilder/header-en.webp'); }
   .doll { justify-content: center; }
 }
 @media (max-width: 600px) {
-  .doll { grid-template-columns: minmax(0, 1fr); }
-  .doll__portrait { grid-column: 1; grid-row: auto; order: -1; min-height: 260px; }
-  .doll__col, .doll__row { grid-column: 1; flex-direction: row; flex-wrap: wrap; justify-content: center; }
+  .doll { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; grid-template-areas: "portrait" "top" "left" "right" "bottom"; }
+  .doll__portrait { min-height: 260px; }
+  .doll__col, .doll__row { flex-direction: row; flex-wrap: wrap; justify-content: center; }
 }
+
+/* Statspanelen som spelets karaktärsfönster */
+.gstats { font-family: var(--font-title); font-variant: small-caps; }
+.gstats dl { margin: 0; }
+.gstats__row { display: flex; justify-content: space-between; gap: 0.75rem; padding: 0.05rem 0; }
+.gstats__row dt { color: #e4ddcf; letter-spacing: 0.04em; }
+.gstats__row dd { margin: 0; color: #f4f1ea; font-variant: normal; font-variant-numeric: tabular-nums; }
+.gstats__up { color: #6ee05a !important; }
+.gstats__down { color: #e86a5a !important; }
+.gstats__vitals { padding-bottom: 0.6rem; border-bottom: 1px solid var(--iron-dark); }
+.gstats__head {
+  margin: 0.8rem 0 0.5rem;
+  padding: 0.2rem 0 0.3rem;
+  text-align: center;
+  font-size: 1.05rem;
+  letter-spacing: 0.08em;
+  color: #f4f1ea;
+  background: linear-gradient(180deg, #3d3a35, #24221e);
+  border: 1px solid #0a0907;
+  box-shadow: inset 0 0 0 1px #6f6a61;
+}
+.gstats__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.2rem; }
+.gstats__grid dl + dl { border-left: 1px solid var(--iron-dark); padding-left: 1.2rem; }
+.gstats .bonus__note { font-family: var(--font-body); font-variant: normal; }

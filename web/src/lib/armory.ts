@@ -48,10 +48,14 @@ export const EQUIP_SLOTS = [
 ] as const
 export type EquipSlot = (typeof EQUIP_SLOTS)[number]
 
-/** Placering runt porträttet: vänster, höger och raden under. */
+/**
+ * Placering runt porträttet som i spelets karaktärsfönster: raden ovanför, kolumnerna vid sidan
+ * (sista platsen, Ben/Fötter, i höjd med vapenraden) och vapenraden under porträttet.
+ */
 export const DOLL = {
-  left: ['HEAD', 'FACE', 'EAR_1', 'EAR_2', 'NECK', 'SHOULDERS', 'BACK', 'CHEST', 'SHIRT'],
-  right: ['WRIST_1', 'WRIST_2', 'HANDS', 'FINGER_1', 'FINGER_2', 'WAIST', 'LEGS', 'FEET'],
+  top: ['EAR_1', 'NECK', 'HEAD', 'FACE', 'EAR_2'],
+  left: ['CHEST', 'SHIRT', 'WRIST_1', 'WAIST', 'FINGER_1', 'LEGS'],
+  right: ['BACK', 'SHOULDERS', 'WRIST_2', 'HANDS', 'FINGER_2', 'FEET'],
   bottom: ['PRIMARY', 'SECONDARY', 'RANGE', 'AMMO'],
 } as const satisfies Record<string, readonly EquipSlot[]>
 

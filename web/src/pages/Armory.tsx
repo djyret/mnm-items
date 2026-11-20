@@ -9,7 +9,7 @@ import {
   unequipItem, useChapters, wearerOf,
 } from '../lib/armory'
 import { useAuth } from '../lib/auth'
-import { CLASSES, STAT_GROUPS, SLOTS, statLabel } from '../lib/constants'
+import { CLASSES, SLOTS, statHelp } from '../lib/constants'
 import { useI18n } from '../lib/i18n'
 import { canUse, compressImage, deleteImages, uploadImage } from '../lib/items'
 import { useStore } from '../lib/store'
@@ -77,10 +77,11 @@ function ArmoryFor({ char, items }: { char: Character; items: Item[] }) {
 
       <div className="armory">
         <div className="panel doll">
-          <div className="doll__col">{DOLL.left.map(slotButton)}</div>
+          <div className="doll__row doll__row--top">{DOLL.top.map(slotButton)}</div>
+          <div className="doll__col doll__col--left">{DOLL.left.map(slotButton)}</div>
           <Portrait char={char} />
-          <div className="doll__col">{DOLL.right.map(slotButton)}</div>
-          <div className="doll__row">{DOLL.bottom.map(slotButton)}</div>
+          <div className="doll__col doll__col--right">{DOLL.right.map(slotButton)}</div>
+          <div className="doll__row doll__row--bottom">{DOLL.bottom.map(slotButton)}</div>
         </div>
 
         <div className="armory__side">
@@ -238,28 +239,38 @@ function SlotPanel({ char, slot, item, items }: { char: Character; slot: string;
 
 // ---------- Summa av utrustningen ----------
 
+// Samma uppställning som spelets karaktärsfönster: två kolumner per block
+const VITALS = ['HP', 'MANA', 'END', 'AC'] as const
+const ATTRS = [['STR', 'STA', 'AGI', 'DEX'], ['INT', 'WIS', 'CHA']] as const
+const RESISTS = [['SV_COLD', 'SV_CORRUPTION', 'SV_DISEASE', 'SV_ELEC'], ['SV_FIRE', 'SV_HOLY', 'SV_MAGIC', 'SV_POISON']] as const
+const SHORT: Record<string, string> = {
+  SV_COLD: 'Cold', SV_CORRUPTION: 'Corr', SV_DISEASE: 'Dis', SV_ELEC: 'Elec',
+  SV_FIRE: 'Fire', SV_HOLY: 'Holy', SV_MAGIC: 'Mag', SV_POISON: 'Poi',
+  HP: 'Health', MANA: 'Mana', END: 'Endurance', AC: 'Armor Class',
+}
+
 function BonusPanel({ worn }: { worn: Item[] }) {
-  const { t } = useI18n()
-  if (worn.length === 0) return null
-  const ac = worn.reduce((s, i) => s + (i.ac ?? 0), 0)
-  const totals: Record<string, number> = {}
+  const { t, lang } = useI18n()
+  const totals: Record<string, number> = { AC: worn.reduce((s, i) => s + (i.ac ?? 0), 0) }
   for (const i of worn) {
-    for (const [k, v] of Object.entries(i.stats)) {
-      if (k === 'DMG' || k === 'DLY' || k === 'RANGE') continue
-      totals[k] = (totals[k] ?? 0) + v
-    }
+    for (const [k, v] of Object.entries(i.stats)) totals[k] = (totals[k] ?? 0) + v
   }
-  const order = STAT_GROUPS.flat().filter((k) => totals[k])
-  const rest = Object.keys(totals).filter((k) => totals[k] && !order.includes(k))
+  const cell = (k: string) => {
+    const v = totals[k] ?? 0
+    return (
+      <div key={k} className="gstats__row" title={statHelp(k, lang)}>
+        <dt>{SHORT[k] ?? k}</dt>
+        <dd className={v > 0 ? 'gstats__up' : v < 0 ? 'gstats__down' : undefined}>{v}</dd>
+      </div>
+    )
+  }
   return (
-    <div className="panel">
-      <h2 className="panel-title">{t('armory.bonus')}</h2>
-      <dl className="bonus">
-        <div><dt>AC</dt><dd>{ac}</dd></div>
-        {[...order, ...rest].map((k) => (
-          <div key={k}><dt>{statLabel(k)}</dt><dd>{totals[k] > 0 ? `+${totals[k]}` : totals[k]}</dd></div>
-        ))}
-      </dl>
+    <div className="panel gstats">
+      <dl className="gstats__vitals">{VITALS.map(cell)}</dl>
+      <h2 className="gstats__head">{t('armory.stats')}</h2>
+      <div className="gstats__grid">{ATTRS.map((col) => <dl key={col[0]}>{col.map(cell)}</dl>)}</div>
+      <h2 className="gstats__head">{t('armory.resists')}</h2>
+      <div className="gstats__grid">{RESISTS.map((col) => <dl key={col[0]}>{col.map(cell)}</dl>)}</div>
       <small className="bonus__note">{t('armory.bonusNote', { count: worn.length })}</small>
     </div>
   )

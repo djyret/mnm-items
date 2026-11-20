@@ -31,8 +31,9 @@ export const sv = {
   'armory.inStash': 'Ledigt i förrådet',
   'armory.heldBy': 'hos {name}',
 
-  'armory.bonus': 'Utrustningens bonus',
-  'armory.bonusNote': 'Summan av {count} utrustade items. Karaktärens egna grundvärden ingår inte.',
+  'armory.stats': 'Statistik',
+  'armory.resists': 'Resistenser',
+  'armory.bonusNote': 'Bonus från {count} utrustade items. Karaktärens egna grundvärden ingår inte.',
   'armory.nothingEquipped': 'Inget utrustat än. Klicka på en slot för att börja.',
   'armory.foundIn': 'Hittades i {title}',
   'armory.stashEmpty': 'Inga andra items hos karaktären.',
@@ -118,8 +119,9 @@ export const en: { [K in keyof typeof sv]: string } = {
   'armory.inStash': 'Available in the stash',
   'armory.heldBy': 'held by {name}',
 
-  'armory.bonus': 'Gear bonus',
-  'armory.bonusNote': 'Sum of {count} equipped items. The character\'s own base stats are not included.',
+  'armory.stats': 'Statistics',
+  'armory.resists': 'Resistances',
+  'armory.bonusNote': 'Bonus from {count} equipped items. The character\'s own base stats are not included.',
   'armory.nothingEquipped': 'Nothing equipped yet. Click a slot to start.',
   'armory.foundIn': 'Found in {title}',
   'armory.stashEmpty': 'No other items on this character.',
