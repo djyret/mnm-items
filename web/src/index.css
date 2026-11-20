@@ -1710,17 +1710,22 @@ blockquote.kr-note { font-family: var(--font-title); font-weight: 700; }
 }
 
 /* ---------- Konto (inloggning) och Medlemmar ---------- */
+/* Uppe till höger ovanpå headerbilden, i en mörk platta så texten syns mot bilden */
 .account {
-  max-width: 1400px;
-  margin: -0.4rem auto 0;
-  padding: 0 16px;
+  position: absolute;
+  top: 0.75rem;
+  right: 16px;
+  z-index: 5;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
   align-items: baseline;
-  gap: 0.35rem 1rem;
+  gap: 0.9rem;
+  padding: 0.35rem 0.85rem;
   font-size: 0.88rem;
   color: var(--text-dim);
+  background: rgba(16, 13, 10, 0.78);
+  border: 1px solid var(--bronze-dark);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
 }
 .account__who { color: var(--text); }
 .account__role { color: var(--text-dim); }
@@ -1737,7 +1742,8 @@ blockquote.kr-note { font-family: var(--font-title); font-weight: 700; }
 }
 .account__link:hover { color: #f0cd7d; text-decoration: underline; }
 @media (max-width: 600px) {
-  .account { justify-content: center; margin-top: 0; }
+  .account { top: 0.5rem; right: 0.5rem; gap: 0.7rem; padding: 0.3rem 0.65rem; font-size: 0.82rem; }
+  .account__role { display: none; }
 }
 
 .members__intro { margin: 0 0 1rem; color: var(--text-dim); }

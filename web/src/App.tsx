@@ -34,6 +34,8 @@ function Shell() {
   const { error } = useStore()
   return (
     <>
+      {/* Utanför headern men ovanpå den: headerbildens mask skulle annars tona ut hörnet */}
+      <AccountBar />
       <header className="hero">
         <div className="hero__inner">
           {/* Rubriken är inmålad i headerbilden; texten finns kvar för skärmläsare */}
@@ -50,8 +52,6 @@ function Shell() {
           </nav>
         </div>
       </header>
-      {/* Under headern, inte i den: headerbildens mask tonar ut kanterna */}
-      <AccountBar />
       <main>
         {error && <div className="page"><div className="alert">Kunde inte nå databasen: {error}</div></div>}
         <Routes>
