@@ -68,9 +68,14 @@ create table public.membership_audit (   -- vem ändrade vems roll/status och n�
 Engångs-SQL i Supabase-dashboarden efter att Daniel loggat in med Discord första gången:
 
 ```sql
+-- Kontrollera först att det är rätt rad:
+select user_id, display_name, status, created_at from public.memberships order by created_at;
+
 update public.memberships set role = 'admin', status = 'active'
-where user_id = (select id from auth.users where raw_user_meta_data->>'full_name' = '<discord-namn>');
+where user_id = '<user_id från raden ovan>';
 ```
+
+Görs direkt i SQL-editorn (kör som `postgres`), så den hamnar inte i `membership_audit`. Alla senare ändringar görs på sidan **Medlemmar**.
 
 ## Policyer per tabell
 

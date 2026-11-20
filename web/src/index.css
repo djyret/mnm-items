@@ -1708,3 +1708,56 @@ blockquote.kr-note { font-family: var(--font-title); font-weight: 700; }
 @media (max-width: 700px) {
   .kr-saga { padding: 0.6rem 0.4rem 0.4rem; border-width: 20px; border-image-width: 20px; font-size: 1.08rem; }
 }
+
+/* ---------- Konto (inloggning) och Medlemmar ---------- */
+.account {
+  max-width: 1400px;
+  margin: -0.4rem auto 0;
+  padding: 0 16px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: baseline;
+  gap: 0.35rem 1rem;
+  font-size: 0.88rem;
+  color: var(--text-dim);
+}
+.account__who { color: var(--text); }
+.account__role { color: var(--text-dim); }
+.account__link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-family: var(--font-title);
+  letter-spacing: 0.04em;
+  color: var(--gold);
+  cursor: pointer;
+  text-decoration: none;
+}
+.account__link:hover { color: #f0cd7d; text-decoration: underline; }
+@media (max-width: 600px) {
+  .account { justify-content: center; margin-top: 0; }
+}
+
+.members__intro { margin: 0 0 1rem; color: var(--text-dim); }
+.members__intro strong { color: var(--gold); }
+.members { list-style: none; margin: 0; padding: 0; }
+.members__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 150px auto;
+  align-items: center;
+  gap: 0.6rem 1rem;
+  padding: 0.7rem 0;
+  border-top: 1px solid var(--bronze-dark);
+}
+.members__row:first-child { border-top: none; }
+.members__row--suspended .members__who { opacity: 0.55; }
+.members__who { display: flex; flex-direction: column; min-width: 0; }
+.members__who small { color: var(--text-dim); }
+.members__self { color: var(--text-dim); font-weight: 400; }
+.members__actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
+@media (max-width: 600px) {
+  .members__row { grid-template-columns: minmax(0, 1fr) auto; }
+  .members__actions { grid-column: 1 / -1; justify-content: flex-start; }
+}

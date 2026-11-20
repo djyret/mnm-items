@@ -127,3 +127,17 @@ export interface CastMember {
   position: number
   created_at: string
 }
+
+export type AppRole = 'reader' | 'editor' | 'admin'
+export type MembershipStatus = 'pending' | 'active' | 'suspended'
+
+export interface Membership {
+  user_id: string
+  role: AppRole
+  status: MembershipStatus
+  display_name: string | null
+  discord_id: string | null
+  approved_by: string | null
+  created_at: string
+  updated_at: string
+}

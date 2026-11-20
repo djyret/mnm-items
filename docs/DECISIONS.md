@@ -8,6 +8,7 @@ uppdateras de i samma PR som koden.
 
 | Datum | Ämne | Beslut | Kommentar |
 |---|---|---|---|
+| 2026-11-20 | Hosting | GitHub Pages tills de stora förändringarna är klara. Därefter troligen Cloudflare Pages (`*.pages.dev`, ev. egen domän senare) och `BrowserRouter` utan `#`. | Flytten är bara konfiguration: ny adress i Supabase redirect-listan, `base: '/'`. Auth-koden är redan adressoberoende. |
 | 2026-11-20 | Ordning | Säkerhet (fas 0) först, sedan språkval, sedan Character Armory. | Öppen anon-skrivning är det enda akuta. |
 | 2026-11-20 | Backup | Backup innan policyer/tabeller ändras. Tagen 2026-11-20. | Lokalt, utanför repot: tabeller som JSON, båda buckets, migrationerna. |
 | 2026-11-20 | Språk | Språkval **sv/en** i UI:t. Svenska förblir standard. | Inte helt engelska. Historiskt innehåll (krönikor, citat) översätts inte. |

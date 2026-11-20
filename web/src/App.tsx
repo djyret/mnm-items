@@ -1,6 +1,9 @@
 import { HashRouter, NavLink, Route, Routes } from 'react-router-dom'
+import { AccountBar } from './components/AccountBar'
 import { Compass } from './components/Ornaments'
+import { AuthProvider } from './lib/auth'
 import { StoreProvider, useStore } from './lib/store'
+import { Medlemmar } from './pages/Medlemmar'
 import { AltVy } from './pages/AltVy'
 import { Forrad } from './pages/Forrad'
 import { ItemPage } from './pages/ItemPage'
@@ -47,6 +50,8 @@ function Shell() {
           </nav>
         </div>
       </header>
+      {/* Under headern, inte i den: headerbildens mask tonar ut kanterna */}
+      <AccountBar />
       <main>
         {error && <div className="page"><div className="alert">Kunde inte nå databasen: {error}</div></div>}
         <Routes>
@@ -63,6 +68,7 @@ function Shell() {
           <Route path="/kronikan/:id/saga" element={<KapitelSaga />} />
           <Route path="/kronikan/:id/bildspel" element={<Bildspel />} />
           <Route path="/hjalp" element={<Hjalp />} />
+          <Route path="/medlemmar" element={<Medlemmar />} />
         </Routes>
       </main>
       <footer className="site-foot">
@@ -76,9 +82,11 @@ function Shell() {
 export default function App() {
   return (
     <HashRouter>
-      <StoreProvider>
-        <Shell />
-      </StoreProvider>
+      <AuthProvider>
+        <StoreProvider>
+          <Shell />
+        </StoreProvider>
+      </AuthProvider>
     </HashRouter>
   )
 }
