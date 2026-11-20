@@ -14,9 +14,10 @@ const STATUS_LABEL: Record<MembershipStatus, string> = {
 /** Väntande överst, så nya konton syns direkt. */
 const STATUS_ORDER: Record<MembershipStatus, number> = { pending: 0, active: 1, suspended: 2 }
 
-/** Admin godkänner nya Discord-konton, sätter roll och spärrar. Ändringar går via admin_set_membership(). */
-export function Medlemmar() {
-  const { isAdmin, loading: authLoading, membership: me, reloadMembership } = useAuth()
+/** Admin godkänner nya Discord-konton, sätter roll och spärrar. Ändringar går via admin_set_membership().
+ *  Visas på Admin-sidan, som redan kräver admin. */
+export function MembersPanel() {
+  const { isAdmin, membership: me, reloadMembership } = useAuth()
   const [rows, setRows] = useState<Membership[]>([])
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState<string | null>(null)
@@ -43,23 +44,13 @@ export function Medlemmar() {
     setBusy(null)
   }
 
-  if (authLoading) return null
-  if (!isAdmin) {
-    return (
-      <div className="page">
-        <h2 className="page-title">Medlemmar</h2>
-        <div className="panel empty">Bara admin kan hantera medlemmar.</div>
-      </div>
-    )
-  }
-
   const pending = rows.filter((r) => r.status === 'pending').length
 
   return (
-    <div className="page">
-      <h2 className="page-title">Medlemmar</h2>
-      {error && <div className="alert">{error}</div>}
+    <>
       <div className="panel">
+        <h3 className="panel-title">Medlemmar</h3>
+        {error && <div className="alert">{error}</div>}
         <p className="members__intro">
           Nya konton dyker upp här när någon loggar in med Discord första gången. De kan ingenting förrän du godkänner dem.
           {pending > 0 && <> <strong>{pending} väntar.</strong></>}
@@ -106,6 +97,6 @@ export function Medlemmar() {
           </ul>
         )}
       </div>
-    </div>
+    </>
   )
 }

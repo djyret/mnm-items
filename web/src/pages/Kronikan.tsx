@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useAreas } from '../lib/access'
 import { useAuth } from '../lib/auth'
 import { VISIBILITY_LABELS, formatDay, kronikaUrl, missingTables, sortEntries, weekday } from '../lib/kronikan'
 import { supabase } from '../lib/supabase'
@@ -23,6 +24,7 @@ export function MissingSetup() {
 export function Kronikan() {
   const navigate = useNavigate()
   const { canEdit } = useAuth()
+  const { canView } = useAreas()
   const [chapters, setChapters] = useState<Chapter[]>([])
   const [thumbs, setThumbs] = useState<Thumb[]>([])
   const [loading, setLoading] = useState(true)
@@ -81,7 +83,7 @@ export function Kronikan() {
         <h1 className="page-title">Krönikan</h1>
         <div className="actions kr-head-actions">
           {canEdit && !adding && <button className="btn btn--primary" onClick={() => setAdding(true)}>+ Nytt kapitel</button>}
-          <Link className="btn btn--ghost" to="/kronikan/stil">Stilbibel</Link>
+          {canView('stilbibeln') && <Link className="btn btn--ghost" to="/kronikan/stil">Stilbibel</Link>}
         </div>
       </div>
       <p className="help-intro">Gängets äventyr, en spelkväll i taget. Släng in skärmdumpar och seriebilder, skriv vad som hände.</p>

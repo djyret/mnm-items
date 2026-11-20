@@ -18,7 +18,8 @@ uppdateras de i samma PR som koden.
 | 2026-11-20 | Editor-omfång | Editor får ändra **allt delat innehåll** (items, karaktärer, krönikor). Inget ägarskap per post i fas 0. | Passar ett gäng utan enskild redaktör. Ägarskap kan läggas till med Armory. |
 | 2026-11-20 | Nya konton | Discord-inloggning skapar ett medlemskap med status `pending`. Admin godkänner och sätter roll. | Ett Discord-konto ger aldrig läs- eller skrivrätt av sig självt. |
 
-| 2026-11-20 | Synlighet | Bara **krönikekapitel** har synlighet: `public` / `group` / `draft`. Minnen ärver. Items, karaktärer, rollista och stilbibel är alltid publika att läsa. | Steg 3. |
+| 2026-11-20 | Synlighet | **Krönikekapitel** har egen synlighet: `public` / `group` / `draft`. Minnen ärver. | Steg 3. |
+| 2026-11-20 | Adminpanel | Sidan **Admin** (`#/admin`): lägsta roll per **område** (Förrådet = items/karaktärer/alts/försäljning, Krönikan = tak över kapitlens synlighet + rollistan, Stilbibeln = stilprompten), kapitellista med synlighet, medlemmar. Spärras i databasen (`area_access`, `can_view_area()`). Alla områden startar öppna för alla. | Per område, inte per sida: sidor som delar data kan inte skyddas var för sig. |
 | 2026-11-20 | Befintliga kapitel | De 23 kapitel som fanns 2026-11-20 blev **publika**. Nya kapitel blir `group` som standard. | Daniel valde publik framför gruppinternt. |
 | 2026-11-20 | Utkast | `draft` syns för **alla redaktörer** (verkstaden är gemensam), inte för läsare eller besökare. Ingen ägare per kapitel. | `created_by` sparas ändå för framtida bruk. |
 | 2026-11-20 | Bilder i gruppkapitel | **Hemliga adresser**, inte privat bucket: `kronikan` förblir publik, men besökare kan inte lista den, och bildnamnen är slumpade uuid som bara syns för den som får läsa minnet. | Medvetet avsteg från roadmap §18.3. Nackdel: en delad bildlänk går inte att återkalla. Privat bucket + signerade URL:er kan byggas senare (~25 ställen i webben + båda AI-funktionerna). |

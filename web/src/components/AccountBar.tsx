@@ -25,7 +25,7 @@ export function AccountBar() {
       <span className="account__who">
         {name} <span className="account__role">· {status}</span>
       </span>
-      {isAdmin && <Link className="account__link" to="/medlemmar">Medlemmar</Link>}
+      {isAdmin && <Link className="account__link" to="/admin">Admin</Link>}
       <button type="button" className="account__link" onClick={signOut}>Logga ut</button>
     </div>
   )

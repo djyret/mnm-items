@@ -112,6 +112,20 @@ alter table public.chronicle_chapters
 
 Att byta `visibility` är en vanlig update för Editors. Med "Editor ändrar allt delat" behövs ingen separat publiceringsroll.
 
+### Områden (adminpanelen)
+
+`area_access(area, min_role)` styr lägsta roll som får **läsa** varje område; admin ändrar den på `#/admin`
+(update-policy `is_admin()`, kolumngrant bara på `min_role`). `can_view_area(area)` ingår i läspolicyerna:
+
+| Område | Tabeller / storage |
+|---|---|
+| `forradet` | `characters`, `items`, `item_events`, listning i `item-images` |
+| `kronikan` | `chronicle_chapters` (plus kapitlets `visibility`), `chronicle_entries` (via `can_read_chapter`), `chronicle_cast`, listning i `kronikan` |
+| `stilbibeln` | `chronicle_settings` |
+
+Skrivregler (`can_edit()`) påverkas inte. Saknas en rad i `area_access` ser bara admin området.
+Webben döljer menyknappar och sidor via `useAreas()` / `RequireArea`, men det är databasen som spärrar.
+
 ## Storage
 
 | Bucket | Steg 2 | Steg 3 |

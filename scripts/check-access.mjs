@@ -58,6 +58,8 @@ for (const f of FUNCTIONS) {
 
 const rpc = await denied(await fetch(`${URL_}/rest/v1/rpc/ai_usage_start`, { method: 'POST', headers: H, body: '{"fn":"seriebild"}' }))
 check('ai_usage_start: nekas', rpc.ok, rpc.detail)
+const area = await denied(await fetch(`${URL_}/rest/v1/area_access?area=eq.forradet`, { method: 'PATCH', headers: H, body: '{"min_role":"visitor"}' }))
+check('area_access: ändring nekas', area.ok, area.detail)
 const mem = await denied(await fetch(`${URL_}/rest/v1/memberships?select=user_id`, { headers: H }))
 check('memberships: läsning nekas', mem.ok, mem.detail)
 
