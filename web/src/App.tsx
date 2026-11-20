@@ -6,6 +6,7 @@ import { RequireArea } from './components/RequireArea'
 import { RequireEditor } from './components/RequireEditor'
 import { AreaProvider, useAreas, type Area } from './lib/access'
 import { AuthProvider, useAuth } from './lib/auth'
+import { I18nProvider, useI18n, type Key } from './lib/i18n'
 import { StoreProvider, useStore } from './lib/store'
 import { Admin } from './pages/Admin'
 import { AltVy } from './pages/AltVy'
@@ -23,16 +24,20 @@ import { Kronikan } from './pages/Kronikan'
 import { Stilbibel } from './pages/Stilbibel'
 
 /** Menyknapparna är färdiga bilder (järn = vanlig, guld = aktiv sida). Område = vad adminpanelen styr. */
-const NAV: [string, string, string, Area | null][] = [
-  ['/', 'Förråd', 'forrad', 'forradet'],
-  ['/ny', 'Lägg till', 'lagg-till', 'forradet'],
-  ['/karaktarer', 'Karaktärer', 'karaktarer', 'forradet'],
-  ['/alt', 'Alts', 'alt-vy', 'forradet'],
-  ['/salda', 'Försäljning', 'salda', 'forradet'],
-  ['/kronikan', 'Krönikan', 'kronikan', 'kronikan'],
-  ['/hjalp', 'Hjälp', 'hjalp', null],
+const NAV: [string, Key, string, Area | null][] = [
+  ['/', 'nav.stash', 'forrad', 'forradet'],
+  ['/ny', 'nav.add', 'lagg-till', 'forradet'],
+  ['/karaktarer', 'nav.characters', 'karaktarer', 'forradet'],
+  ['/alt', 'nav.alts', 'alt-vy', 'forradet'],
+  ['/salda', 'nav.sales', 'salda', 'forradet'],
+  ['/kronikan', 'nav.chronicle', 'kronikan', 'kronikan'],
+  ['/hjalp', 'nav.help', 'hjalp', null],
 ]
 const MENU = `${import.meta.env.BASE_URL}ikoner/meny/`
+/** Menyknappar som har en målad engelsk version i ikoner/meny/en/; övriga visar den svenska bilden. */
+const EN_MENU = new Set<string>([])
+const menuSrc = (lang: string, icon: string, suffix: string) =>
+  `${MENU}${lang === 'en' && EN_MENU.has(icon) ? 'en/' : ''}${icon}${suffix}.webp`
 
 const F = (page: ReactNode) => <RequireArea area="forradet">{page}</RequireArea>
 const K = (page: ReactNode) => <RequireArea area="kronikan">{page}</RequireArea>
@@ -50,6 +55,7 @@ function Shell() {
   const { error } = useStore()
   const { canEdit } = useAuth()
   const { canView } = useAreas()
+  const { t, lang } = useI18n()
   return (
     <>
       {/* Utanför headern men ovanpå den: headerbildens mask skulle annars tona ut hörnet */}
@@ -57,21 +63,21 @@ function Shell() {
       <header className="hero">
         <div className="hero__inner">
           {/* Rubriken är inmålad i headerbilden; texten finns kvar för skärmläsare */}
-          <NavLink to="/" className="brand-link" aria-label="Förrådet – till startsidan">
-            <h1 className="sr-only">Förrådet – Monsters &amp; Memories. Items att sälja / nyttja till alts</h1>
+          <NavLink to="/" className="brand-link" aria-label={t('app.homeLabel')}>
+            <h1 className="sr-only">{t('app.headline')}</h1>
           </NavLink>
           <nav className="nav">
             {NAV.filter(([to, , , area]) => (to !== '/ny' || canEdit) && (!area || canView(area))).map(([to, label, icon]) => (
-              <NavLink key={to} to={to} end={to === '/'} className="menu-img" aria-label={label} title={label}>
-                <img className="menu-img__off" src={`${MENU}${icon}.webp`} alt="" />
-                <img className="menu-img__on" src={`${MENU}${icon}-aktiv.webp`} alt="" />
+              <NavLink key={to} to={to} end={to === '/'} className="menu-img" aria-label={t(label)} title={t(label)}>
+                <img className="menu-img__off" src={menuSrc(lang, icon, '')} alt="" />
+                <img className="menu-img__on" src={menuSrc(lang, icon, '-aktiv')} alt="" />
               </NavLink>
             ))}
           </nav>
         </div>
       </header>
       <main>
-        {error && <div className="page"><div className="alert">Kunde inte nå databasen: {error}</div></div>}
+        {error && <div className="page"><div className="alert">{t('app.dbError', { error })}</div></div>}
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/ny" element={F(<RequireEditor back={{ to: '/', label: 'Till förrådet' }}><NyItem /></RequireEditor>)} />
@@ -92,7 +98,7 @@ function Shell() {
       </main>
       <footer className="site-foot">
         <Compass />
-        <span>Delad loot för framtida äventyr</span>
+        <span>{t('app.footer')}</span>
       </footer>
     </>
   )
@@ -101,13 +107,15 @@ function Shell() {
 export default function App() {
   return (
     <HashRouter>
-      <AuthProvider>
-        <AreaProvider>
-          <StoreProvider>
-            <Shell />
-          </StoreProvider>
-        </AreaProvider>
-      </AuthProvider>
+      <I18nProvider>
+        <AuthProvider>
+          <AreaProvider>
+            <StoreProvider>
+              <Shell />
+            </StoreProvider>
+          </AreaProvider>
+        </AuthProvider>
+      </I18nProvider>
     </HashRouter>
   )
 }

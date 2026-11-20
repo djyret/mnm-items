@@ -1802,3 +1802,8 @@ blockquote.kr-note { font-family: var(--font-title); font-weight: 700; }
 @media (max-width: 600px) {
   .admin-list__row { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* Språkval i kontorutan: SV / EN, aktivt språk i ljus text */
+.account__lang { display: inline-flex; gap: 0.35rem; padding-right: 0.9rem; border-right: 1px solid var(--bronze-dark); }
+.account__lang .account__link { color: var(--text-dim); }
+.account__lang .account__link.is-active { color: var(--text); text-decoration: none; cursor: default; }
