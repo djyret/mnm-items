@@ -1,4 +1,4 @@
-# MnM Förrådet
+# Loot & Lore
 
 Itemförråd för vårt gäng i Monsters & Memories. Klistra in en screenshot på statsrutan, så läser Claude Haiku av den och itemet sparas med karaktär och status.
 

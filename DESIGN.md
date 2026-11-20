@@ -1,5 +1,5 @@
 ---
-name: MnM Förrådet
+name: Loot & Lore
 description: The gang's shared stash and chronicle, built as a lamplit tavern of stone, iron, bronze and burnt parchment.
 colors:
   tavern-night: "#120f0b"
@@ -125,13 +125,13 @@ components:
     textColor: "{colors.ink}"
 ---
 
-# Design System: MnM Förrådet
+# Design System: Loot & Lore
 
 ## Overview
 
 **Creative North Star: "The Lamplit Tavern Stash"**
 
-Every screen sits inside one painted tavern. A fixed painting of the tavern interior (`bilder/bakgrund.webp`) is the page itself; a painted header with the built-in Förrådet sign and a row of painted menu buttons (`ikoner/meny/*.webp`) crown it. Everything the gang touches is made of the same few materials: dark bronze-framed panels with filigree corners, stone faces inside iron frames for anything clickable, gold metal for whatever is active, and the game's own iron item frame (`bilder/item-ram.webp`) around item cards. The palette is candlelight on dark wood: warm cream text, gold and bronze accents, near-black browns.
+Every screen sits inside one painted tavern. A fixed painting of the tavern interior (`bilder/bakgrund.webp`) is the page itself; a painted header with the built-in Loot & Lore sign (`bilder/header-sv.webp` / `header-en.webp`, the ribbon under the sign follows the chosen language) and a row of painted menu buttons (`ikoner/meny/*.webp`, English versions in `ikoner/meny/en/`) crown it. Everything the gang touches is made of the same few materials: dark bronze-framed panels with filigree corners, stone faces inside iron frames for anything clickable, gold metal for whatever is active, and the game's own iron item frame (`bilder/item-ram.webp`) around item cards. The palette is candlelight on dark wood: warm cream text, gold and bronze accents, near-black browns.
 
 The Krönikan surface extends that world with one new material, burnt parchment (`bilder/pergament.webp`), held by forged iron nail heads (`bilder/spik.webp`). In the reading view the evening is nailed straight onto the tavern wall that is already the background; comic images reuse the item iron frame; story, notes and title sign are parchment with dark-brown ink. The working view stays in the incumbent panel world and stays calm.
 

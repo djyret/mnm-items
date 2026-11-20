@@ -12,7 +12,7 @@ Ett kompisgäng (tre spelare i dag: Gabbex, Derinx, Daremx) som spelar MMO:t Mon
 
 ## Product Purpose
 
-MnM Förrådet är gängets gemensamma förråd och minnesbok.
+Loot & Lore (tidigare MnM Förrådet) är gängets gemensamma förråd och minnesbok.
 
 - **Förrådet:** items avlästa från skärmdumpar, vem som har vad, lån, försäljning.
 - **Krönikan:** gängets äventyr, ett kapitel per spelkväll. Under kvällen dumpas skärmdumpar från spelet; efteråt skriver en AI-krönikör berättelsen och föreslår scener, som blir seriebilder i gängets egen stil (genererade i ChatGPT). Målet är att kunna gå tillbaka och minnas tillsammans, som en serietidning om det de upplevt.
@@ -32,12 +32,12 @@ Byggt för just det här gänget och det här spelet: läser spelets egna skärm
 
 - React + Vite på GitHub Pages; Supabase för databas, bildlagring och Edge Functions (Claude för avläsning och krönika).
 - Bilder komprimeras till WebP i webbläsaren innan uppladdning.
-- Svenska i hela gränssnittet; spelets egna namn (zoner, monster, items) på engelska.
+- Gränssnittet finns på svenska och engelska (språkval uppe till höger, standard efter webbläsaren); spelets egna namn (zoner, monster, items) på engelska. Det gänget skrivit översätts aldrig. AI-texter skrivs på språket hos den som genererar.
 
 ## Brand Commitments
 
 - Krönikan är en del av samma app och behåller Förrådets tavernavärld: målad header, målade menyknappar, järn- och guldramar, Cinzel och Crimson Pro.
-- Seriestilen för AI-bilderna: stiliserad 3D (Pixar/Blizzard-lik), 3:2, M&M-logga och pergamentskylt med zonnamn uppe till vänster, svenska pratbubblor.
+- Seriestilen för AI-bilderna: stiliserad 3D (Pixar/Blizzard-lik), 3:2, M&M-logga och pergamentskylt med zonnamn uppe till vänster, pratbubblor på språket hos den som gör bilden.
 
 ## Evidence on Hand
 
