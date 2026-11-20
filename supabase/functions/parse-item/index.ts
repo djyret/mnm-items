@@ -11,7 +11,7 @@ const SCHEMA = {
   additionalProperties: false,
   required: [
     "name", "flags", "slots", "ac", "stats", "effect", "description",
-    "weight", "size", "classes", "races", "extra_lines", "icon_box",
+    "weight", "size", "classes", "races", "extra_lines", "icon_box", "enchant",
   ],
   properties: {
     name: { type: "string", description: "Itemnamn i normal skiftläge, t.ex. 'Robe of the Undying Scholar'" },
@@ -20,7 +20,7 @@ const SCHEMA = {
     ac: { type: ["integer", "null"] },
     stats: {
       type: "array",
-      description: "Alla numeriska stats utom AC/Weight. Nycklar: STR STA AGI DEX INT WIS CHA HP MANA END, resists som SV_FIRE SV_COLD SV_POISON SV_DISEASE SV_MAGIC SV_CORRUPTION SV_HOLY SV_ELEC, vapen som DMG (Weapon DMG) DLY (ATK Delay) RANGE. Övriga numeriska rader med versal nyckel och understreck.",
+      description: "Itemets egna numeriska stats utom AC/Weight och utom den gröna Enchant-raden. Nycklar: STR STA AGI DEX INT WIS CHA HP MANA END, resists som SV_FIRE SV_COLD SV_POISON SV_DISEASE SV_MAGIC SV_CORRUPTION SV_HOLY SV_ELEC, vapen som DMG (Weapon DMG) DLY (ATK Delay) RANGE. Övriga numeriska rader med versal nyckel och understreck.",
       items: {
         type: "object",
         additionalProperties: false,
@@ -42,6 +42,24 @@ const SCHEMA = {
       properties: {
         x: { type: "integer" }, y: { type: "integer" },
         width: { type: "integer" }, height: { type: "integer" },
+      },
+    },
+    enchant: {
+      type: ["object", "null"],
+      description: "Den gröna raden som börjar med 'Enchant', t.ex. 'Enchant Necklace: Greater Wisdom +4 WIS'. name = allt före siffran ('Enchant Necklace: Greater Wisdom'), stats = siffrorna (WIS 4). Raden hör INTE till stats, effect eller extra_lines. null om ingen enchant-rad syns.",
+      additionalProperties: false,
+      required: ["name", "stats"],
+      properties: {
+        name: { type: "string" },
+        stats: {
+          type: "array",
+          items: {
+            type: "object",
+            additionalProperties: false,
+            required: ["key", "value"],
+            properties: { key: { type: "string" }, value: { type: "number" } },
+          },
+        },
       },
     },
     extra_lines: { type: "array", items: { type: "string" }, description: "Information som inte passar i något annat fält, t.ex. 'Skill: BLG' för vapen. Upprepa aldrig sådant som redan finns i andra fält." },

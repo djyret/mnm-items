@@ -108,10 +108,54 @@ function ClassMultiPicker({ value, onChange }: { value: string[]; onChange: (v: 
   )
 }
 
+/** Stats som chips med värde; används för itemets egna stats och för enchanten. */
+function StatsEditor({ legend, value, onChange }: {
+  legend?: string
+  value: Record<string, number>
+  onChange: (v: Record<string, number>) => void
+}) {
+  const { t } = useI18n()
+  const keys = Object.keys(value)
+  const body = (
+    <>
+      {keys.length === 0 && <small>{t('forradet.form.noStats')}</small>}
+      <div className="stats-edit__grid">
+        {keys.map((k) => (
+          <label key={k} className="stat-chip">
+            <span>{statLabel(k)}</span>
+            <input inputMode="numeric" value={value[k]} onChange={(e) => onChange({ ...value, [k]: Number(e.target.value) || 0 })} />
+            <button
+              type="button"
+              className="icon-btn"
+              aria-label={t('forradet.form.removeStat', { stat: k })}
+              onClick={() => {
+                const { [k]: _, ...rest } = value
+                onChange(rest)
+              }}
+            >
+              <Icon name="stang" size={14} />
+            </button>
+          </label>
+        ))}
+      </div>
+      <div className="chips chips--add">
+        <span className="chips__label">{t('forradet.form.addStat')}</span>
+        {QUICK_STATS.filter((k) => !(k in value)).map((k) => (
+          <button key={k} type="button" className="chip" onClick={() => onChange({ ...value, [k]: 1 })}>
+            + {statLabel(k)}
+          </button>
+        ))}
+      </div>
+    </>
+  )
+  return legend
+    ? <fieldset className="field field--wide stats-edit"><legend>{legend}</legend>{body}</fieldset>
+    : <div className="stats-edit__inner">{body}</div>
+}
+
 export function ItemFields({ draft, onChange }: Props) {
   const set = <K extends keyof ItemDraft>(k: K, v: ItemDraft[K]) => onChange({ ...draft, [k]: v })
   const { t } = useI18n()
-  const statKeys = Object.keys(draft.stats)
   const flags = [...KNOWN_FLAGS, ...draft.flags.filter((f) => !KNOWN_FLAGS.includes(f))]
 
   return (
@@ -168,40 +212,16 @@ export function ItemFields({ draft, onChange }: Props) {
         </div>
       </div>
 
-      <fieldset className="field field--wide stats-edit">
-        <legend>Stats</legend>
-        {statKeys.length === 0 && <small>{t('forradet.form.noStats')}</small>}
-        <div className="stats-edit__grid">
-          {statKeys.map((k) => (
-            <label key={k} className="stat-chip">
-              <span>{statLabel(k)}</span>
-              <input
-                inputMode="numeric"
-                value={draft.stats[k]}
-                onChange={(e) => set('stats', { ...draft.stats, [k]: Number(e.target.value) || 0 })}
-              />
-              <button
-                type="button"
-                className="icon-btn"
-                aria-label={t('forradet.form.removeStat', { stat: k })}
-                onClick={() => {
-                  const { [k]: _, ...rest } = draft.stats
-                  set('stats', rest)
-                }}
-              >
-                <Icon name="stang" size={14} />
-              </button>
-            </label>
-          ))}
-        </div>
-        <div className="chips chips--add">
-          <span className="chips__label">{t('forradet.form.addStat')}</span>
-          {QUICK_STATS.filter((k) => !(k in draft.stats)).map((k) => (
-            <button key={k} type="button" className="chip" onClick={() => set('stats', { ...draft.stats, [k]: 1 })}>
-              + {statLabel(k)}
-            </button>
-          ))}
-        </div>
+      <StatsEditor legend="Stats" value={draft.stats} onChange={(v) => set('stats', v)} />
+
+      <fieldset className="field field--wide stats-edit stats-edit--enchant">
+        <legend>Enchant</legend>
+        <label className="field">
+          <span>{t('forradet.form.enchantName')}</span>
+          <input value={draft.enchant_name ?? ''} placeholder="Enchant Necklace: Greater Wisdom"
+            onChange={(e) => set('enchant_name', e.target.value || null)} />
+        </label>
+        <StatsEditor value={draft.enchant_stats} onChange={(v) => set('enchant_stats', v)} />
       </fieldset>
 
       <label className="field field--wide">

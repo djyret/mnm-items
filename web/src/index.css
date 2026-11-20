@@ -339,6 +339,7 @@ textarea { resize: vertical; }
 .tooltip__ac { font-weight: 600; }
 .tooltip__stat { margin-right: 1.1em; white-space: nowrap; }
 .tooltip__effect { color: #ece5c6; }
+.tooltip__enchant { color: #4fd84a; }
 .tooltip__desc { font-style: italic; color: #ddd8cc; }
 .tooltip__ratio { color: var(--gold); }
 .tooltip--compact .tooltip__title { font-size: 0.95rem; }

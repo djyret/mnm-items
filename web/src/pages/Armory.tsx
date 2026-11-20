@@ -254,7 +254,8 @@ function BonusPanel({ worn }: { worn: Item[] }) {
   const { t, lang } = useI18n()
   const totals: Record<string, number> = { AC: worn.reduce((s, i) => s + (i.ac ?? 0), 0) }
   for (const i of worn) {
-    for (const [k, v] of Object.entries(i.stats)) totals[k] = (totals[k] ?? 0) + v
+    // Enchanten står skild från grundstatsen i spelet och läggs ovanpå
+    for (const [k, v] of [...Object.entries(i.stats), ...Object.entries(i.enchant_stats ?? {})]) totals[k] = (totals[k] ?? 0) + v
   }
   const cell = (k: string) => {
     const v = totals[k] ?? 0

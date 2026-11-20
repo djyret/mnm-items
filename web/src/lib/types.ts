@@ -44,6 +44,10 @@ export interface Item {
   equipped_slot: string | null
   /** Krönikekapitlet där itemet hittades */
   found_chapter_id: string | null
+  /** Spelets gröna enchant-rad före siffran, t.ex. 'Enchant Necklace: Greater Wisdom' */
+  enchant_name: string | null
+  /** Enchantens stats, läggs ovanpå itemets egna: {"WIS": 4} */
+  enchant_stats: Record<string, number>
   created_at: string
   updated_at: string
 }
@@ -89,6 +93,7 @@ export interface ParsedItem {
   classes: string[]
   races: string[]
   extra_lines: string[]
+  enchant?: { name: string; stats: { key: string; value: number }[] } | null
   icon_box?: { x: number; y: number; width: number; height: number } | null
 }
 

@@ -8,6 +8,7 @@ uppdateras de i samma PR som koden.
 
 | Datum | Ämne | Beslut | Kommentar |
 |---|---|---|---|
+| 2026-11-20 | Enchants | Spelets gröna rad "Enchant Necklace: Greater Wisdom +4 WIS" sparas i `items.enchant_name` + `enchant_stats`, skilt från itemets stats. Statsrutan i Armory lägger ihop båda. Avläsningen fyller i den; den går att skriva in för hand. | I spelets tooltip står enchanten skild från grundstatsen (Vambrace: WIS +8 och Enchant +3 WIS). Armorys statsruta visar bara gearens bonus, inte karaktärens grundvärden. |
 | 2026-11-20 | Armory: utrustning | Varje utrustat item läggs in som item (skärmdump, AI-avläsning) och placeras i en slot. `items.equipped_slot` är enda sanningen; statusen Utrustad följer automatiskt. Ingen separat `character_equipment`-tabell. | Avsteg från roadmap §17.3: med ett 20-tal items räcker en kolumn + trigger. Historiken är `item_events` (`utrustad`/`avtagen` med slot och nivå). |
 | 2026-11-20 | Armory: lån | Ett utlånat item får sitta på **låntagaren**. Det står kvar som utlånat från ägaren. | Lämnas det tillbaka eller flyttas tas det av automatiskt. |
 | 2026-11-20 | Armory: omfång | Första versionen: porträtt (ett), paper doll, flikarna Utrustat/Förråd/Önskelista/Historik, utrustningens bonus och "hittades i kapitel" på items. Inte med: flera porträtt, jämförelse av uppgraderingar, wiki-uppslag. | Wiki-uppslag kommer när partnernyckeln från Monsters and Memories Wiki finns. EAR, WRIST och FINGER har två platser var. |

@@ -69,6 +69,12 @@ export function ItemTooltip({ item, compact = false, iconUrl }: {
               {item.size && <span className="tooltip__stat">Size: {item.size}</span>}
             </div>
           )}
+          {(item.enchant_name || Object.keys(item.enchant_stats ?? {}).length > 0) && (
+            <div className="tooltip__enchant">
+              {item.enchant_name || 'Enchant'}
+              {Object.entries(item.enchant_stats ?? {}).map(([k, v]) => ` ${fmt(v)} ${statLabel(k)}`).join('')}
+            </div>
+          )}
           {item.classes.length > 0 && <div>Class: {item.classes.join(' ')}</div>}
           {item.races.length > 0 && !compact && <div>Race: {item.races.join(' ')}</div>}
         </div>

@@ -29,11 +29,15 @@ export const emptyDraft = (): ItemDraft => ({
   notes: null,
   equipped_slot: null,
   found_chapter_id: null,
+  enchant_name: null,
+  enchant_stats: {},
 })
 
 export function parsedToDraft(p: ParsedItem, base: ItemDraft): ItemDraft {
   const stats: Record<string, number> = {}
   for (const s of p.stats) stats[normalizeStatKey(s.key)] = s.value
+  const enchant_stats: Record<string, number> = {}
+  for (const s of p.enchant?.stats ?? []) enchant_stats[normalizeStatKey(s.key)] = s.value
   const up = (xs: string[]) => xs.map((x) => x.trim().toUpperCase()).filter(Boolean)
   return {
     ...base,
@@ -49,6 +53,8 @@ export function parsedToDraft(p: ParsedItem, base: ItemDraft): ItemDraft {
     classes: up(p.classes).sort(),
     races: up(p.races),
     extra_lines: p.extra_lines,
+    enchant_name: p.enchant?.name.trim() || null,
+    enchant_stats,
   }
 }
 
