@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { ClassPicker } from '../components/ClassIcon'
 import { ItemCard } from '../components/ItemCard'
+import { EditorOnly } from '../components/RequireEditor'
 import { CLASSES, SLOTS, STATUSES, STATUS_LABELS, STAT_LABELS, statLabel, weaponRatio } from '../lib/constants'
 import { itemScore } from '../lib/items'
 import { useStore } from '../lib/store'
@@ -162,12 +163,12 @@ export function Forrad() {
       <section className="results">
         <div className="results__head">
           <span>{loading ? 'Laddar…' : `${filtered.length} av ${items.length} items`}</span>
-          <Link to="/ny" className="btn btn--primary">+ Lägg till item</Link>
+          <EditorOnly><Link to="/ny" className="btn btn--primary">+ Lägg till item</Link></EditorOnly>
         </div>
         {!loading && items.length === 0 && (
           <div className="panel empty">
             <p>Förrådet är tomt.</p>
-            <Link to="/ny" className="btn btn--primary">Lägg in ert första item</Link>
+            <EditorOnly><Link to="/ny" className="btn btn--primary">Lägg in ert första item</Link></EditorOnly>
           </div>
         )}
         <div className="grid">

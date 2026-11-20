@@ -5,6 +5,7 @@ import { Icon } from '../components/Icon'
 import {
   formatDay, kronikaUrl, loadCastAndStyle, missingTables, quoteVolume, shortId, sortEntries, storyParagraphs, tilt, weekday, foldSources,
 } from '../lib/kronikan'
+import { useAuth } from '../lib/auth'
 import { supabase } from '../lib/supabase'
 import type { CastMember, Chapter, Entry, Quote } from '../lib/types'
 import { MissingSetup } from './Kronikan'
@@ -110,6 +111,7 @@ function place(sizes: { w: number; h: number }[], small: boolean[], cols: number
 
 export function KapitelLas() {
   const { id } = useParams()
+  const { canEdit } = useAuth()
   const [chapter, setChapter] = useState<Chapter | null>(null)
   const [entries, setEntries] = useState<Entry[]>([])
   const [cast, setCast] = useState<CastMember[]>([])
@@ -167,13 +169,13 @@ export function KapitelLas() {
         const { naturalWidth: width, naturalHeight: height } = img
         if (!width || !height) return
         if (!shown.current) setMeasured((m) => ({ ...m, [e.id]: width / height }))
-        // Spara måtten så att nästa besök slipper läsa av bilden
-        supabase.from('chronicle_entries').update({ width, height }).eq('id', e.id).then(() => {})
+        // Spara måtten så att nästa besök slipper läsa av bilden (bara redaktörer får skriva)
+        if (canEdit) supabase.from('chronicle_entries').update({ width, height }).eq('id', e.id).then(() => {})
       }
       img.src = kronikaUrl(e.image_path)!
     }
     return () => clearTimeout(timer)
-  }, [unknown])
+  }, [unknown, canEdit])
 
   const sizes = useMemo(() => {
     const last = pins.length - 1
@@ -288,7 +290,7 @@ export function KapitelLas() {
             ) : (
               <div className="kr-scroll__empty">
                 {chapter.summary && <p>{chapter.summary}</p>}
-                <p>Berättelsen är inte skriven än. Låt krönikören skriva den i <Link to={`/kronikan/${id}/verkstad`}>verkstaden</Link>.</p>
+                <p>Berättelsen är inte skriven än.{canEdit && <> Låt krönikören skriva den i <Link to={`/kronikan/${id}/verkstad`}>verkstaden</Link>.</>}</p>
               </div>
             )}
           </aside>
@@ -297,7 +299,7 @@ export function KapitelLas() {
             <div className="kr-board kr-board--empty">
               <div className="kr-note" style={{ '--tilt': '-2deg' } as CSSProperties}>
                 Tavlan är tom.
-                <small>Släng in kvällens skärmdumpar i <Link to={`/kronikan/${id}/verkstad`}>verkstaden</Link>.</small>
+                {canEdit && <small>Släng in kvällens skärmdumpar i <Link to={`/kronikan/${id}/verkstad`}>verkstaden</Link>.</small>}
               </div>
             </div>
           ) : (

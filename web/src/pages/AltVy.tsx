@@ -4,12 +4,14 @@ import { ClassIcon } from '../components/ClassIcon'
 import { ItemCard } from '../components/ItemCard'
 import { LoanRequest } from '../components/LoanRequest'
 import { CLASSES, SLOTS, slotIcon } from '../lib/constants'
+import { useAuth } from '../lib/auth'
 import { canUse, itemScore } from '../lib/items'
 import { useStore } from '../lib/store'
 
 /** Allt i förrådet en viss karaktär kan bära, grupperat per slot. */
 export function AltVy() {
   const { characters, items } = useStore()
+  const { canEdit } = useAuth()
   const [params, setParams] = useSearchParams()
   const charId = params.get('karaktar') ?? ''
   const char = characters.find((c) => c.id === charId)
@@ -76,7 +78,7 @@ export function AltVy() {
         </div>
         {char && !char.class && (
           <p className="note">
-            {char.name} saknar klass, så alla items visas. <Link to="/karaktarer">Ange klass</Link> för en bättre lista.
+            {char.name} saknar klass, så alla items visas.{canEdit && <> <Link to="/karaktarer">Ange klass</Link> för en bättre lista.</>}
           </p>
         )}
         {char?.class && (

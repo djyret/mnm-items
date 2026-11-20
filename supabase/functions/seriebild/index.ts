@@ -2,39 +2,29 @@
 // Tar emot { prompt, cast_names, source_ids } (eller entry_id, så läses de ur databasen). Karaktärernas referensbilder och skärmdumparna ögonblicket
 // bygger på skickas med som bildunderlag. Bilden laddas upp i bucket kronikan och sökvägen
 // returneras – klienten bestämmer själv när minnet ska peka på den.
+import { authorize, cors, json } from "../_shared/auth.ts";
 
 const MODEL = "gpt-image-2.5-flare";
 const SIZE = { width: 1536, height: 1024 };
 // OpenAI tar högst 16 bilder per anrop
 const MAX_REFS = 16;
 
-const cors = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-gang-word",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
-
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   if (req.method !== "POST") return json({ error: "Endast POST" }, 405);
-  // Gängordet skyddar API-nycklarna: utan det kan vem som helst med länken dra kostnader
-  const word = Deno.env.get("GANG_WORD");
-  if (!word || req.headers.get("x-gang-word") !== word) return json({ error: "Fel gängord", code: "gang_word" }, 401);
+  // Bara inloggade redaktörer med kvot kvar: annars kan vem som helst med länken dra kostnader
+  const caller = await authorize(req, "seriebild");
+  if (caller instanceof Response) return caller;
+  const { base, db } = caller;
+  let ok = false;
 
   try {
     const { entry_id, prompt, quality, cast_names, source_ids } = await req.json();
     if (typeof prompt !== "string" || prompt.trim().length < 20) return json({ error: "Prompten saknas" }, 400);
 
-    const base = Deno.env.get("SUPABASE_URL")!;
-    const key = Deno.env.get("SUPABASE_ANON_KEY")!;
     const openai = Deno.env.get("OPENAI_API_KEY");
     if (!openai) return json({ error: "OPENAI_API_KEY är inte satt i Supabase" }, 500);
 
-    const db = async (path: string) => {
-      const r = await fetch(`${base}/rest/v1/${path}`, { headers: { apikey: key, Authorization: `Bearer ${key}` } });
-      if (!r.ok) throw new Error(`Databasen svarade ${r.status}: ${await r.text()}`);
-      return r.json();
-    };
     // Utkastet i editorn gäller före det som är sparat
     let entry = { cast_names: Array.isArray(cast_names) ? cast_names : [], source_ids: Array.isArray(source_ids) ? source_ids : [] };
     if (!Array.isArray(cast_names) && typeof entry_id === "string") {
@@ -108,22 +98,19 @@ Deno.serve(async (req) => {
 
     const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
     const path = `${crypto.randomUUID()}.webp`;
+    // Laddas upp som anroparen, så Storage-policyn (redaktör) gäller
     const up = await fetch(`${base}/storage/v1/object/kronikan/${path}`, {
       method: "POST",
-      headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "image/webp", "cache-control": "max-age=31536000" },
+      headers: { ...caller.headers, "Content-Type": "image/webp", "cache-control": "max-age=31536000" },
       body: bytes,
     });
     if (!up.ok) throw new Error(`Uppladdning misslyckades: ${await up.text()}`);
 
+    ok = true;
     return json({ path, width: SIZE.width, height: SIZE.height, model: MODEL, refs: used.length, usage: body.usage ?? null });
   } catch (err) {
     return json({ error: String(err instanceof Error ? err.message : err) }, 500);
+  } finally {
+    await caller.finish(ok);
   }
 });
-
-function json(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...cors, "Content-Type": "application/json" },
-  });
-}

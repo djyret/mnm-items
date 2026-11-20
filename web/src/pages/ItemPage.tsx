@@ -7,6 +7,7 @@ import { Money, PriceInput } from '../components/Money'
 import { formatPrice } from '../lib/money'
 import { STATUS_LABELS } from '../lib/constants'
 import { compressImage, cropIcon, deleteImages, logEvent, parseImage, uploadImage } from '../lib/items'
+import { useAuth } from '../lib/auth'
 import { useStore } from '../lib/store'
 import { imageUrl, supabase } from '../lib/supabase'
 import type { Item, ItemDraft, ItemEvent } from '../lib/types'
@@ -26,6 +27,7 @@ export function ItemPage() {
   const { id } = useParams()
   const { items, characters, charById, reload, loading } = useStore()
   const navigate = useNavigate()
+  const { canEdit } = useAuth()
   const item = items.find((i) => i.id === id)
   const [events, setEvents] = useState<ItemEvent[]>([])
   const [editing, setEditing] = useState(false)
@@ -174,7 +176,10 @@ export function ItemPage() {
                 </p>
               )}
 
-              <div className="guide">
+              {!canEdit && item.status !== 'sald' && item.price_cp != null && (
+                <p className="price-line">Riktpris: <Money cp={item.price_cp} /></p>
+              )}
+              {canEdit && <div className="guide">
                 <span className="guide__label">Riktpris – vad den brukar gå för</span>
                 <div className="guide__row">
                   <PriceInput value={guide} onChange={setGuide} />
@@ -189,10 +194,10 @@ export function ItemPage() {
                     </button>
                   )}
                 </div>
-              </div>
+              </div>}
               {item.notes && <p className="note">{item.notes}</p>}
 
-              {item.status !== 'sald' && (
+              {canEdit && item.status !== 'sald' && (
                 <div className="quick">
                   {item.status === 'utlanad' ? (
                     <div className="quick__row">
@@ -236,7 +241,7 @@ export function ItemPage() {
                   </div>
                 </div>
               )}
-              {item.status === 'sald' && (
+              {canEdit && item.status === 'sald' && (
                 <button className="btn btn--ghost" disabled={busy}
                   onClick={() => patch({ status: 'ledig', sold_to: null, sold_price_cp: null }, [item.id, 'status', { note: 'Ångrade försäljning' }])}>
                   Ångra såld
@@ -255,7 +260,7 @@ export function ItemPage() {
                 <button className="btn btn--ghost" onClick={() => setEditing(false)}>Avbryt</button>
               </div>
             </div>
-          ) : (
+          ) : canEdit && (
             <div className="actions">
               <button className="btn" onClick={() => { setDraft({ ...item }); setEditing(true) }}>Redigera</button>
               {img && (

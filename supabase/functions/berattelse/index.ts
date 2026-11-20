@@ -3,16 +3,11 @@
 // seriescener. Tar emot { chapter_id, mode? } och läser resten själv ur databasen.
 // mode "saga" skriver i stället kvällen som en längre, målande fantasysaga.
 import Anthropic from "npm:@anthropic-ai/sdk";
+import { authorize, cors, json } from "../_shared/auth.ts";
 
 const MODEL = "claude-opus-5-5";
 // Fler bilder än så blir både dyrt och långsamt; resten skickas som text
 const MAX_IMAGES = 60;
-
-const cors = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-gang-word",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
 
 const SCHEMA = {
   type: "object",
@@ -141,22 +136,17 @@ interface Entry {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   if (req.method !== "POST") return json({ error: "Endast POST" }, 405);
-  // Gängordet skyddar API-nycklarna: utan det kan vem som helst med länken dra kostnader
-  const word = Deno.env.get("GANG_WORD");
-  if (!word || req.headers.get("x-gang-word") !== word) return json({ error: "Fel gängord", code: "gang_word" }, 401);
+  // Bara inloggade redaktörer med kvot kvar: annars kan vem som helst med länken dra kostnader
+  const caller = await authorize(req, "berattelse");
+  if (caller instanceof Response) return caller;
+  const { base, db } = caller;
+  let ok = false;
 
   try {
     const { chapter_id, mode } = await req.json();
     if (typeof chapter_id !== "string") return json({ error: "chapter_id saknas" }, 400);
     const saga = mode === "saga";
 
-    const base = Deno.env.get("SUPABASE_URL")!;
-    const key = Deno.env.get("SUPABASE_ANON_KEY")!;
-    const db = async (path: string) => {
-      const r = await fetch(`${base}/rest/v1/${path}`, { headers: { apikey: key, Authorization: `Bearer ${key}` } });
-      if (!r.ok) throw new Error(`Databasen svarade ${r.status}: ${await r.text()}`);
-      return r.json();
-    };
     const [[chapter], entries, cast] = await Promise.all([
       db(`chronicle_chapters?id=eq.${encodeURIComponent(chapter_id)}&select=*`),
       db(`chronicle_entries?chapter_id=eq.${encodeURIComponent(chapter_id)}&select=*&order=position`) as Promise<Entry[]>,
@@ -237,6 +227,7 @@ Deno.serve(async (req) => {
     if (saga) {
       // Hänvisningar som (#3) hör inte hemma i en saga
       const clean = String(draft.saga).replace(/\s*\((?:#\d+[,\s–-]*)+\)/g, "");
+      ok = true;
       return json({
         saga: { title: draft.title, saga: clean },
         images_sent: images,
@@ -252,6 +243,7 @@ Deno.serve(async (req) => {
       const id = idOf(Number(nr));
       return id ? `#${id.slice(0, 8)}` : m;
     });
+    ok = true;
     return json({
       draft: {
         title: draft.title,
@@ -275,12 +267,7 @@ Deno.serve(async (req) => {
       return json({ error: `Claude API ${err.status}: ${err.message}` }, 502);
     }
     return json({ error: String(err) }, 500);
+  } finally {
+    await caller.finish(ok);
   }
 });
-
-function json(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...cors, "Content-Type": "application/json" },
-  });
-}

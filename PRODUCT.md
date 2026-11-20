@@ -24,8 +24,8 @@ Byggt för just det här gänget och det här spelet: läser spelets egna skärm
 ## Operating Context
 
 - Läses oftast tillsammans på Discord (någon delar skärmen efter en kväll) och var för sig på datorn i efterhand.
-- Alla i gänget laddar upp, skriver och skapar seriebilder; det finns ingen enskild redaktör.
-- Ingen inloggning: alla med länken kan läsa och skriva.
+- Alla i gänget laddar upp, skriver och skapar seriebilder; det finns ingen enskild redaktör. Alla godkända redaktörer får ändra allt delat innehåll.
+- Alla med länken kan läsa. För att skriva, ladda upp och använda AI-funktionerna loggar man in med Discord och godkänns av en admin (roller: läsare, redaktör, admin; se `docs/SECURITY_MODEL.md`).
 - Seriebilder görs utanför appen (ChatGPT) från en prompt appen bygger, och klistras sedan in.
 
 ## Capabilities and Constraints

@@ -3,8 +3,9 @@
 Hur roller, Row Level Security (RLS), Storage och Edge Functions hänger ihop. Beslut bakom: `docs/DECISIONS.md`.
 Bakgrund och fullständiga krav: `docs/ROADMAP.md` §7 och §17–18.
 
-> **Status 2026-11-20:** planerat, inget byggt. I dag har alla tabeller och båda buckets öppna
-> `anon`-policyer för läs, skriv och radera, och AI-funktionerna skyddas bara av gängordet (`x-gang-word`).
+> **Status 2026-11-20:** steg 1 i drift (inloggning, medlemskap, Medlemmar-sidan). Steg 2 byggt på branch
+> `fas0-steg2-las`, ej utrullat: tills dess har alla tabeller och båda buckets öppna `anon`-policyer och
+> AI-funktionerna skyddas bara av gängordet (`x-gang-word`).
 
 ## Roller
 
@@ -90,7 +91,7 @@ Alla befintliga `open …`-policyer tas bort och ersätts så här.
 | `chronicle_cast`, `chronicle_settings` | alla | `can_edit()` |
 | `memberships` | egen rad / admin | ingen (bara via RPC) |
 | `membership_audit` | admin | ingen (skrivs av RPC) |
-| `ai_usage` | egen rad / admin | egen rad (insert), ingen update/delete |
+| `ai_usage` | egen rad / admin | ingen direkt; skrivs via `ai_usage_start()` / `ai_usage_finish()` |
 
 Grants: `anon` får bara `select` på innehållstabellerna. `authenticated` behåller insert/update/delete och policyerna avgör.
 
@@ -137,9 +138,11 @@ Nytt (steg 2):
    skapad med anroparens `Authorization`-header. Det blir samma mönster oavsett nyckeltyp.
 3. All databas- och Storage-åtkomst går via den användarklienten, så RLS och Storage-policyer gäller.
    Seriebildens uppladdning går igenom eftersom anroparen är Editor.
-4. Funktionen kräver `can_edit()` (via `rpc`). Annars `403` innan något modellanrop görs.
-5. Kvot: räkna egna rader i `ai_usage` senaste 24 h per funktion. Över gränsen ger `429`. Raden skrivs *före* modellanropet
-   och uppdateras med utfall efteråt.
+4. Funktionen anropar `ai_usage_start(fn)` som anroparen. Den kräver `can_edit()` (annars `403`), låser per användare,
+   räknar anroparens anrop senaste 24 h (annars `429`) och bokar en rad, allt *före* modellanropet.
+5. Alla bokade anrop räknas mot kvoten, även misslyckade: `ai_usage_finish(id, ok)` kan anropas av användaren själv,
+   så `ok` är bara logg. Gränser i `ai_daily_limit()`: `parse-item` 100, `berattelse` 20, `seriebild` 20.
+   Gemensam kod: `supabase/functions/_shared/auth.ts`.
 6. Gängordet tas bort ur klient (`web/src/lib/functions.ts`), funktioner och CORS-headers. Hemligheten `GANG_WORD` raderas.
 
 **Beroende:** steg 2 (låsa Storage-skrivning) och den här ändringen måste gå ut tillsammans, annars slutar seriebilder fungera.

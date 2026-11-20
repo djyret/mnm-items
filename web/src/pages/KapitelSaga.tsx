@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ChapterTabs } from '../components/ChapterTabs'
 import { Icon } from '../components/Icon'
+import { useAuth } from '../lib/auth'
 import { formatDay, missingTables, sagaBlocks, weekday } from '../lib/kronikan'
 import { supabase } from '../lib/supabase'
 import type { Chapter } from '../lib/types'
@@ -10,6 +11,7 @@ import { MissingSetup } from './Kronikan'
 /** Kvällen som saga: en lång pergamentsida att läsa i lugn och ro, utan väggen bredvid. */
 export function KapitelSaga() {
   const { id } = useParams()
+  const { canEdit } = useAuth()
   const [chapter, setChapter] = useState<Chapter | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -59,7 +61,7 @@ export function KapitelSaga() {
           ) : (
             <div className="kr-scroll__empty">
               <p>Sagan om den här kvällen är inte skriven än.</p>
-              <p>Låt krönikören skriva den i <Link to={`/kronikan/${id}/verkstad`}>verkstaden</Link> – knappen <b>Skriv sagan</b>.</p>
+              {canEdit && <p>Låt krönikören skriva den i <Link to={`/kronikan/${id}/verkstad`}>verkstaden</Link> – knappen <b>Skriv sagan</b>.</p>}
             </div>
           )}
         </article>

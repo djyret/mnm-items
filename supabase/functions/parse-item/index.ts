@@ -2,14 +2,9 @@
 // Tar emot { image: <base64>, media_type: "image/png" | "image/jpeg" | "image/webp" }
 // och returnerar strukturerad JSON som webbappen fyller formuläret med.
 import Anthropic from "npm:@anthropic-ai/sdk";
+import { authorize, cors, json } from "../_shared/auth.ts";
 
 const MODEL = "claude-haiku-5-5";
-
-const cors = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-gang-word",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
 
 const SCHEMA = {
   type: "object",
@@ -60,9 +55,10 @@ Hitta inte på värden som inte syns. Är texten avklippt längst ner, lämna de
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   if (req.method !== "POST") return json({ error: "Endast POST" }, 405);
-  // Gängordet skyddar API-nycklarna: utan det kan vem som helst med länken dra kostnader
-  const word = Deno.env.get("GANG_WORD");
-  if (!word || req.headers.get("x-gang-word") !== word) return json({ error: "Fel gängord", code: "gang_word" }, 401);
+  // Bara inloggade redaktörer med kvot kvar: annars kan vem som helst med länken dra kostnader
+  const caller = await authorize(req, "parse-item");
+  if (caller instanceof Response) return caller;
+  let ok = false;
 
   try {
     const { image, media_type, width, height } = await req.json();
@@ -98,18 +94,15 @@ Bilden är ${width}×${height} pixlar; ange icon_box i de koordinaterna (origo u
     const text = response.content.find((b) => b.type === "text");
     if (!text || text.type !== "text") return json({ error: "Inget svar från modellen" }, 502);
 
-    return json({ item: JSON.parse(text.text), usage: response.usage });
+    const item = JSON.parse(text.text);
+    ok = true;
+    return json({ item, usage: response.usage });
   } catch (err) {
     if (err instanceof Anthropic.APIError) {
       return json({ error: `Claude API ${err.status}: ${err.message}` }, 502);
     }
     return json({ error: String(err) }, 500);
+  } finally {
+    await caller.finish(ok);
   }
 });
-
-function json(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...cors, "Content-Type": "application/json" },
-  });
-}

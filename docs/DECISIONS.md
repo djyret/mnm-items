@@ -27,5 +27,5 @@ Rekommendationer i `docs/SECURITY_MODEL.md`. Bekräfta eller ändra innan respek
 | Vad har synlighet | Bara **krönikekapitel** får `visibility` (public/group/draft). Minnen och bilder ärver från kapitlet. Items, karaktärer, rollista och stilbibel är alltid publika att läsa. | Steg 3 |
 | Befintliga kapitel | Sätts till `group` vid migrering. Admin publicerar valda kapitel som `public` i efterhand. | Steg 3 |
 | Utkast | `draft` syns för alla Editors/Admins (verkstaden är gemensam), inte för Readers. | Steg 3 |
-| Radering | Hård radering för Editors i fas 0. Backup är återställningsvägen. Soft-delete senare. | Steg 2 |
-| AI-kvot | Per användare och dygn: `parse-item` 100, `berattelse` 20, `seriebild` 20. | Steg 2 |
+| Radering | Hård radering för Editors i fas 0. Backup är återställningsvägen. Soft-delete senare. | Steg 2 (byggt så, ändras lätt) |
+| AI-kvot | Per användare och dygn: `parse-item` 100, `berattelse` 20, `seriebild` 20. Misslyckade anrop räknas också. | Steg 2 (byggt så, siffrorna i `ai_daily_limit()`) |

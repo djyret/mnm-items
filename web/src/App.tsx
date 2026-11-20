@@ -1,7 +1,8 @@
 import { HashRouter, NavLink, Route, Routes } from 'react-router-dom'
 import { AccountBar } from './components/AccountBar'
 import { Compass } from './components/Ornaments'
-import { AuthProvider } from './lib/auth'
+import { RequireEditor } from './components/RequireEditor'
+import { AuthProvider, useAuth } from './lib/auth'
 import { StoreProvider, useStore } from './lib/store'
 import { Medlemmar } from './pages/Medlemmar'
 import { AltVy } from './pages/AltVy'
@@ -32,6 +33,7 @@ const MENU = `${import.meta.env.BASE_URL}ikoner/meny/`
 
 function Shell() {
   const { error } = useStore()
+  const { canEdit } = useAuth()
   return (
     <>
       {/* Utanför headern men ovanpå den: headerbildens mask skulle annars tona ut hörnet */}
@@ -43,7 +45,7 @@ function Shell() {
             <h1 className="sr-only">Förrådet – Monsters &amp; Memories. Items att sälja / nyttja till alts</h1>
           </NavLink>
           <nav className="nav">
-            {NAV.map(([to, label, icon]) => (
+            {NAV.filter(([to]) => to !== '/ny' || canEdit).map(([to, label, icon]) => (
               <NavLink key={to} to={to} end={to === '/'} className="menu-img" aria-label={label} title={label}>
                 <img className="menu-img__off" src={`${MENU}${icon}.webp`} alt="" />
                 <img className="menu-img__on" src={`${MENU}${icon}-aktiv.webp`} alt="" />
@@ -56,7 +58,7 @@ function Shell() {
         {error && <div className="page"><div className="alert">Kunde inte nå databasen: {error}</div></div>}
         <Routes>
           <Route path="/" element={<Forrad />} />
-          <Route path="/ny" element={<NyItem />} />
+          <Route path="/ny" element={<RequireEditor back={{ to: '/', label: 'Till förrådet' }}><NyItem /></RequireEditor>} />
           <Route path="/item/:id" element={<ItemPage />} />
           <Route path="/karaktarer" element={<Karaktarer />} />
           <Route path="/alt" element={<AltVy />} />
@@ -64,7 +66,7 @@ function Shell() {
           <Route path="/kronikan" element={<Kronikan />} />
           <Route path="/kronikan/stil" element={<Stilbibel />} />
           <Route path="/kronikan/:id" element={<KapitelLas />} />
-          <Route path="/kronikan/:id/verkstad" element={<Kapitel />} />
+          <Route path="/kronikan/:id/verkstad" element={<RequireEditor back={{ to: '/kronikan', label: 'Till krönikan' }}><Kapitel /></RequireEditor>} />
           <Route path="/kronikan/:id/saga" element={<KapitelSaga />} />
           <Route path="/kronikan/:id/bildspel" element={<Bildspel />} />
           <Route path="/hjalp" element={<Hjalp />} />

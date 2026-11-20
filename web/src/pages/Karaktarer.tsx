@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ClassIcon, ClassPicker } from '../components/ClassIcon'
 import { CLASSES } from '../lib/constants'
+import { useAuth } from '../lib/auth'
 import { useStore } from '../lib/store'
 import { supabase } from '../lib/supabase'
 import type { Character } from '../lib/types'
@@ -49,6 +50,7 @@ function CharForm({ initial, onSave, onCancel }: {
 
 export function Karaktarer() {
   const { characters, items, reload } = useStore()
+  const { canEdit } = useAuth()
   const [editing, setEditing] = useState<string | null>(null)
   const [adding, setAdding] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -82,7 +84,7 @@ export function Karaktarer() {
     <div className="page">
       <div className="results__head">
         <h1 className="page-title">Karaktärer</h1>
-        {!adding && <button className="btn btn--primary" onClick={() => setAdding(true)}>+ Ny karaktär</button>}
+        {canEdit && !adding && <button className="btn btn--primary" onClick={() => setAdding(true)}>+ Ny karaktär</button>}
       </div>
       {error && <div className="alert">{error}</div>}
       {adding && (
@@ -122,8 +124,10 @@ export function Karaktarer() {
                   </div>
                   <div className="actions">
                     <Link className="btn" to={`/alt?karaktar=${c.id}`}>Vad kan {c.name} använda?</Link>
-                    <button className="btn btn--ghost" onClick={() => setEditing(c.id)}>Redigera</button>
-                    <button className="btn btn--danger" onClick={() => remove(c)}>Ta bort</button>
+                    {canEdit && <>
+                      <button className="btn btn--ghost" onClick={() => setEditing(c.id)}>Redigera</button>
+                      <button className="btn btn--danger" onClick={() => remove(c)}>Ta bort</button>
+                    </>}
                   </div>
                 </>
               )}

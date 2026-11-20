@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useAuth } from '../lib/auth'
 import { CLASSES } from '../lib/constants'
 import { logEvent } from '../lib/items'
 import { useStore } from '../lib/store'
@@ -42,6 +43,7 @@ async function copyImage(url: string) {
 /** Lånebegäran till Discord för valda items, grupperat per ägare. */
 export function LoanRequest({ alt, items, onClear }: { alt: Character; items: Item[]; onClear: () => void }) {
   const { charById, reload } = useStore()
+  const { canEdit } = useAuth()
   const [copied, setCopied] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [done, setDone] = useState<string | null>(null)
@@ -154,12 +156,12 @@ export function LoanRequest({ alt, items, onClear }: { alt: Character; items: It
       )}
       {copied === 'fel' && <p className="alert">Kunde inte kopiera automatiskt – markera texten och tryck Ctrl+C.</p>}
 
-      <div className="loan__reserve">
+      {canEdit && <div className="loan__reserve">
         <button type="button" className="btn" disabled={busy || !!done} onClick={reserve}>
           Markera som reserverade för {alt.name}
         </button>
         <small className="note">Då ser alla att itemen är på väg. När du fått dem: öppna itemet och tryck <b>Låna ut</b>.</small>
-      </div>
+      </div>}
       {done && <p className="note">{done}</p>}
     </div>
   )

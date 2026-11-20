@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ROLE_LABELS, deleteKronika, imageFiles, kronikaUrl, loadCastAndStyle, missingTables, storeImage } from '../lib/kronikan'
+import { useAuth } from '../lib/auth'
 import { supabase } from '../lib/supabase'
 import type { CastMember } from '../lib/types'
 import { MissingSetup } from './Kronikan'
@@ -89,6 +90,7 @@ function CastForm({ initial, onSave, onCancel }: {
 }
 
 export function Stilbibel() {
+  const { canEdit } = useAuth()
   const [cast, setCast] = useState<CastMember[]>([])
   const [style, setStyle] = useState('')
   const [savedStyle, setSavedStyle] = useState('')
@@ -157,16 +159,16 @@ export function Stilbibel() {
 
       <div className="panel">
         <h2 className="panel-title">Stil</h2>
-        <textarea className="kr-style" rows={9} value={style} onChange={(e) => setStyle(e.target.value)} disabled={loading} />
-        <div className="actions">
+        <textarea className="kr-style" rows={9} value={style} onChange={(e) => setStyle(e.target.value)} disabled={loading} readOnly={!canEdit} />
+        {canEdit && <div className="actions">
           <button className="btn btn--primary" onClick={saveStyle} disabled={style === savedStyle}>Spara stilen</button>
           {style !== savedStyle && <button className="btn btn--ghost" onClick={() => setStyle(savedStyle)}>Ångra</button>}
-        </div>
+        </div>}
       </div>
 
       <div className="results__head">
         <h2 className="page-title kr-subtitle">Rollista</h2>
-        {editing !== 'ny' && <button className="btn btn--primary" onClick={() => setEditing('ny')}>+ Lägg till</button>}
+        {canEdit && editing !== 'ny' && <button className="btn btn--primary" onClick={() => setEditing('ny')}>+ Lägg till</button>}
       </div>
       {editing === 'ny' && (
         <div className="panel"><CastForm initial={blank} onSave={(d) => saveCast(null, d)} onCancel={() => setEditing(null)} /></div>
@@ -185,10 +187,10 @@ export function Stilbibel() {
                   <div className="char__name" style={{ color: c.tag_color }}>{c.name}</div>
                   <div className="char__info">{ROLE_LABELS[c.role]}</div>
                   <p className="kr-castcard__look">{c.look || <i>Inget utseende beskrivet</i>}</p>
-                  <div className="actions">
+                  {canEdit && <div className="actions">
                     <button className="btn btn--small btn--ghost" onClick={() => setEditing(c.id)}>Redigera</button>
                     <button className="btn btn--small btn--danger" onClick={() => removeCast(c)}>Ta bort</button>
-                  </div>
+                  </div>}
                 </div>
               </>
             )}

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../lib/auth'
 import { formatDay, kronikaUrl, missingTables, sortEntries, weekday } from '../lib/kronikan'
 import { supabase } from '../lib/supabase'
 import type { Chapter, Entry } from '../lib/types'
@@ -21,6 +22,7 @@ export function MissingSetup() {
 /** Tidslinjen: ett kapitel per spelkväll, nyaste överst. */
 export function Kronikan() {
   const navigate = useNavigate()
+  const { canEdit } = useAuth()
   const [chapters, setChapters] = useState<Chapter[]>([])
   const [thumbs, setThumbs] = useState<Thumb[]>([])
   const [loading, setLoading] = useState(true)
@@ -78,7 +80,7 @@ export function Kronikan() {
       <div className="results__head">
         <h1 className="page-title">Krönikan</h1>
         <div className="actions kr-head-actions">
-          {!adding && <button className="btn btn--primary" onClick={() => setAdding(true)}>+ Nytt kapitel</button>}
+          {canEdit && !adding && <button className="btn btn--primary" onClick={() => setAdding(true)}>+ Nytt kapitel</button>}
           <Link className="btn btn--ghost" to="/kronikan/stil">Stilbibel</Link>
         </div>
       </div>
@@ -105,7 +107,7 @@ export function Kronikan() {
       {loading ? (
         <div className="panel empty">Laddar…</div>
       ) : chapters.length === 0 ? (
-        <div className="panel empty">Inga kapitel än. Skapa det första och släng in bilderna från senaste kvällen.</div>
+        <div className="panel empty">Inga kapitel än.{canEdit && ' Skapa det första och släng in bilderna från senaste kvällen.'}</div>
       ) : (
         <ol className="kr-timeline">
           {chapters.map((c) => {
