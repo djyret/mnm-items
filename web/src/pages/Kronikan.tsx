@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../lib/auth'
-import { formatDay, kronikaUrl, missingTables, sortEntries, weekday } from '../lib/kronikan'
+import { VISIBILITY_LABELS, formatDay, kronikaUrl, missingTables, sortEntries, weekday } from '../lib/kronikan'
 import { supabase } from '../lib/supabase'
 import type { Chapter, Entry } from '../lib/types'
 
@@ -126,7 +126,10 @@ export function Kronikan() {
                     {cover ? <img src={kronikaUrl(cover.image_path)!} alt="" loading="lazy" /> : <span>Inga bilder än</span>}
                   </div>
                   <div className="kr-chapter__body">
-                    <div className="frame__title">{c.title}</div>
+                    <div className="frame__title">
+                      {c.title}
+                      {c.visibility !== 'public' && <span className={`kr-vis kr-vis--${c.visibility}`}>{VISIBILITY_LABELS[c.visibility]}</span>}
+                    </div>
                     {c.zone && <div className="kr-zone">{[c.zone, c.subzone].filter(Boolean).join(' · ')}</div>}
                     {c.summary && <p className="kr-chapter__summary">{c.summary}</p>}
                     {rest.length > 0 && (

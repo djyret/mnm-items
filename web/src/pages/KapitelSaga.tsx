@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { ChapterMissing } from '../components/ChapterMissing'
 import { Link, useParams } from 'react-router-dom'
 import { ChapterTabs } from '../components/ChapterTabs'
 import { Icon } from '../components/Icon'
@@ -29,11 +30,7 @@ export function KapitelSaga() {
 
   if (missingTables(error ?? undefined)) return <div className="page"><h1 className="page-title">Krönikan</h1><MissingSetup /></div>
   if (!chapter || !id) {
-    return (
-      <div className="page">
-        <div className="panel empty">{loading ? 'Laddar…' : <>Kapitlet finns inte. <Link to="/kronikan">Till krönikan</Link></>}</div>
-      </div>
-    )
+    return <ChapterMissing loading={loading} />
   }
 
   return (

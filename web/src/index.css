@@ -1767,3 +1767,21 @@ blockquote.kr-note { font-family: var(--font-title); font-weight: 700; }
   .members__row { grid-template-columns: minmax(0, 1fr) auto; }
   .members__actions { grid-column: 1 / -1; justify-content: flex-start; }
 }
+
+/* Kapitel som inte är publika: liten skylt efter titeln */
+.kr-vis {
+  display: inline-block;
+  margin-left: 0.6rem;
+  padding: 0.05rem 0.5rem 0.1rem;
+  vertical-align: middle;
+  font-family: var(--font-title);
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-variant: small-caps;
+  letter-spacing: 0.06em;
+  border: 1px solid var(--bronze-dark);
+  border-radius: var(--radius);
+  color: var(--text-dim);
+  background: rgba(16, 13, 10, 0.6);
+}
+.kr-vis--draft { color: #e59a8c; border-color: rgba(208, 96, 78, 0.55); }

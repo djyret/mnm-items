@@ -18,14 +18,16 @@ uppdateras de i samma PR som koden.
 | 2026-11-20 | Editor-omfång | Editor får ändra **allt delat innehåll** (items, karaktärer, krönikor). Inget ägarskap per post i fas 0. | Passar ett gäng utan enskild redaktör. Ägarskap kan läggas till med Armory. |
 | 2026-11-20 | Nya konton | Discord-inloggning skapar ett medlemskap med status `pending`. Admin godkänner och sätter roll. | Ett Discord-konto ger aldrig läs- eller skrivrätt av sig självt. |
 
+| 2026-11-20 | Synlighet | Bara **krönikekapitel** har synlighet: `public` / `group` / `draft`. Minnen ärver. Items, karaktärer, rollista och stilbibel är alltid publika att läsa. | Steg 3. |
+| 2026-11-20 | Befintliga kapitel | De 23 kapitel som fanns 2026-11-20 blev **publika**. Nya kapitel blir `group` som standard. | Daniel valde publik framför gruppinternt. |
+| 2026-11-20 | Utkast | `draft` syns för **alla redaktörer** (verkstaden är gemensam), inte för läsare eller besökare. Ingen ägare per kapitel. | `created_by` sparas ändå för framtida bruk. |
+| 2026-11-20 | Bilder i gruppkapitel | **Hemliga adresser**, inte privat bucket: `kronikan` förblir publik, men besökare kan inte lista den, och bildnamnen är slumpade uuid som bara syns för den som får läsa minnet. | Medvetet avsteg från roadmap §18.3. Nackdel: en delad bildlänk går inte att återkalla. Privat bucket + signerade URL:er kan byggas senare (~25 ställen i webben + båda AI-funktionerna). |
+
 ## Föreslagna (inte låsta)
 
 Rekommendationer i `docs/SECURITY_MODEL.md`. Bekräfta eller ändra innan respektive steg byggs.
 
 | Ämne | Förslag | Behövs till |
 |---|---|---|
-| Vad har synlighet | Bara **krönikekapitel** får `visibility` (public/group/draft). Minnen och bilder ärver från kapitlet. Items, karaktärer, rollista och stilbibel är alltid publika att läsa. | Steg 3 |
-| Befintliga kapitel | Sätts till `group` vid migrering. Admin publicerar valda kapitel som `public` i efterhand. | Steg 3 |
-| Utkast | `draft` syns för alla Editors/Admins (verkstaden är gemensam), inte för Readers. | Steg 3 |
 | Radering | Hård radering för Editors i fas 0. Backup är återställningsvägen. Soft-delete senare. | Steg 2 (byggt så, ändras lätt) |
 | AI-kvot | Per användare och dygn: `parse-item` 100, `berattelse` 20, `seriebild` 20. Misslyckade anrop räknas också. | Steg 2 (byggt så, siffrorna i `ai_daily_limit()`) |

@@ -1,7 +1,7 @@
 import { compressImage } from './items'
 import { callFunction } from './functions'
 import { supabase } from './supabase'
-import type { CastMember, Chapter, Entry, EntryKind, Quote } from './types'
+import type { CastMember, Chapter, Entry, EntryKind, Quote, Visibility } from './types'
 
 export const KRONIKA_BUCKET = 'kronikan'
 
@@ -10,6 +10,18 @@ export const KIND_LABELS: Record<EntryKind, string> = {
   skarmdump: 'Skärmdump',
   anteckning: 'Anteckning',
   klipp: 'Klipp',
+}
+
+export const VISIBILITY_LABELS: Record<Visibility, string> = {
+  public: 'Publik',
+  group: 'Gruppen',
+  draft: 'Utkast',
+}
+
+export const VISIBILITY_HINTS: Record<Visibility, string> = {
+  public: 'Alla med länken kan läsa kapitlet.',
+  group: 'Bara inloggade i gänget kan läsa kapitlet.',
+  draft: 'Bara redaktörer ser kapitlet, t.ex. medan kvällen pågår.',
 }
 
 export const ROLE_LABELS: Record<CastMember['role'], string> = {

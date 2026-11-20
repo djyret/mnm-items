@@ -73,6 +73,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = useCallback(async () => {
     await supabase.auth.signOut()
     setMembership(null)
+    // Ladda om så att gruppinterna kapitel som redan hämtats försvinner från skärmen
+    window.location.reload()
   }, [])
 
   const value = useMemo<Auth>(() => {

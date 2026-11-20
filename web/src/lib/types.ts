@@ -92,9 +92,15 @@ export interface Chapter {
   /** Kvällen som längre saga: stycken separerade med tom rad, avsnitt börjar med '## Rubrik' */
   saga: string | null
   cover_id: string | null
+  /** Vem som får läsa kapitlet och dess minnen (RLS) */
+  visibility: Visibility
+  created_by: string | null
   created_at: string
   updated_at: string
 }
+
+/** public = alla, group = inloggade medlemmar, draft = redaktörer */
+export type Visibility = 'public' | 'group' | 'draft'
 
 export interface Entry {
   id: string

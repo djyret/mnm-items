@@ -3,9 +3,11 @@
 Hur roller, Row Level Security (RLS), Storage och Edge Functions hänger ihop. Beslut bakom: `docs/DECISIONS.md`.
 Bakgrund och fullständiga krav: `docs/ROADMAP.md` §7 och §17–18.
 
-> **Status 2026-11-20:** steg 1 i drift (inloggning, medlemskap, Medlemmar-sidan). Steg 2 byggt på branch
-> `fas0-steg2-las`, ej utrullat: tills dess har alla tabeller och båda buckets öppna `anon`-policyer och
-> AI-funktionerna skyddas bara av gängordet (`x-gang-word`).
+> **Status 2026-11-20:** steg 1 och 2 i drift (inloggning, medlemskap, bara redaktörer skriver, AI kräver
+> inloggad redaktör med kvot). Steg 3 (synlighet per kapitel) byggt på branch `fas0-steg3-synlighet`.
+> Steg 3 avviker från planen nedan på en punkt: `kronikan` förblir **publik** med olistbara, slumpade
+> bildnamn i stället för privat bucket med signerade URL:er (se DECISIONS.md). Avsnitten om privat bucket
+> och ändringar i `seriebild`/`kronikaUrl` gäller alltså inte än.
 
 ## Roller
 
@@ -115,7 +117,7 @@ Att byta `visibility` är en vanlig update för Editors. Med "Editor ändrar all
 | Bucket | Steg 2 | Steg 3 |
 |---|---|---|
 | `item-images` | Publik läsning. Skrivning: `can_edit()` | Oförändrad (items är publika) |
-| `kronikan` | Publik läsning. Skrivning: `can_edit()` | **Privat bucket.** SELECT via `can_read_kronika_object(name)` |
+| `kronikan` | Publik läsning. Skrivning: `can_edit()` | **Byggt:** bucketen förblir publik (`/object/public/…` fungerar för den som har adressen), men SELECT/listning via API kräver `can_read_kronika_object(name)`. *Planerat alternativ:* privat bucket. |
 
 `can_read_kronika_object(name)`: objektet är läsbart om det refereras av ett `chronicle_entries.image_path` i ett kapitel
 som den som frågar får läsa, eller av `chronicle_cast.ref_path` (rollistan är publik). Objekt som inte refereras alls

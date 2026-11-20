@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
+import { ChapterMissing } from '../components/ChapterMissing'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { Icon } from '../components/Icon'
 import { foldSources, formatDay, kronikaUrl, shortId, sortEntries, storyParagraphs, weekday } from '../lib/kronikan'
@@ -371,11 +372,7 @@ export function Bildspel() {
   }, [current])
 
   if (!chapter || !id) {
-    return (
-      <div className="page">
-        <div className="panel empty">{loading ? 'Laddar…' : <>Kapitlet finns inte. <Link to="/kronikan">Till krönikan</Link></>}</div>
-      </div>
-    )
+    return <ChapterMissing loading={loading} />
   }
 
   const meta = [[chapter.zone, chapter.subzone].filter(Boolean).join(' · '), `${weekday(chapter.played_on)} ${formatDay(chapter.played_on)}`]

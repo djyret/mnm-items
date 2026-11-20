@@ -2,10 +2,10 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import {
   KIND_LABELS, buildPrompt, foldSources, generateImage, deleteKronika, formatDay, imageFiles, kronikaUrl, loadCastAndStyle,
-  missingTables, shotTime, sortEntries, storeImage, weekday,
+  missingTables, shotTime, sortEntries, storeImage, weekday, VISIBILITY_HINTS, VISIBILITY_LABELS,
 } from '../lib/kronikan'
 import { supabase } from '../lib/supabase'
-import type { CastMember, Chapter, Entry, EntryKind, Quote } from '../lib/types'
+import type { CastMember, Chapter, Entry, EntryKind, Quote, Visibility } from '../lib/types'
 import { ChapterTabs } from '../components/ChapterTabs'
 import { Icon } from '../components/Icon'
 import { Kronikoren, Sagoskrivaren } from '../components/Kronikoren'
@@ -558,7 +558,10 @@ export function Kapitel() {
         {/* Kvällens minnen i ordning: välj ett för att arbeta med det i panelen */}
         <section className="kr-bench__list" aria-label="Kvällens minnen">
           <header className="kr-bench__head">
-            <h1 className="page-title">{chapter.title}</h1>
+            <h1 className="page-title">
+              {chapter.title}
+              {chapter.visibility !== 'public' && <span className={`kr-vis kr-vis--${chapter.visibility}`}>{VISIBILITY_LABELS[chapter.visibility]}</span>}
+            </h1>
             <span className="kr-zone">{[`${weekday(chapter.played_on)} ${formatDay(chapter.played_on)}`, chapter.zone, chapter.subzone].filter(Boolean).join(' · ')}</span>
             <span className="kr-bench__count">
               {visible.length} minnen{waiting > 0 && <> · <b>{waiting} väntar på bild</b></>}
@@ -684,6 +687,13 @@ export function Kapitel() {
 
               <section className="kr-panel-section kr-panel-section--quiet">
                 <h2 className="panel-title">Kapitlet</h2>
+                <label className="field">
+                  <span>Vem får läsa</span>
+                  <select value={chapter.visibility} onChange={(e) => patchChapter({ visibility: e.target.value as Visibility })}>
+                    {(Object.keys(VISIBILITY_LABELS) as Visibility[]).map((v) => <option key={v} value={v}>{VISIBILITY_LABELS[v]}</option>)}
+                  </select>
+                  <small>{VISIBILITY_HINTS[chapter.visibility]}</small>
+                </label>
                 <div className="actions">
                   <button className="btn btn--small btn--ghost" onClick={() => setHead({ title: chapter.title, played_on: chapter.played_on, zone: chapter.zone, subzone: chapter.subzone, summary: chapter.summary, story: chapter.story, saga: chapter.saga })}>
                     Redigera kapitlet
