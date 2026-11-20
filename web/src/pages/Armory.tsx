@@ -85,10 +85,11 @@ function ArmoryFor({ char, items }: { char: Character; items: Item[] }) {
         </div>
 
         <div className="armory__side">
+          {/* Stats först: rutan står still när slotpanelen under växer och krymper */}
+          <BonusPanel worn={[...worn.values()]} />
           {selected
             ? <SlotPanel char={char} slot={selected} item={worn.get(selected) ?? null} items={items} />
             : <div className="panel armory__hint">{t('armory.pickSlot')}</div>}
-          <BonusPanel worn={[...worn.values()]} />
         </div>
       </div>
 
