@@ -784,7 +784,7 @@ textarea { resize: vertical; }
 .sale-item { display: inline-flex; align-items: center; gap: 0.6rem; text-decoration: none; color: #f0e4c8; font-weight: 600; }
 .sale-item .item-icon--sm { width: 36px; height: 36px; }
 
-code { font-family: Consolas, monospace; color: var(--gold); }
+code { font-family: var(--font-body); color: var(--gold); }
 
 /* ---------- Hjälp ---------- */
 .help { font-size: 1.15rem; }
@@ -877,7 +877,7 @@ code { font-family: Consolas, monospace; color: var(--gold); }
 }
 .loan__head { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
 .loan__head .panel-title { flex: 1; }
-.loan__out textarea { font-family: Consolas, 'Courier New', monospace; font-size: 0.9rem; }
+.loan__out textarea { font-family: var(--font-body); font-size: 0.9rem; }
 .loan__outhead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem; color: var(--text-dim); }
 .loan__per { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.6rem; }
 .loan__reserve { display: flex; flex-wrap: wrap; align-items: center; gap: 0.8rem; margin-top: 1rem; padding-top: 0.8rem; border-top: 1px solid rgba(169, 129, 74, 0.2); }
@@ -1048,7 +1048,7 @@ input:not([type='checkbox']), select { min-height: var(--ctl-h); }
 /* ---------- Krönikan ---------- */
 .kr-head-actions { margin-top: 0; }
 .kr-subtitle { font-size: 1.6rem; }
-.code { background: #0f0d0a; border: 1px solid #4a4237; border-radius: var(--radius); padding: 0.5rem 0.75rem; font-family: Consolas, 'Courier New', monospace; font-size: 0.95rem; }
+.code { background: #0f0d0a; border: 1px solid #4a4237; border-radius: var(--radius); padding: 0.5rem 0.75rem; font-family: var(--font-body); font-size: 0.95rem; }
 
 /* Tidslinje: datum till vänster, en guldlinje genom alla kapitel */
 .kr-timeline { list-style: none; margin: 0; padding: 0; position: relative; }
@@ -1149,14 +1149,14 @@ input:not([type='checkbox']), select { min-height: var(--ctl-h); }
 .chip .kr-dot { display: inline-block; width: 0.6em; height: 0.6em; border-radius: 50%; background: var(--tag); margin-right: 0.4em; box-shadow: 0 0 6px var(--tag); }
 
 .kr-prompt { border-top: 1px solid rgba(169, 129, 74, 0.3); padding-top: 0.8rem; }
-.kr-prompt textarea { font-family: Consolas, 'Courier New', monospace; font-size: 0.85rem; line-height: 1.4; }
+.kr-prompt textarea { font-family: var(--font-body); font-size: 0.85rem; line-height: 1.4; }
 .kr-prompt__refs { margin-top: 0.6rem; }
 .kr-refs { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.4rem; }
 .kr-refs a { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; text-decoration: none; font-family: var(--font-title); font-size: 0.8rem; }
 .kr-refs img { width: 96px; height: 96px; object-fit: cover; border: 1px solid var(--bronze-dark); box-shadow: inset 0 0 0 1px #77736a; }
 
 /* Stilbibel */
-.kr-style { font-family: Consolas, 'Courier New', monospace; font-size: 0.9rem; line-height: 1.45; }
+.kr-style { font-family: var(--font-body); font-size: 0.9rem; line-height: 1.45; }
 .kr-cast-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(460px, 100%), 1fr)); gap: 1.2rem; }
 .kr-castcard { display: flex; gap: 1rem; margin: 0; align-items: flex-start; }
 .kr-castcard__img, .kr-ref { flex: 0 0 140px; width: 140px; aspect-ratio: 1; border: 1px solid #0a0907; box-shadow: inset 0 0 0 1px #77736a; background: #0f0d0a; display: grid; place-items: center; overflow: hidden; text-align: center; color: var(--text-dim); font-size: 0.85rem; }
