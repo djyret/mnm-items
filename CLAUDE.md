@@ -38,7 +38,7 @@ Publicering: push till `main` bygger och publicerar via GitHub Actions. Edge Fun
 - Namn: `ÅÅÅÅMMDDHHMMSS_<namn>.sql`. Ny policy eller tabell ska följa mönstret i `20261120130000_lock_writes.sql` och `20261120150000_area_access.sql`.
 - Körs mot produktion via Management API (`POST /v1/projects/zqdccfjisvkovuikrick/database/query`, `SUPABASE_ACCESS_TOKEN` i `.env`) eller `npx supabase db push --linked`.
 - Torrkör först i `begin; … rollback;` med `set local role anon` och `request.jwt.claims` för att testa policyerna. Kör skarpt bara efter Daniels ja, och registrera sedan raden i `supabase_migrations.schema_migrations`.
-- Facit över körda migrationer: valvet `verktyg/mnm-items-migrationer.md`. Status 2026-11-20: alla 14 filer i `supabase/migrations/` är körda; senaste `20261120150000_area_access.sql`.
+- Facit över körda migrationer: valvet `verktyg/mnm-items-migrationer.md`. Status 2026-11-20: alla 15 filer i `supabase/migrations/` är körda; senaste `20261120160000_armory.sql`.
 
 ## Språk (sv/en)
 
