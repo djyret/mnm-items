@@ -2442,3 +2442,22 @@ input:not([type='checkbox']):not([type='radio']):focus, textarea:focus, select:f
   padding: 1.2rem 2.4rem 1.3rem;
 }
 .kr-polaroid { padding: 10% 15% 17% 10%; }
+
+/* ---------- Papperet, omgång 3: rustika varianter utan rullade hörn där bild eller text ligger ----------
+   Bränt, rivet, vikt, nålhål och vattenskadat; grannar får olika ark. Rullade hörn bara på repliker. */
+.start-note--lead::after { background-image: url('/ui/bred-brand.webp'); }
+.start-note:nth-child(2)::after { background-image: url('/ui/lapp-nalhal.webp'); }
+.start-note:nth-child(3)::after { background-image: url('/ui/lapp-riven.webp'); }
+.start-note { padding: 12% 10% 11% 10%; }
+.start-note--lead { padding: 5.5% 5% 6% 5.5%; }
+
+.kr-polaroid { background-image: url('/ui/foto-slat.webp'); padding: 9% 9% 11%; }
+.kr-polaroid:nth-child(3n + 1) { background-image: url('/ui/foto-brand.webp'); }
+.kr-polaroid:nth-child(3n + 2) { background-image: url('/ui/foto-riven.webp'); }
+
+.kr-note::after { background-image: url('/ui/lapp-vikt.webp'); }
+.kr-note:nth-child(4n + 1)::after { background-image: url('/ui/lapp-brand.webp'); }
+.kr-note:nth-child(4n + 2)::after { background-image: url('/ui/lapp-vatten.webp'); }
+.kr-note:nth-child(4n + 3)::after { background-image: url('/ui/lapp-1.webp'); }
+
+.kr-plaque--title { background-image: url('/ui/bred-riven.webp'); padding: 1.4rem 3rem 1.5rem; }

@@ -1,0 +1,6 @@
+{
+  "file": "lapp-riven.webp",
+  "prompt": "Edit the supplied single blank Loot & Lore parchment cutout. Keep exactly the reference sheet's aspect ratio, straight-on flat alignment, warm tan palette, candlelight, quiet mottled central area and painterly aged fibre. Keep all strong damage at the perimeter, except flat creases or tide lines if specified. Tear away the upper-right corner in an irregular diagonal missing triangle extending about 12% down and inward. Give the exposed edge a clearly pale ivory band of jagged fibers. The feature should be visually distinct even at 220–450 pixels wide. Isolate the sheet on true transparent alpha, closely framed with a little clear margin. No curls, dog-ears, lifted corners, writing, metal pins or nails, external shadows, hardware, or props.",
+  "timestamp": "2026-11-21T17:40:28.844Z",
+  "process": "Built-in image_gen reference edit, Sharp alpha crop, resize, colour matching, localized finishing where needed and WebP encoding"
+}

@@ -1,0 +1,6 @@
+{
+  "file": "lapp-bränd.webp",
+  "prompt": "Edit the supplied single blank Loot & Lore parchment cutout. Keep exactly the reference sheet's aspect ratio, straight-on flat alignment, warm tan palette, candlelight, quiet mottled central area and painterly aged fibre. Keep all strong damage at the perimeter, except flat creases or tide lines if specified. Remove the lower-left corner with a jagged concave diagonal whose endpoints are about 12% up and 12% inward, with a 6–10 pixel black-brown char rim at 720 px wide, fading into scorched umber with a faint soot halo. The feature should be visually distinct even at 220–450 pixels wide. Isolate the sheet on true transparent alpha, closely framed with a little clear margin. No curls, dog-ears, lifted corners, writing, metal pins or nails, external shadows, hardware, or props.",
+  "timestamp": "2026-11-21T17:40:28.844Z",
+  "process": "Built-in image_gen reference edit, Sharp alpha crop, resize, colour matching, localized finishing where needed and WebP encoding"
+}
