@@ -9,10 +9,16 @@ export type Area = 'forradet' | 'kronikan' | 'stilbibeln'
  *  t(`admin.area.${area}`), t(`admin.area.${area}.covers`) och t(`admin.minRole.${nivå}`). */
 export const AREAS: Area[] = ['forradet', 'kronikan', 'stilbibeln']
 
-const RANK: Record<Access, number> = { visitor: 0, reader: 1, editor: 2, admin: 3 }
+// Gästen står utanför stegen: som besökare överallt, utom krönikan där den räknas som läsare
+// (samma regel som can_view_area() i databasen)
+const RANK: Record<Access, number> = { visitor: 0, guest: 0, reader: 1, editor: 2, admin: 3 }
+const rankIn = (access: Access, area: Area) => (access === 'guest' && area === 'kronikan' ? RANK.reader : RANK[access])
+
+/** Lägsta roll som ser ett område (area_access.min_role). Gäst går inte att välja där. */
+export type AreaLevel = Exclude<Access, 'guest'>
 
 interface AreaAccess {
-  minRole: Record<Area, Access>
+  minRole: Record<Area, AreaLevel>
   loading: boolean
   canView: (area: Area) => boolean
   reload: () => Promise<void>
@@ -21,7 +27,7 @@ interface AreaAccess {
 const AreaContext = createContext<AreaAccess | null>(null)
 
 // Tills inställningen laddats visas allt: databasen spärrar ändå det som inte får läsas
-const OPEN: Record<Area, Access> = { forradet: 'visitor', kronikan: 'visitor', stilbibeln: 'visitor' }
+const OPEN: Record<Area, AreaLevel> ={ forradet: 'visitor', kronikan: 'visitor', stilbibeln: 'visitor' }
 
 export function AreaProvider({ children }: { children: ReactNode }) {
   const { access } = useAuth()
@@ -43,7 +49,7 @@ export function AreaProvider({ children }: { children: ReactNode }) {
   const value = useMemo<AreaAccess>(() => ({
     minRole,
     loading,
-    canView: (area) => RANK[access] >= RANK[minRole[area]],
+    canView: (area) => rankIn(access, area) >= RANK[minRole[area]],
     reload,
   }), [minRole, loading, access, reload])
 

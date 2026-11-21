@@ -139,7 +139,7 @@ const FRAGOR: [Key, Key][] = [
 
 const STATUSAR = ['ledig', 'equippad', 'utlanad', 'reserverad', 'sald'] as const
 
-const ROLLER: Access[] = ['visitor', 'reader', 'editor', 'admin']
+const ROLLER: Access[] = ['visitor', 'guest', 'reader', 'editor', 'admin']
 
 export function Hjalp() {
   const { t } = useI18n()

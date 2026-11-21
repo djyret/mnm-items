@@ -67,7 +67,7 @@ export function parsedToDraft(p: ParsedItem, base: ItemDraft): ItemDraft {
 }
 
 /** Kan karaktären bära itemet? Okänd klass/ras räknas som ja. */
-export function canUse(item: Pick<Item, 'classes' | 'races'>, c: Character): boolean {
+export function canUse(item: Pick<Item, 'classes' | 'races'>, c: Pick<Character, 'class' | 'race'>): boolean {
   const cls = c.class?.toUpperCase()
   const classOk =
     !cls || item.classes.length === 0 || item.classes.includes('ALL') || item.classes.includes(cls)

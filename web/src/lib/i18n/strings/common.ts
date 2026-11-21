@@ -18,6 +18,7 @@ export const sv = {
   'nav.alts': 'Alts',
   'nav.sales': 'Försäljning',
   'nav.chronicle': 'Krönikan',
+  'nav.guests': 'Gäster',
   'nav.help': 'Hjälp',
 
   'account.signIn': 'Logga in med Discord',
@@ -29,6 +30,7 @@ export const sv = {
   'account.language': 'Språk',
 
   'role.visitor': 'Besökare',
+  'role.guest': 'Gäst',
   'role.reader': 'Läsare',
   'role.editor': 'Redaktör',
   'role.admin': 'Admin',
@@ -58,6 +60,7 @@ export const en: { [K in keyof typeof sv]: string } = {
   'nav.alts': 'Alts',
   'nav.sales': 'Sales',
   'nav.chronicle': 'Chronicle',
+  'nav.guests': 'Guests',
   'nav.help': 'Help',
 
   'account.signIn': 'Sign in with Discord',
@@ -69,6 +72,7 @@ export const en: { [K in keyof typeof sv]: string } = {
   'account.language': 'Language',
 
   'role.visitor': 'Visitor',
+  'role.guest': 'Guest',
   'role.reader': 'Reader',
   'role.editor': 'Editor',
   'role.admin': 'Admin',

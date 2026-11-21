@@ -12,6 +12,8 @@ interface Auth {
   access: Access
   canEdit: boolean
   isAdmin: boolean
+  /** Gäst eller medlem: får använda gästernas armory och wikin */
+  canUseArmory: boolean
   loading: boolean
   signIn: () => Promise<void>
   signOut: () => Promise<void>
@@ -85,6 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       access,
       canEdit: access === 'editor' || access === 'admin',
       isAdmin: access === 'admin',
+      canUseArmory: access !== 'visitor',
       loading,
       signIn,
       signOut,

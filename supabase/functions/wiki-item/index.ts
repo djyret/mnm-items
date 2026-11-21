@@ -5,7 +5,7 @@
 // POST { action: "search", q }  -> { results: [{ id, name, url, icon, slot }] }
 // POST { action: "item", id }   -> { item: ParsedItem, wiki: { id, url, icon, gameLinkId, droppedBy, soldBy } }
 // item har samma form som parse-item returnerar, så webben fyller formuläret på samma sätt.
-import { cors, json, requireMember } from "../_shared/auth.ts";
+import { cors, json, requireArmoryUser } from "../_shared/auth.ts";
 
 const API = "https://monstersandmemories.wiki/api/partner/v1";
 
@@ -104,7 +104,7 @@ async function wiki(path: string): Promise<Response> {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   if (req.method !== "POST") return json({ error: "Endast POST" }, 405);
-  const denied = await requireMember(req);
+  const denied = await requireArmoryUser(req);
   if (denied) return denied;
 
   const { action, q, id } = await req.json().catch(() => ({}));

@@ -90,15 +90,18 @@ export async function requireEditor(req: Request): Promise<Response | null> {
   return null;
 }
 
-/** Inloggad och godkänd i gänget (läsare eller mer), utan AI-kvot. null = okej, annars felsvar. */
-export async function requireMember(req: Request): Promise<Response | null> {
+/**
+ * Inloggad och godkänd som gäst eller i gänget (can_use_armory: gäst, läsare eller mer), utan AI-kvot.
+ * null = okej, annars felsvar.
+ */
+export async function requireArmoryUser(req: Request): Promise<Response | null> {
   const base = Deno.env.get("SUPABASE_URL")!;
   const anon = Deno.env.get("SUPABASE_ANON_KEY")!;
   const token = req.headers.get("authorization")?.match(/^Bearer\s+(.+)$/i)?.[1];
   if (!token || token === anon) return json({ error: "Logga in med Discord.", code: "auth" }, 401);
   const headers = { apikey: anon, Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
-  const res = await fetch(`${base}/rest/v1/rpc/is_member`, { method: "POST", headers, body: "{}" });
+  const res = await fetch(`${base}/rest/v1/rpc/can_use_armory`, { method: "POST", headers, body: "{}" });
   if (res.status === 401) return json({ error: "Inloggningen har gått ut. Logga in igen.", code: "auth" }, 401);
-  if (!res.ok || (await res.json()) !== true) return json({ error: "Bara godkända medlemmar kan slå upp på wikin.", code: "forbidden" }, 403);
+  if (!res.ok || (await res.json()) !== true) return json({ error: "Bara godkända konton kan slå upp på wikin.", code: "forbidden" }, 403);
   return null;
 }

@@ -14,6 +14,7 @@ Bakgrund och fullständiga krav: `docs/ROADMAP.md` §7 och §17–18.
 | Roll | Vem | Läser | Skriver |
 |---|---|---|---|
 | **Visitor** | Ej inloggad, eller inloggad utan aktivt medlemskap (`pending`, `suspended`) | Publika kapitel, items, karaktärer | Inget |
+| **Guest** | Aktivt medlemskap, roll `guest` (vän utanför gänget, 2026-11-22) | Som Visitor, + gruppkapitel och gästernas armory. **Inte** förrådet (`is_member()` är falsk) | Egna gästkaraktärer och deras set; skärmdumpsavläsning (30/dygn) |
 | **Reader** | Aktivt medlemskap, roll `reader` | + gruppkapitel | Inget |
 | **Editor** | Aktivt medlemskap, roll `editor` | + utkast | Allt delat innehåll, uppladdningar, AI-funktioner (med kvot) |
 | **Admin** | Aktivt medlemskap, roll `admin` | Allt | Allt + medlemskap och roller |
@@ -62,7 +63,10 @@ create table public.membership_audit (   -- vem ändrade vems roll/status och n�
 | Funktion | Sann när |
 |---|---|
 | `my_role()` | Returnerar roll om aktivt medlemskap, annars `null` |
-| `is_member()` | Aktiv, valfri roll |
+| `is_member()` | Aktiv, `reader`, `editor` eller `admin` (sedan 2026-11-22 **inte** `guest`) |
+| `is_guest()` | Aktiv, `guest` |
+| `can_use_armory()` | `is_member()` eller `is_guest()`: gästernas armory och wikin |
+| `owns_guest(g)` / `owns_guest_set(s)` | Anroparen äger gästkaraktären (eller settets karaktär), eller är admin |
 | `can_edit()` | Aktiv, `editor` eller `admin` |
 | `is_admin()` | Aktiv, `admin` |
 | `can_read_chapter(chapter uuid)` | Steg 3: kapitlets synlighet tillåter den som frågar |
@@ -138,6 +142,28 @@ Webben döljer menyknappar och sidor via `useAreas()` / `RequireArea`, men det �
 - `equip_item(item, slot)` är `security invoker` (RLS avgör), körbar bara för `authenticated`; anon nekas.
 - `wishlist` fanns här men togs bort 2026-11-21 (`20261121140000_drop_wishlist`); önskeseten ersätter den.
 
+### Gäster (migration `20261122120000_guests`)
+
+Vänner utanför gänget får egna karaktärer och önskeset utan att något hamnar i förrådet.
+
+- Rollen `guest` i `app_role`. Admin väljer Gäst i Medlemmar innan kontot godkänns.
+- `is_member()` räknar bara `reader`/`editor`/`admin`, så allt som kräver medlem (förrådet, `set_my_main`) är stängt.
+  `can_view_area()` släpper in gästen i `kronikan` när den kräver `reader`; gruppkapitel läses med `is_member() or is_guest()`.
+- Egna tabeller, ingen koppling till `characters`/`items`/`gear_sets`:
+
+| Tabell | SELECT | INSERT | UPDATE / DELETE |
+|---|---|---|---|
+| `guest_characters` | `can_use_armory()` | `owner_id = auth.uid()` och (`is_guest()` eller `can_edit()`) | ägaren eller admin; `owner_id` kan inte ges bort |
+| `guest_sets` | `can_use_armory()` | `owns_guest(guest_id)` | `owns_guest(guest_id)` (även efter ändring) |
+| `guest_set_items` | `can_use_armory()` | `owns_guest_set(set_id)` | `owns_guest_set(set_id)` |
+
+- `anon` har inga grants på tabellerna. Gränser i triggers: 6 karaktärer per konto (admin undantagen), ett `now`-set
+  (unikt index) och 4 önskeset per karaktär.
+- `guest_set_items.icon` får bara vara en ikon från `https://monstersandmemories.wiki/` eller en inbäddad
+  `data:image/(webp|png|jpeg);base64,` (urklippt ur skärmdumpen), så att gäster inte kan peka ut externa bilder.
+  Inga gästfiler i Storage. `detail` (resten av tooltipen) är högst 20 kB; webben tvättar typerna innan visning.
+- `ai_usage_start()` släpper in gäster för `parse-item` (inte `berattelse`/`seriebild`), med 30 anrop per dygn.
+
 ## Storage
 
 | Bucket | Steg 2 | Steg 3 |
@@ -178,8 +204,8 @@ Nytt (steg 2):
 ### `wiki-item` (2026-11-21)
 
 Proxy mot Monsters and Memories Wikis partner-API. Nyckeln ligger bara i secret `MNM_WIKI_KEY` och skickas
-aldrig till webbläsaren. `requireMember()` i `_shared/auth.ts` kräver inloggad, godkänd medlem (`is_member()` via RPC)
-men bokar ingen AI-kvot, eftersom uppslag inte kostar AI. Wikins egen gräns är 120 anrop/minut per nyckel.
+aldrig till webbläsaren. `requireArmoryUser()` i `_shared/auth.ts` kräver inloggad, godkänd gäst eller medlem
+(`can_use_armory()` via RPC, sedan 2026-11-22; tidigare `is_member()`) men bokar ingen AI-kvot, eftersom uppslag inte kostar AI. Wikins egen gräns är 120 anrop/minut per nyckel.
 Funktionen skriver inget i databasen; webben sparar `wiki_id`/`wiki_url`/`wiki_icon` med användarens rättigheter.
 
 ## Inloggning (Discord + GitHub Pages)

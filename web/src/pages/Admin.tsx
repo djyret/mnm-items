@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { AREAS, useAreas, type Area } from '../lib/access'
-import { useAuth, type Access } from '../lib/auth'
+import { AREAS, useAreas, type Area, type AreaLevel } from '../lib/access'
+import { useAuth } from '../lib/auth'
 import { useI18n } from '../lib/i18n'
 import { VISIBILITY_HINTS, VISIBILITY_LABELS, formatDay } from '../lib/kronikan'
 import { supabase } from '../lib/supabase'
 import type { Chapter, Visibility } from '../lib/types'
 import { MembersPanel } from './Medlemmar'
 
-const LEVELS: Access[] = ['visitor', 'reader', 'editor', 'admin']
+const LEVELS: AreaLevel[] = ['visitor', 'reader', 'editor', 'admin']
 
 /** Adminpanelen: vem som ser vilka delar, synlighet per kapitel och medlemmar. */
 export function Admin() {
@@ -39,7 +39,7 @@ function AreaPanel() {
   const [busy, setBusy] = useState<Area | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  async function change(area: Area, level: Access) {
+  async function change(area: Area, level: AreaLevel) {
     setError(null)
     setBusy(area)
     const { data, error } = await supabase.from('area_access').update({ min_role: level }).eq('area', area).select('area')
@@ -65,7 +65,7 @@ function AreaPanel() {
               aria-label={t('admin.areas.selectLabel', { area: t(`admin.area.${area}`) })}
               value={minRole[area]}
               disabled={busy === area}
-              onChange={(e) => change(area, e.target.value as Access)}
+              onChange={(e) => change(area, e.target.value as AreaLevel)}
             >
               {LEVELS.map((l) => <option key={l} value={l}>{t(`admin.minRole.${l}`)}</option>)}
             </select>

@@ -5,11 +5,12 @@ import { MAX_SETS, asItem, putSetItem, removeSetItem, rowFromStash, rowFromWiki,
 import { fetchWikiItem } from '../lib/wiki'
 import { StatusBadge } from '../components/Badges'
 import { ClassIcon } from '../components/ClassIcon'
+import { DollGrid, DollSlot } from '../components/Doll'
 import { Icon } from '../components/Icon'
 import { useItemHover } from '../components/ItemHover'
 import { ItemIcon, ItemTooltip } from '../components/ItemTooltip'
 import {
-  DOLL, EQUIP_SLOTS, canEquipOn, equipItem, equippedBy, fitsSlot, slotBase, slotLabel,
+  EQUIP_SLOTS, canEquipOn, equipItem, equippedBy, fitsSlot, slotBase, slotLabel,
   unequipItem, useChapters, wearerOf,
 } from '../lib/armory'
 import { useAuth } from '../lib/auth'
@@ -85,24 +86,10 @@ function ArmoryFor({ char, items }: { char: Character; items: Item[] }) {
     await gear.reload()
   }
 
-  const slotButton = (slot: string) => {
-    const item = shown.get(slot)
-    return (
-      <button
-        key={slot}
-        type="button"
-        className={`doll__slot${item ? ' doll__slot--filled' : ''}${selected === slot ? ' doll__slot--selected' : ''}`}
-        aria-pressed={selected === slot}
-        title={item ? undefined : slotLabel(slot)}
-        {...hover.bind(item)}
-        // Klicket öppnar slotpanelen med samma item; rutan behövs inte längre
-        onClick={() => { hover.hide(); setSelected(selected === slot ? null : slot) }}
-      >
-        <ItemIcon src={item ? itemIconUrl(item) : null} slot={slotBase(slot)} size="sm" />
-        <span className="doll__label">{item ? item.name : slotLabel(slot)}</span>
-      </button>
-    )
-  }
+  const slotButton = (slot: string) => (
+    <DollSlot key={slot} slot={slot} item={shown.get(slot)} selected={selected === slot} hover={hover}
+      onSelect={() => setSelected(selected === slot ? null : slot)} />
+  )
 
   return (
     <div className="page">
@@ -146,13 +133,7 @@ function ArmoryFor({ char, items }: { char: Character; items: Item[] }) {
       {setError && <div className="alert">{setError}</div>}
 
       <div className="armory">
-        <div className={`panel doll${activeSet ? ' doll--set' : ''}`}>
-          <div className="doll__row doll__row--top">{DOLL.top.map(slotButton)}</div>
-          <div className="doll__col doll__col--left">{DOLL.left.map(slotButton)}</div>
-          <Portrait char={char} />
-          <div className="doll__col doll__col--right">{DOLL.right.map(slotButton)}</div>
-          <div className="doll__row doll__row--bottom">{DOLL.bottom.map(slotButton)}</div>
-        </div>
+        <DollGrid className={activeSet ? 'doll--set' : ''} slot={slotButton} portrait={<Portrait char={char} />} />
 
         <div className="armory__side">
           {/* Stats först: rutan står still när slotpanelen under växer och krymper */}

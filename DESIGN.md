@@ -258,6 +258,7 @@ Leather plaques from the Material System (`ui/meny.webp`, `ui/meny-aktiv.webp`) 
 - **Rail (default):** a column along the left edge below the header, sticky 16px from the top, 42px plaques with a 0.55rem gap, left-aligned, starting 1.75rem down; hover nudges a plaque 2px to the right.
 - **Row (900px and below):** the rail becomes a static, centred, wrapping row above the content (40px plaques, at most 480px wide); hover lifts 1px instead.
 - **Home:** the Hem/Home plaque (`hem.webp`, a tavern hearth in the icon box) leads the rail and turns gold on the start page. The painted header sign also links home (screen-reader label only); do not set it in type.
+- **Guests:** the Gäster/Guests plaque (`ikon-gaster.webp`, a traveller's cloak and walking staff) sits before Krönikan and shows for every signed-in, approved account (guests and the gang). A guest sees only Hem, Gäster, Krönikan and Hjälp. The guest armory (`#/gast/:id`) reuses the Armory doll (`components/Doll.tsx`) with the class icon in the portrait frame, since guests have no portrait.
 
 ### Chips
 - **Style:** 2px iron-metal border around a stone face, small-caps Cinzel 0.82rem, 2rem high.

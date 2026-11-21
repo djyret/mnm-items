@@ -153,7 +153,8 @@ export interface CastMember {
   created_at: string
 }
 
-export type AppRole = 'reader' | 'editor' | 'admin'
+/** guest = vän utanför gänget: gästernas armory och krönikan, inte förrådet */
+export type AppRole = 'guest' | 'reader' | 'editor' | 'admin'
 export type MembershipStatus = 'pending' | 'active' | 'suspended'
 
 export interface Membership {

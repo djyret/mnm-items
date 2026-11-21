@@ -4,7 +4,8 @@ import { useI18n } from '../lib/i18n'
 import { supabase } from '../lib/supabase'
 import type { AppRole, Membership, MembershipStatus } from '../lib/types'
 
-const ROLES: AppRole[] = ['reader', 'editor', 'admin']
+// Gäst: vän utanför gänget (gästernas armory och krönikan, inte förrådet). Välj innan man godkänner.
+const ROLES: AppRole[] = ['guest', 'reader', 'editor', 'admin']
 
 /** Väntande överst, så nya konton syns direkt. */
 const STATUS_ORDER: Record<MembershipStatus, number> = { pending: 0, active: 1, suspended: 2 }

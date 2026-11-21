@@ -37,6 +37,15 @@ for (const t of TABLES) {
   check(`${t}: delete nekas`, del.ok, del.detail)
 }
 
+// Gästernas armory: utloggade får inte ens läsa (inga grants till anon)
+for (const t of ['guest_characters', 'guest_sets', 'guest_set_items']) {
+  const key = t === 'guest_set_items' ? 'set_id' : 'id'
+  const read = await denied(await fetch(`${URL_}/rest/v1/${t}?select=${key}&limit=1`, { headers: H }))
+  check(`${t}: läsning nekas`, read.ok, read.detail)
+  const ins = await denied(await fetch(`${URL_}/rest/v1/${t}`, { method: 'POST', headers: H, body: '{}' }))
+  check(`${t}: insert nekas`, ins.ok, ins.detail)
+}
+
 for (const b of BUCKETS) {
   const path = `__access-check__/${Date.now()}.txt`
   const res = await fetch(`${URL_}/storage/v1/object/${b}/${path}`, {

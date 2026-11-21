@@ -8,7 +8,7 @@ web
 
 ## Users
 
-Ett kompisgäng (tre spelare i dag: Gabbex, Derinx, Daremx) som spelar MMO:t Monsters & Memories tillsammans på kvällar. Alla i gänget använder appen: de lägger in items i förrådet, lånar ut till varandras alts och fyller på Krönikan.
+Ett kompisgäng (tre spelare i dag: Gabbex, Derinx, Daremx) som spelar MMO:t Monsters & Memories tillsammans på kvällar. Alla i gänget använder appen: de lägger in items i förrådet, lånar ut till varandras alts och fyller på Krönikan. Vänner som spelar med gänget ibland är **gäster**: de bygger egna karaktärer och önskeset och läser krönikan, men ser inte förrådet.
 
 ## Product Purpose
 
@@ -17,6 +17,7 @@ Loot & Lore (tidigare MnM Förrådet) är gängets gemensamma förråd och minne
 - **Förrådet:** items avlästa från skärmdumpar, vem som har vad, lån, försäljning.
 - **Startsidan:** ens main med utrustning och gear-bonus, och gängets senaste kvällar spikade på väggen. Besökare ser bara kvällarna.
 - **Armory:** en sida per karaktär med porträtt, utrustning slot för slot, upp till fyra önskeset att jämföra stats mot och historik över vad som tagits på och av.
+- **Gäster:** egen menyskylt för vänner utanför gänget. Varje gäst har egna karaktärer med samma karaktärsfönster som Armory, "Nu"-utrustning och upp till fyra önskeset, fyllda från wikin eller en avläst skärmdump. Inget av det hamnar i förrådet.
 - **Krönikan:** gängets äventyr, ett kapitel per spelkväll. Under kvällen dumpas skärmdumpar från spelet; efteråt skriver en AI-krönikör berättelsen och föreslår scener, som blir seriebilder i gängets egen stil (genererade i ChatGPT). Målet är att kunna gå tillbaka och minnas tillsammans, som en serietidning om det de upplevt.
 
 ## Positioning
@@ -27,7 +28,7 @@ Byggt för just det här gänget och det här spelet: läser spelets egna skärm
 
 - Läses oftast tillsammans på Discord (någon delar skärmen efter en kväll) och var för sig på datorn i efterhand.
 - Alla i gänget laddar upp, skriver och skapar seriebilder; det finns ingen enskild redaktör. Alla godkända redaktörer får ändra allt delat innehåll.
-- Alla med länken kan läsa. För att skriva, ladda upp och använda AI-funktionerna loggar man in med Discord och godkänns av en admin (roller: läsare, redaktör, admin; se `docs/SECURITY_MODEL.md`).
+- Alla med länken kan läsa. För att skriva, ladda upp och använda AI-funktionerna loggar man in med Discord och godkänns av en admin (roller: gäst, läsare, redaktör, admin; se `docs/SECURITY_MODEL.md`).
 - Seriebilder görs utanför appen (ChatGPT) från en prompt appen bygger, och klistras sedan in.
 
 ## Capabilities and Constraints

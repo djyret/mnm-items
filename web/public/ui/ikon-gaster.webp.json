@@ -1,0 +1,5 @@
+{
+  "prompt": "A warm russet traveller’s hooded cloak hanging from a short dark oak peg with a knotted walking staff tucked against it, as a compact painted RPG inventory icon for the Guests menu in Loot & Lore, legible at 32px. Straight-on, isolated single physical UI asset, with a broad draped silhouette, deep open hood, and worn brass cloak clasp. Warm tavern candlelight and realistic detailed painted material, amber edge lighting, rich brown shadows, and a compact composition. The backpack, helmet, fireplace and chest references provide material and styling only. Use actual transparent alpha outside the silhouette. No lettering, wall, floor, cast shadow or surrounding objects.",
+  "timestamp": "2026-11-21T23:41:15.638Z",
+  "process": "Built-in imagegen with existing style references, then Sharp alpha-bound crop, aspect-preserving resize and lossless WebP encoding."
+}

@@ -7,6 +7,7 @@ import { GearSummary } from '../components/GearStats'
 import { useItemHover } from '../components/ItemHover'
 import { MiniDoll } from '../components/MiniDoll'
 import { useAreas } from '../lib/access'
+import { guestInfo, useGuestCharacters } from '../lib/guests'
 import { equippedBy } from '../lib/armory'
 import { useAuth } from '../lib/auth'
 import { CLASSES } from '../lib/constants'
@@ -21,14 +22,52 @@ export function Start() {
   const { access, loading: authLoading } = useAuth()
   const { t } = useI18n()
   if (loading || authLoading) return <div className="page"><div className="panel empty">{t('common.loading')}</div></div>
-  const sheet = canView('forradet') && access !== 'visitor'
+  // Karaktärsbladet är gängets (main väljs bland förrådets karaktärer); gästen får sina gästkaraktärer
+  const sheet = canView('forradet') && (access === 'reader' || access === 'editor' || access === 'admin')
+  const guest = access === 'guest'
   const wall = canView('kronikan')
-  if (!sheet && !wall) return <Navigate to="/hjalp" replace />
+  if (!sheet && !guest && !wall) return <Navigate to="/hjalp" replace />
   return (
-    <div className={`page start${sheet && wall ? '' : ' start--single'}`}>
+    <div className={`page start${(sheet || guest) && wall ? '' : ' start--single'}`}>
       {sheet && <MainSheet />}
+      {guest && <GuestSheet />}
       {wall && <Wall intro={access === 'visitor'} />}
     </div>
+  )
+}
+
+// ---------- Gästens blad: egna gästkaraktärer ----------
+
+function GuestSheet() {
+  const { session } = useAuth()
+  const { list } = useGuestCharacters()
+  const { t } = useI18n()
+  const mine = (list ?? []).filter((c) => c.owner_id === session?.user.id)
+  return (
+    <section className="start-sheet" aria-labelledby="start-guest-title">
+      <div className="panel panel--tung start-sheet__card">
+        <h2 id="start-guest-title" className="start-sheet__name">{t('gaster.startTitle')}</h2>
+        <p className="start-pick__intro">{t('gaster.startText')}</p>
+        {list === null ? (
+          <p className="armory__empty">{t('common.loading')}</p>
+        ) : mine.length === 0 ? (
+          <p className="armory__empty">{t('gaster.startEmpty')}</p>
+        ) : (
+          <ul className="armory__list armory__list--wide">
+            {mine.map((c) => (
+              <li key={c.id}>
+                <ClassIcon code={c.class} size={32} />
+                <Link to={`/gast/${c.id}`}>{c.name}</Link>
+                <small>{guestInfo(c)}</small>
+              </li>
+            ))}
+          </ul>
+        )}
+        <div className="start-sheet__actions">
+          <Link className="btn btn--primary" to="/gaster">{t('gaster.startOpen')}</Link>
+        </div>
+      </div>
+    </section>
   )
 }
 
