@@ -262,8 +262,6 @@ function Wall({ intro }: { intro: boolean }) {
                   {i === 0 && c.summary && <span className="start-note__summary">{c.summary}</span>}
                   {i === 0 && <span className="start-note__read">{t('start.readEvening')}</span>}
                 </span>
-                {i === 0 && <span className="start-note__flack" aria-hidden="true" />}
-                <span className="start-note__horn" aria-hidden="true" />
               </Link>
             )
           })}
