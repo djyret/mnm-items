@@ -2344,3 +2344,15 @@ input:not([type='checkbox']):not([type='radio']):focus, textarea:focus, select:f
 .start { grid-template-columns: minmax(320px, 360px) minmax(0, 1fr); }
 .start--single { grid-template-columns: minmax(0, 1fr); }
 .start-sheet__card.panel--tung { border-width: 30px; border-image-width: 30px; padding: 0.2rem; }
+
+/* ---------- Justeringar efter genomgång live (2026-11-21) ---------- */
+/* Mörk text på mässing: kraftigare och mörkare, utan ljus kant som suddar ut versalerna */
+.menu-item.active, .btn--primary, .kr-tab.active {
+  color: #140800;
+  text-shadow: 0 0 1px rgba(255, 222, 160, 0.45);
+  -webkit-text-stroke: 0.35px #140800;
+}
+/* Förrådets kort: två kolumner bredvid filtren även vid 1440 px */
+.forrad .grid { grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr)); }
+/* De små lapparna på startsidan: bilden ovanför texten, så titlarna får plats */
+.start-note:not(.start-note--lead) { grid-template-columns: minmax(0, 1fr); }
