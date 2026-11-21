@@ -24,10 +24,11 @@ import { KapitelSaga } from './pages/KapitelSaga'
 import { Bildspel } from './pages/Bildspel'
 import { Kronikan } from './pages/Kronikan'
 import { Stilbibel } from './pages/Stilbibel'
+import { Start } from './pages/Start'
 
 /** Menyknapparna är färdiga bilder (järn = vanlig, guld = aktiv sida). Område = vad adminpanelen styr. */
 const NAV: [string, Key, string, Area | null][] = [
-  ['/', 'nav.stash', 'forrad', 'forradet'],
+  ['/forrad', 'nav.stash', 'forrad', 'forradet'],
   ['/ny', 'nav.add', 'lagg-till', 'forradet'],
   ['/karaktarer', 'nav.characters', 'karaktarer', 'forradet'],
   ['/alt', 'nav.alts', 'alt-vy', 'forradet'],
@@ -44,15 +45,6 @@ const menuSrc = (lang: string, icon: string, suffix: string) =>
 const F = (page: ReactNode) => <RequireArea area="forradet">{page}</RequireArea>
 const K = (page: ReactNode) => <RequireArea area="kronikan">{page}</RequireArea>
 
-/** Startsidan är Förrådet; är det stängt men Krönikan öppen hamnar man där i stället. */
-function Home() {
-  const { canView, loading } = useAreas()
-  const { loading: authLoading } = useAuth()
-  if (loading || authLoading) return null
-  if (!canView('forradet') && canView('kronikan')) return <Navigate to="/kronikan" replace />
-  return F(<Forrad />)
-}
-
 function Shell() {
   const { error } = useStore()
   const { canEdit } = useAuth()
@@ -68,21 +60,24 @@ function Shell() {
           <NavLink to="/" className="brand-link" aria-label={t('app.homeLabel')}>
             <h1 className="sr-only">{t('app.headline')}</h1>
           </NavLink>
-          <nav className="nav">
-            {NAV.filter(([to, , , area]) => (to !== '/ny' || canEdit) && (!area || canView(area))).map(([to, label, icon]) => (
-              <NavLink key={to} to={to} end={to === '/'} className="menu-img" aria-label={t(label)} title={t(label)}>
-                <img className="menu-img__off" src={menuSrc(lang, icon, '')} alt="" />
-                <img className="menu-img__on" src={menuSrc(lang, icon, '-aktiv')} alt="" />
-              </NavLink>
-            ))}
-          </nav>
         </div>
       </header>
-      <main>
+      {/* Menyn står längs vänsterkanten och följer med när man skrollar; under 900px blir den en rad */}
+      <div className="shell">
+        <nav className="nav nav--rail" aria-label={t('nav.label')}>
+          {NAV.filter(([to, , , area]) => (to !== '/ny' || canEdit) && (!area || canView(area))).map(([to, label, icon]) => (
+            <NavLink key={to} to={to} className="menu-img" aria-label={t(label)} title={t(label)}>
+              <img className="menu-img__off" src={menuSrc(lang, icon, '')} alt="" />
+              <img className="menu-img__on" src={menuSrc(lang, icon, '-aktiv')} alt="" />
+            </NavLink>
+          ))}
+        </nav>
+        <main>
         {error && <div className="page"><div className="alert">{t('app.dbError', { error })}</div></div>}
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/ny" element={F(<RequireEditor back={{ to: '/', label: 'Till förrådet' }}><NyItem /></RequireEditor>)} />
+          <Route path="/" element={<Start />} />
+          <Route path="/forrad" element={F(<Forrad />)} />
+          <Route path="/ny" element={F(<RequireEditor back={{ to: '/forrad', label: 'Till förrådet' }}><NyItem /></RequireEditor>)} />
           <Route path="/item/:id" element={F(<ItemPage />)} />
           <Route path="/karaktarer" element={F(<Karaktarer />)} />
           <Route path="/karaktar/:id" element={F(<Armory />)} />
@@ -98,7 +93,8 @@ function Shell() {
           <Route path="/admin" element={<Admin />} />
           <Route path="/medlemmar" element={<Navigate to="/admin" replace />} />
         </Routes>
-      </main>
+        </main>
+      </div>
       <footer className="site-foot">
         <Compass />
         <span>{t('app.footer')}</span>

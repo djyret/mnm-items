@@ -123,6 +123,12 @@ components:
   parchment-note:
     backgroundColor: "{colors.parchment}"
     textColor: "{colors.ink}"
+  wall-note:
+    backgroundColor: "{colors.parchment}"
+    textColor: "{colors.ink}"
+    padding: "20px 22px 24px"
+  menu-plaque:
+    height: "42px"
 ---
 
 # Design System: Loot & Lore
@@ -131,9 +137,11 @@ components:
 
 **Creative North Star: "The Lamplit Tavern Stash"**
 
-Every screen sits inside one painted tavern. A fixed painting of the tavern interior (`bilder/bakgrund.webp`) is the page itself; a painted header with the built-in Loot & Lore sign (`bilder/header-sv.webp` / `header-en.webp`, the ribbon under the sign follows the chosen language) and a row of painted menu buttons (`ikoner/meny/*.webp`, English versions in `ikoner/meny/en/`) crown it. Everything the gang touches is made of the same few materials: dark bronze-framed panels with filigree corners, stone faces inside iron frames for anything clickable, gold metal for whatever is active, and the game's own iron item frame (`bilder/item-ram.webp`) around item cards. The palette is candlelight on dark wood: warm cream text, gold and bronze accents, near-black browns.
+Every screen sits inside one painted tavern. A fixed painting of the tavern interior (`bilder/bakgrund.webp`) is the page itself; a painted header with the built-in Loot & Lore sign (`bilder/header-sv.webp` / `header-en.webp`, the ribbon under the sign follows the chosen language, and the sign itself is the link home) crowns it, and the painted menu plaques (`ikoner/meny/*.webp`, English versions in `ikoner/meny/en/`) stand in a sticky column down the left edge beside the content. Everything the gang touches is made of the same few materials: dark bronze-framed panels with filigree corners, stone faces inside iron frames for anything clickable, gold metal for whatever is active, and the game's own iron item frame (`bilder/item-ram.webp`) around item cards. The palette is candlelight on dark wood: warm cream text, gold and bronze accents, near-black browns.
 
 The Krönikan surface extends that world with one new material, burnt parchment (`bilder/pergament.webp`), held by forged iron nail heads (`bilder/spik.webp`). In the reading view the evening is nailed straight onto the tavern wall that is already the background; comic images reuse the item iron frame; story, notes and title sign are parchment with dark-brown ink. The working view stays in the incumbent panel world and stays calm.
+
+The start page (`#/`) is the wall you step in to: the signed-in member's main stands as a character sheet in the panel world, and the gang's three latest evenings hang beside it as nailed parchment notes. It is the one place outside Krönikan where parchment appears, because the notes are pieces of the chronicle.
 
 The system is dense where it administers (stash grid, filters, tables) and generous where it remembers (the chapter wall). It is game-UI literal by intent: tooltips and frames copy the in-game window chrome of Monsters & Memories.
 
@@ -142,7 +150,7 @@ The system is dense where it administers (stash grid, filters, tables) and gener
 - Cinzel for every heading, label and control; Crimson Pro for all reading text.
 - Iron frame = clickable; gold frame = selected or active; red face = destructive.
 - Bronze filigree corner ornaments on panels and frames.
-- Parchment and ink are Krönikan's reading material only.
+- Parchment and ink are the chronicle's material: Krönikan and the chronicle notes on the start page's wall, nowhere else.
 
 ## Colors
 
@@ -153,7 +161,7 @@ Candlelight on dark wood: a near-black brown base, cream text, and one metal fam
 - **Worn Bronze** (bronze, bronze-light, bronze-dark): frame borders, focus rings, dashed drop zones, divider gradients (`bronze` fading to transparent), selected-state outlines (bronze-light). Bronze-dark is the standard 1px border of panels and images.
 
 ### Secondary
-- **Burnt Parchment** (parchment, parchment-light, parchment-dark): Krönikan only. The title sign, story roll, notes and screenshot mounts, always rendered through the `pergament.webp` 9-slice rather than as a flat fill. The small zone plaque uses a parchment gradient (parchment to parchment-dark).
+- **Burnt Parchment** (parchment, parchment-light, parchment-dark): chronicle material only, which means Krönikan plus the evening notes on the start page's wall (see The Chronicle Paper Rule). The title sign, story roll, notes, screenshot mounts and start-page notes, always rendered through the `pergament.webp` 9-slice rather than as a flat fill. The small zone plaque uses a parchment gradient (parchment to parchment-dark).
 - **Oak-Gall Ink** (ink, ink-soft): text on parchment. Ink-soft for meta lines and muttered quotes.
 - **Wax Red** (pin-red): the accent on parchment only: drop cap of the story roll, shouted quotes, links and focus outline inside the roll.
 
@@ -170,6 +178,8 @@ Candlelight on dark wood: a near-black brown base, cream text, and one metal fam
 **The Metal Means State Rule.** Iron is resting, gold is chosen. Any selectable thing (menu, button, chip, icon picker, seller, character row, tab) switches from iron metal and iron rivets to gold metal and gold rivets when active; no other colour signals selection.
 
 **The Paper Has Its Own Ink Rule.** On parchment, text is ink or ink-soft and the accent is wax red; player name colours are darkened toward ink (mixed 45% with #2a1a0c) because the game's tags are made for dark backgrounds. Never put cream text or gold on parchment.
+
+**The Chronicle Paper Rule.** Parchment marks the chronicle, not a page. It belongs to Krönikan's surfaces and, as a deliberate scoped exception, to the start page's wall, whose notes are chronicle evenings linking into Krönikan. Everything else on the start page (the character sheet, the main picker, the buttons) stays in the panel world. Any other new surface that wants parchment must carry chronicle content.
 
 ## Typography
 
@@ -193,13 +203,15 @@ Candlelight on dark wood: a near-black brown base, cream text, and one metal fam
 
 ## Layout
 
-Pages are centred at a 1400px max width with 16px gutters (`1.5rem 16px 2rem` page padding). The header image scales with viewport width (clamped 780 to 1400px; 600px under 600px viewport) with its edges masked into the tavern background, and the menu sits on the painted bench below the shelf line.
+Pages are centred at a 1400px max width with 16px gutters (`1.5rem 16px 2rem` page padding). The header image scales with viewport width (clamped 780 to 1400px; 600px under 600px viewport) with its edges masked into the tavern background, and ends just below the shelf edge; it carries no menu. Below it the shell is two columns, the menu rail (auto width) and the content (0.5rem gap), together at most 1620px wide (the 1400px page plus room for the rail), with 16px left padding.
 
 Working pages use sidebar plus content grids: the stash is a 290px sticky filter column beside an auto-fill card grid (`minmax(340px, 1fr)`, 1.2rem gap); item and add pages split into two columns with a sticky preview. Controls share one height (2.6rem) so fields, selects and buttons line up in rows.
 
 The Krönikan reading view is a 330px sticky parchment roll beside a wall grid of 200px columns and 133px rows with 20px gaps, centred, filled strictly in evening order (placement computed in `KapitelLas.tsx`). Pieces are rotated slightly (comic images within about 1.2deg, paper within about 3deg). The working view (Verkstad) is a workbench: the list of the evening's memories beside one 460px control panel (24px gap). The panel is sticky 16px from the top, capped at the viewport height minus 32px, and scrolls on its own; list rows run a 2rem number column, a 128px thumbnail at 3:2 and the text.
 
-At 900px and below every multi-column layout collapses to one column, sticky elements become static, the menu wraps two-up, the wall becomes two equal columns with auto rows, the workbench stacks with the control panel first and the list below (rows shrink to a 1.6rem number and a 96px thumbnail), and the background stops being fixed.
+The start page is a character sheet column (330 to 390px) beside the wall (2rem row, 2.6rem column gap). The wall is a two-column board (1.55fr and 1fr, 1.6rem by 1.8rem gaps): the latest evening spans both rows on the left, the two older evenings stack on the right. When only one side is shown (visitors, or members without the stash area) it takes the full width. Under 1200px the sheet sits above the wall in one column, held to its narrow width; under 700px the board becomes one column and the latest note stops spanning.
+
+At 900px and below every multi-column layout collapses to one column, sticky elements become static, the menu rail becomes a centred, wrapping row of 40px plaques above the content (at most 480px wide), the Krönikan wall becomes two equal columns with auto rows, the workbench stacks with the control panel first and the list below (rows shrink to a 1.6rem number and a 96px thumbnail), and the background stops being fixed.
 
 ## Elevation & Depth
 
@@ -211,14 +223,14 @@ Depth is physical: things hang on the wall and cast soft dark shadows, frames ar
 - **Recessed well** (`inset 0 2px 4px rgba(0,0,0,0.6), 0 1px 0 rgba(169,129,74,0.15)`): inputs and textareas.
 - **Focus glow** (`0 0 0 1px var(--bronze), 0 0 10px rgba(224,160,80,0.3)`): input and select focus.
 - **Selected glow** (`0 0 8px rgba(224,160,80,0.35)`): active chips, pickers, sellers.
-- **Hung on the wall** (`filter: drop-shadow(0 8px 10px to 0 14px 16px, rgba(0,0,0,0.5 to 0.65))`): rasters with 9-slice borders (item frame, parchment, posters, menu images) use drop-shadow filters, not box-shadow, so the shadow follows the torn or riveted silhouette.
+- **Hung on the wall** (`filter: drop-shadow(0 8px 10px to 0 16px 16px, rgba(0,0,0,0.5 to 0.65))`; the deeper end is for a piece lifted on hover): rasters with 9-slice borders (item frame, parchment, posters, menu images) use drop-shadow filters, not box-shadow, so the shadow follows the torn or riveted silhouette.
 
 ### Named Rules
 **The Silhouette Shadow Rule.** Anything drawn with a raster border-image casts `filter: drop-shadow`, never `box-shadow`, so torn parchment and riveted iron keep their real outline.
 
 ## Shapes
 
-Corners are nearly square: 3px on panels, inputs and alerts, 2px on buttons, chips, badges and frames, 0 on 9-slice rasters. Round shapes appear only as the gold coin step numbers in help and small status dots. Frames carry ornament instead of radius: bronze filigree corners (`--corner-tl/tr/bl/br`, 24px) on panels, square X-rivets (`--rivet`, `--rivet-gold`, 7 to 9px) in the corners of every iron-framed control, the 9-slice item frame (`item-ram.webp`, slice 60 38 50 37) on item cards and comic posters, and the 9-slice parchment (`pergament.webp`, slice 56) with torn edges on Krönikan paper, mirrored per piece so neighbours never share an edge. Dashed bronze borders (2px) mark drop targets only.
+Corners are nearly square: 3px on panels, inputs and alerts, 2px on buttons, chips, badges and frames, 0 on 9-slice rasters. Round shapes appear only as the gold coin step numbers in help and small status dots. Frames carry ornament instead of radius: bronze filigree corners (`--corner-tl/tr/bl/br`, 24px) on panels, square X-rivets (`--rivet`, `--rivet-gold`, 7 to 9px) in the corners of every iron-framed control, the 9-slice item frame (`item-ram.webp`, slice 60 38 50 37) on item cards and comic posters, and the 9-slice parchment (`pergament.webp`, slice 56) with torn edges on chronicle paper (Krönikan and the start page's wall), mirrored per piece so neighbours never share an edge. Dashed bronze borders (2px) mark drop targets only.
 
 ## Components
 
@@ -232,7 +244,10 @@ Iron-framed stone plaques, tactile and a little heavy.
 - **Hover / Active / Disabled:** brightness 1.18 on hover, 0.92 on press, 45% opacity disabled.
 
 ### Menu
-Painted raster buttons (`ikoner/meny/*.webp`) at one height (32 to 44px); hover lifts 1px and brightens; active cross-fades to the gold "on" image with a warm glow. The painted header above is the brand sign; do not set it in type.
+Painted raster plaques (`ikoner/meny/*.webp`), all at one height with the width following the image, shadowed as hung rasters; hover brightens; active cross-fades to the gold "on" image with a warm glow.
+- **Rail (default):** a column along the left edge below the header, sticky 16px from the top, 42px plaques with a 0.55rem gap, left-aligned, starting 1.75rem down; hover nudges a plaque 2px to the right.
+- **Row (900px and below):** the rail becomes a static, centred, wrapping row above the content (40px plaques, at most 480px wide); hover lifts 1px instead.
+- **Home:** there is no Home plaque. The painted header sign is the link to the start page (screen-reader label only); do not set it in type.
 
 ### Chips
 - **Style:** 2px iron-metal border around a stone face, small-caps Cinzel 0.82rem, 2rem high.
@@ -266,6 +281,13 @@ Krönikan's working view: one list that selects, one panel that acts. Both halve
 - **Control panel:** one 460px sticky panel holds every action and has two states. Chapter state: sections divided by faint bronze rules: Lägg till (the dashed bronze paste and drop zone and a full-width Nytt ögonblick button), the AI chronicler stacked in one column, and Kapitlet (edit or read the chapter). Inspector state for the selected memory: a head row with a back button, the title "<kind> N av M" and previous/next arrows; a tool row (make a comic, move up or down, make cover) closed by a rule; the entry editor, whose kind picker is labelled Sort; and a sticky footer with Spara (primary) and Stäng, with Ta bort as a small ghost danger-text button pushed to the right.
 
 **The Comic Absorbs Its Source Rule.** A comic built from screenshots (its source ids) absorbs them: those screenshots stop appearing as memories of their own in the list and on the wall and live on only as the comic's original. In the workshop the original sits as a small inset (38% wide, 4:3, 2px cream border) in the corner of the comic's thumbnail, or, before the comic is painted, is the thumbnail itself under a "Väntar på seriebild" strip with a dashed bronze top edge; the inspector lists it with Gör till eget minne to unfold it. On the wall it is tucked into the comic's lower-right corner as a small cream-mounted print captioned "Från spelet" in italic ink, tilted 5deg, and opens in the viewer.
+
+### Start Page (signature)
+The wall you step in to (`Start.tsx`): one's own main on the left, the gang's latest evenings on the right.
+- **Character sheet:** one plain panel. Head: the 44px class icon beside the name (Cinzel 700, 1.6rem, heading cream with a dark shadow) and a level · race · class line. Below it a compact doll: the Armory doll's slot layout around the portrait, 44px icon slots without labels, every slot a link to the character's Armory (slot and item name in the tooltip and for screen readers). Then a short stat box under an iron-dark rule: Health, Mana and AC large (1.3rem) in three columns, then only the non-zero attributes and resistances in two columns, then the bonus note. Actions close the panel: Öppna Armory as the primary button, Byt main as a small ghost button opposite it.
+- **Choose your main:** a member without a chosen main sees a "Välj din main" panel form instead (intro, one select, primary save, ghost cancel when changing).
+- **Wall:** the heading "Senast på väggen" (page title), then the three latest evenings as burnt-parchment notes, each a single link to its chapter. Each note is held by one forged nail at its top centre and hangs at its own tilt (-1.1deg, 1.8deg, -2.2deg), with the parchment mirrored on the middle one so neighbours never share an edge; the cover sits in the item iron frame at 3:2. Note padding (20px 22px 24px; 22px 24px 26px on the latest) keeps all ink inside the 18px burnt rim. The latest note is large and spans two rows: title at clamp(1.4rem, 1.9vw, 1.8rem) with a wax-red initial, date and zone in italic ink-soft, a summary clamped to four lines and "Läs kvällen" in wax-red small caps. The older notes carry only cover, title and meta. Hover straightens a note and lifts it 3px (no transition under reduced motion); focus is a 2px bronze-light outline offset 6px. "Alla kvällar" is a default button right-aligned under the wall.
+- **Visitors** see only the wall.
 
 ### Chronicle Slideshow (signature)
 Krönikan played as a full-screen show (`/kronikan/:id/bildspel`, `Bildspel.tsx`). The chapter title and the end card are the parchment title sign over the first and last image. Images fill the screen uncropped (contain) over a darkened blurred copy of themselves and drift slowly (18s scale and pan, four variants). The focal transition is the **burn-through**: the next image burns its way through the previous one along an irregular front (distance from a varying origin plus value noise, computed at low resolution as a mask), with a white-gold to orange glowing edge and a thin soot band ahead of it, 2.2s. The story is written onto one burnt parchment roll at the bottom that unrolls once and stays; each word soaks in like ink (blurred and wet-dark to sharp ink, 1.1s) in time with the clock, with a wax-red Cinzel drop cap; pausing freezes the ink. Paragraphs own the images they reference; unreferenced images are spread evenly across paragraphs. Controls (iron buttons) and a thin bronze-to-gold progress line sit at the bottom and fade out when the mouse rests. Reduced motion: a 0.5s cross-fade, no drift, the whole paragraph at once.

@@ -38,7 +38,7 @@ Publicering: push till `main` bygger och publicerar via GitHub Actions. Edge Fun
 - Namn: `ÅÅÅÅMMDDHHMMSS_<namn>.sql`. Ny policy eller tabell ska följa mönstret i `20261120130000_lock_writes.sql` och `20261120150000_area_access.sql`.
 - Körs mot produktion via Management API (`POST /v1/projects/zqdccfjisvkovuikrick/database/query`, `SUPABASE_ACCESS_TOKEN` i `.env`) eller `npx supabase db push --linked`.
 - Torrkör först i `begin; … rollback;` med `set local role anon` och `request.jwt.claims` för att testa policyerna. Kör skarpt bara efter Daniels ja, och registrera sedan raden i `supabase_migrations.schema_migrations`.
-- Facit över körda migrationer: valvet `verktyg/mnm-items-migrationer.md`. Status 2026-11-20: alla 19 filer i `supabase/migrations/` är körda; senaste `20261121140000_drop_wishlist.sql`.
+- Facit över körda migrationer: valvet `verktyg/mnm-items-migrationer.md`. Status 2026-11-20: alla 20 filer i `supabase/migrations/` är körda; senaste `20261121150000_my_main.sql`.
 
 ## Språk (sv/en)
 
@@ -46,7 +46,7 @@ Publicering: push till `main` bygger och publicerar via GitHub Actions. Edge Fun
 - Ordböcker i `web/src/lib/i18n/strings/` per område. `sv` är källan (`as const`); `en` är typad mot den, så en saknad nyckel blir byggfel. Lägg alltid till båda.
 - Etiketter som beror på språket slås upp vid rendering (t.ex. `statusLabel(s, lang)`), inte i kartor på modulnivå.
 - Spelets egna namn (zoner, monster, items) stannar på engelska. Det gänget skrivit (krönikor, citat) översätts aldrig. AI-texter skrivs på språket hos den som klickar (`lang` skickas till `berattelse`).
-- Målade bilder per språk: `header-sv/en.webp`; engelska menyknappar i `ikoner/meny/en/` och listade i `EN_MENU` i `App.tsx`. Nya målade bilder görs i ChatGPT.
+- Målade bilder per språk: `header-sv/en.webp`; engelska menyknappar i `ikoner/meny/en/` och listade i `EN_MENU` i `App.tsx`. Nya målade bilder görs i ChatGPT: i T3 Code via `delegate_task` till Codex (`image_gen`), se `~/.claude/CLAUDE.md`.
 
 ## Arbetssätt
 

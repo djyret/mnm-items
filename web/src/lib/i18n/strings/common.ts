@@ -9,6 +9,7 @@ export const sv = {
   'app.footer': 'Delad loot för framtida äventyr',
   'app.dbError': 'Kunde inte nå databasen: {error}',
 
+  'nav.label': 'Huvudmeny',
   'nav.stash': 'Förråd',
   'nav.add': 'Lägg till',
   'nav.characters': 'Karaktärer',
@@ -46,6 +47,7 @@ export const en: { [K in keyof typeof sv]: string } = {
   'app.footer': 'Shared loot for adventures to come',
   'app.dbError': 'Could not reach the database: {error}',
 
+  'nav.label': 'Main menu',
   'nav.stash': 'Stash',
   'nav.add': 'Add item',
   'nav.characters': 'Characters',

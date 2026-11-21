@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-25T18:00:00.000Z",
-  "title": "Design System: MnM Förrådet",
+  "generatedAt": "2026-11-21T12:33:35.321Z",
+  "title": "Design System: Loot & Lore",
   "extensions": {
     "colorMeta": {
       "tavern-night": {
@@ -465,8 +465,8 @@
     "motion": [
       {
         "name": "control-feedback",
-        "value": "filter 0.12s",
-        "purpose": "Brightness change on buttons and menu."
+        "value": "transform 0.12s, filter 0.12s",
+        "purpose": "Brightness change on buttons and menu; menu plaques nudge 2px right in the rail, lift 1px in the row."
       },
       {
         "name": "card-lift",
@@ -476,7 +476,7 @@
       {
         "name": "wall-piece",
         "value": "transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1)",
-        "purpose": "Chronicle pieces straighten and lift on hover or when lit."
+        "purpose": "Chronicle pieces and start page notes straighten and lift on hover or when lit."
       },
       {
         "name": "pin-in",
@@ -490,8 +490,16 @@
         "value": "600px"
       },
       {
+        "name": "wall-single-column",
+        "value": "700px"
+      },
+      {
         "name": "single-column",
         "value": "900px"
+      },
+      {
+        "name": "start-stacked",
+        "value": "1200px"
       }
     ],
     "materials": [
@@ -503,12 +511,12 @@
       {
         "name": "painted-header",
         "value": "url('/bilder/header.webp')",
-        "purpose": "Brand header with built-in sign; edges masked into the background."
+        "purpose": "Brand header with built-in sign (links home); edges masked into the background; ends just below the shelf edge."
       },
       {
         "name": "painted-menu",
         "value": "/ikoner/meny/*.webp",
-        "purpose": "Raster menu buttons with off and on states."
+        "purpose": "Raster menu plaques with off and on states; a sticky left rail, a wrapping row at 900px and below."
       },
       {
         "name": "stone",
@@ -533,7 +541,7 @@
       {
         "name": "parchment",
         "value": "url('/bilder/pergament.webp') 56 fill",
-        "purpose": "9-slice burnt parchment for Krönikan reading surfaces."
+        "purpose": "9-slice burnt parchment for chronicle surfaces: Krönikan and the start page wall notes."
       },
       {
         "name": "nail",
@@ -592,6 +600,14 @@
       "css": ".ds-badge{display:inline-block;font-family:'Cinzel',Georgia,serif;font-size:.64rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:.18rem .5rem;border-radius:2px;border:1px solid currentColor;background:rgba(0,0,0,.45)}"
     },
     {
+      "name": "Menu Rail",
+      "kind": "nav",
+      "refersTo": "menu-plaque",
+      "description": "Painted menu plaques in a sticky left column (iron plates stand in for the ikoner/meny rasters); the gold on-image when active.",
+      "html": "<nav class=\"ds-rail\"><a class=\"ds-plaque is-active\" href=\"#\">Förråd</a><a class=\"ds-plaque\" href=\"#\">Karaktärer</a><a class=\"ds-plaque\" href=\"#\">Krönikan</a><a class=\"ds-plaque\" href=\"#\">Hjälp</a></nav>",
+      "css": ".ds-rail{display:flex;flex-direction:column;align-items:flex-start;gap:.55rem}.ds-plaque{display:inline-flex;align-items:center;height:42px;padding:0 1.2rem;font-family:'Cinzel',Georgia,serif;font-weight:700;font-variant:small-caps;font-size:1rem;letter-spacing:.04em;color:#f1ece1;text-decoration:none;text-shadow:0 1px 2px #000;border:3px solid transparent;border-radius:2px;background:linear-gradient(#4a4843,#2e2c28) padding-box,linear-gradient(180deg,#8d8a84 0%,#5d5a54 18%,#4a4843 50%,#3a3834 82%,#5f5c56 100%) border-box;filter:drop-shadow(0 4px 6px rgba(0,0,0,.6));transition:transform .12s,filter .12s}.ds-plaque:hover{transform:translateX(2px);filter:drop-shadow(0 4px 8px rgba(0,0,0,.6)) brightness(1.15)}.ds-plaque.is-active{color:#fff6df;background:linear-gradient(#5d4527,#33261a) padding-box,linear-gradient(180deg,#e9c27a 0%,#a77a3c 20%,#8a6230 50%,#6e4c22 80%,#b88a48 100%) border-box;filter:drop-shadow(0 0 10px rgba(224,170,80,.35)) drop-shadow(0 4px 6px rgba(0,0,0,.6))}.ds-plaque:focus-visible{outline:2px solid #e0b872;outline-offset:2px}"
+    },
+    {
       "name": "Chapter Tabs",
       "kind": "nav",
       "refersTo": "tab-active",
@@ -622,17 +638,25 @@
       "description": "The workshop control panel in inspector state: back, kind title with prev/next, tool row closed by a rule, sticky footer with Ta bort pushed right.",
       "html": "<aside class=\"ds-insp\"><div class=\"ds-insp__head\"><button class=\"ds-ibtn\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M15 6l-6 6 6 6\"/></svg> Kapitlet</button><h2 class=\"ds-insp__title\">Seriebild 3 av 11</h2><span class=\"ds-insp__nav\"><button class=\"ds-ibtn\" aria-label=\"Föregående minne\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M6 15l6-6 6 6\"/></svg></button><button class=\"ds-ibtn\" aria-label=\"Nästa minne\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M6 9l6 6 6-6\"/></svg></button></span></div><div class=\"ds-insp__tools\"><button class=\"ds-ibtn\">Flytta upp</button><button class=\"ds-ibtn\">Flytta ner</button><button class=\"ds-ibtn\">Gör till omslag</button></div><p class=\"ds-insp__body\">Redigeraren: Sort, bild, bildtext, med i bild.</p><div class=\"ds-insp__foot\"><button class=\"ds-ibtn ds-ibtn--primary\">Spara</button><button class=\"ds-ibtn\">Stäng</button><button class=\"ds-ibtn ds-ibtn--danger\">Ta bort</button></div></aside>",
       "css": ".ds-insp{width:460px;max-width:100%;padding:16px 18px;background:linear-gradient(180deg,#2a241d,#1d1914);border:1px solid #5c4224;border-radius:3px;color:#ebe3d3;font-family:'Crimson Pro',Georgia,serif;box-shadow:inset 0 0 0 2px #15120e,inset 0 0 0 3px rgba(169,129,74,.35),0 10px 24px rgba(0,0,0,.5)}.ds-insp__head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:.6rem;padding-bottom:.7rem;margin-bottom:.8rem;border-bottom:1px solid rgba(169,129,74,.25)}.ds-insp__title{margin:0;font-family:'Cinzel',Georgia,serif;font-size:.85rem;letter-spacing:.14em;text-transform:uppercase;color:#dcb362;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ds-insp__nav{display:flex;gap:.3rem}.ds-insp__tools{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid rgba(169,129,74,.25)}.ds-insp__body{margin:0;color:#b3a993;font-style:italic}.ds-insp__foot{display:flex;gap:.5rem;margin:1rem -18px -16px;padding:.8rem 18px .9rem;background:linear-gradient(180deg,rgba(29,25,20,.92),#1d1914);border-top:1px solid rgba(169,129,74,.3)}.ds-ibtn{display:inline-flex;align-items:center;gap:.3rem;min-height:2.15rem;padding:.2rem .8rem;font-family:'Cinzel',Georgia,serif;font-weight:700;font-variant:small-caps;font-size:.88rem;letter-spacing:.04em;color:#e6dfd0;text-shadow:0 1px 2px #000;cursor:pointer;border:3px solid transparent;border-radius:2px;background:linear-gradient(#2a2925,#1e1d1a) padding-box,linear-gradient(180deg,#8d8a84 0%,#5d5a54 18%,#4a4843 50%,#3a3834 82%,#5f5c56 100%) border-box;transition:filter .12s}.ds-ibtn:hover{filter:brightness(1.18);color:#fff}.ds-ibtn:focus-visible{outline:2px solid #e0b872;outline-offset:2px}.ds-ibtn--primary{min-height:2.6rem;color:#fff6df;background:linear-gradient(#2a2925,#1e1d1a) padding-box,linear-gradient(180deg,#e9c27a 0%,#a77a3c 20%,#8a6230 50%,#6e4c22 80%,#b88a48 100%) border-box}.ds-ibtn--danger{margin-left:auto;align-self:center;color:#d0604e}"
+    },
+    {
+      "name": "Wall Note",
+      "kind": "custom",
+      "refersTo": "wall-note",
+      "description": "Start page evening note: nailed, tilted parchment with the cover in the iron frame; the latest note gets a wax-red initial and Läs kvällen (gradient stands in for the pergament.webp 9-slice).",
+      "html": "<a class=\"ds-wnote\" href=\"#\"><span class=\"ds-wnote__img\"></span><span class=\"ds-wnote__title\">Kvällen i Rothold</span><span class=\"ds-wnote__meta\">fredag 20 nov · Rothold</span><span class=\"ds-wnote__read\">Läs kvällen</span></a>",
+      "css": ".ds-wnote{position:relative;display:inline-flex;flex-direction:column;gap:.3rem;width:260px;padding:20px 22px 24px;color:#3a2a17;text-decoration:none;font-family:'Crimson Pro',Georgia,serif;background:linear-gradient(180deg,#f1e5c4,#e8d6ad 60%,#cdb381);transform:rotate(-1.1deg);filter:drop-shadow(0 10px 12px rgba(0,0,0,.55));transition:transform .22s cubic-bezier(.2,.8,.2,1),filter .22s}.ds-wnote::before{content:\"\";position:absolute;top:-5px;left:50%;width:16px;height:16px;margin-left:-8px;border-radius:2px;background:radial-gradient(circle at 40% 35%,#8d8a84,#3a3834 70%);filter:drop-shadow(0 2px 2px rgba(0,0,0,.75))}.ds-wnote:hover{transform:rotate(0) translateY(-3px);filter:drop-shadow(0 16px 16px rgba(0,0,0,.6))}.ds-wnote:focus-visible{outline:2px solid #e0b872;outline-offset:6px}.ds-wnote__img{display:block;aspect-ratio:3/2;background:linear-gradient(135deg,#3a3126,#0f0d0a);border:6px solid #5d5a54;box-shadow:inset 0 0 0 1px #0d0c0a}.ds-wnote__title{margin-top:.35rem;font-family:'Cinzel',Georgia,serif;font-weight:700;font-variant:small-caps;font-size:1.4rem;line-height:1.15}.ds-wnote__title::first-letter{color:#a3291c}.ds-wnote__meta{font-style:italic;font-size:.95rem;color:#6e4c22}.ds-wnote__read{font-family:'Cinzel',Georgia,serif;font-weight:700;font-variant:small-caps;color:#a3291c}@media (prefers-reduced-motion:reduce){.ds-wnote{transition:none}}"
     }
   ],
   "narrative": {
     "northStar": "The Lamplit Tavern Stash",
-    "overview": "Every screen sits inside one painted tavern. A fixed painting of the tavern interior (`bilder/bakgrund.webp`) is the page itself; a painted header with the built-in Förrådet sign and a row of painted menu buttons (`ikoner/meny/*.webp`) crown it. Everything the gang touches is made of the same few materials: dark bronze-framed panels with filigree corners, stone faces inside iron frames for anything clickable, gold metal for whatever is active, and the game's own iron item frame (`bilder/item-ram.webp`) around item cards. The palette is candlelight on dark wood: warm cream text, gold and bronze accents, near-black browns.\n\nThe Krönikan surface extends that world with one new material, burnt parchment (`bilder/pergament.webp`), held by forged iron nail heads (`bilder/spik.webp`). In the reading view the evening is nailed straight onto the tavern wall that is already the background; comic images reuse the item iron frame; story, notes and title sign are parchment with dark-brown ink. The working view stays in the incumbent panel world and stays calm.\n\nThe system is dense where it administers (stash grid, filters, tables) and generous where it remembers (the chapter wall). It is game-UI literal by intent: tooltips and frames copy the in-game window chrome of Monsters & Memories.",
+    "overview": "Every screen sits inside one painted tavern. A fixed painting of the tavern interior (`bilder/bakgrund.webp`) is the page itself; a painted header with the built-in Loot & Lore sign (`bilder/header-sv.webp` / `header-en.webp`, the ribbon under the sign follows the chosen language, and the sign itself is the link home) crowns it, and the painted menu plaques (`ikoner/meny/*.webp`, English versions in `ikoner/meny/en/`) stand in a sticky column down the left edge beside the content. Everything the gang touches is made of the same few materials: dark bronze-framed panels with filigree corners, stone faces inside iron frames for anything clickable, gold metal for whatever is active, and the game's own iron item frame (`bilder/item-ram.webp`) around item cards. The palette is candlelight on dark wood: warm cream text, gold and bronze accents, near-black browns.\n\nThe Krönikan surface extends that world with one new material, burnt parchment (`bilder/pergament.webp`), held by forged iron nail heads (`bilder/spik.webp`). In the reading view the evening is nailed straight onto the tavern wall that is already the background; comic images reuse the item iron frame; story, notes and title sign are parchment with dark-brown ink. The working view stays in the incumbent panel world and stays calm.\n\nThe start page (`#/`) is the wall you step in to: the signed-in member's main stands as a character sheet in the panel world, and the gang's three latest evenings hang beside it as nailed parchment notes. It is the one place outside Krönikan where parchment appears, because the notes are pieces of the chronicle.\n\nThe system is dense where it administers (stash grid, filters, tables) and generous where it remembers (the chapter wall). It is game-UI literal by intent: tooltips and frames copy the in-game window chrome of Monsters & Memories.",
     "keyCharacteristics": [
       "Raster materials carry the world: tavern background, painted header and menu, stone, item frame, parchment, nail.",
       "Cinzel for every heading, label and control; Crimson Pro for all reading text.",
       "Iron frame = clickable; gold frame = selected or active; red face = destructive.",
       "Bronze filigree corner ornaments on panels and frames.",
-      "Parchment and ink are Krönikan's reading material only."
+      "Parchment and ink are the chronicle's material: Krönikan and the chronicle notes on the start page's wall, nowhere else."
     ],
     "rules": [
       {
@@ -643,6 +667,11 @@
       {
         "name": "The Paper Has Its Own Ink Rule",
         "body": "On parchment, text is ink or ink-soft and the accent is wax red; player name colours are darkened toward ink (mixed 45% with #2a1a0c) because the game's tags are made for dark backgrounds. Never put cream text or gold on parchment.",
+        "section": "colors"
+      },
+      {
+        "name": "The Chronicle Paper Rule",
+        "body": "Parchment marks the chronicle, not a page. It belongs to Krönikan's surfaces and, as a deliberate scoped exception, to the start page's wall, whose notes are chronicle evenings linking into Krönikan. Everything else on the start page (the character sheet, the main picker, the buttons) stays in the panel world. Any other new surface that wants parchment must carry chronicle content.",
         "section": "colors"
       },
       {

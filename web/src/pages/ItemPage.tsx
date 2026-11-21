@@ -100,7 +100,7 @@ export function ItemPage() {
   if (!item) {
     return (
       <div className="page">
-        <div className="panel empty">{loading ? t('common.loading') : <>{t('forradet.itemPage.notFound')} <Link to="/">{t('forradet.itemPage.toStash')}</Link></>}</div>
+        <div className="panel empty">{loading ? t('common.loading') : <>{t('forradet.itemPage.notFound')} <Link to="/forrad">{t('forradet.itemPage.toStash')}</Link></>}</div>
       </div>
     )
   }
@@ -166,7 +166,7 @@ export function ItemPage() {
     }
     await deleteImages(item!.image_path, item!.icon_path)
     await reload()
-    navigate('/')
+    navigate('/forrad')
   }
 
   async function fetchIcon() {
@@ -226,7 +226,7 @@ export function ItemPage() {
 
   return (
     <div className="page">
-      <Link to="/" className="back"><Icon name="vanster" size={14} /> {t('nav.stash')}</Link>
+      <Link to="/forrad" className="back"><Icon name="vanster" size={14} /> {t('nav.stash')}</Link>
       <div className="item-layout">
         <div className="item-layout__main">
           <ItemTooltip item={editing && draft ? draft : item} iconUrl={itemIconUrl(item)} />

@@ -163,6 +163,8 @@ export interface Membership {
   display_name: string | null
   discord_id: string | null
   approved_by: string | null
+  /** Karaktären som visas på startsidan (sätts med set_my_main) */
+  main_character_id: string | null
   created_at: string
   updated_at: string
 }

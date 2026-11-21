@@ -50,6 +50,9 @@ create table public.membership_audit (   -- vem ändrade vems roll/status och n�
 - **Klienten får aldrig skriva till `memberships`.** Inga insert/update/delete-grants. Ändringar går bara via
   `admin_set_membership(target uuid, role app_role, status text)`, en `security definer`-funktion som kräver
   `is_admin()`, vägrar att låta admin degradera sig själv om ingen annan admin finns, och skriver till `membership_audit`.
+- Undantag för startsidan: `set_my_main(char_id uuid)` (`security definer`, bara `authenticated`, kräver `is_member()`)
+  sätter `main_character_id` på anroparens egen rad och inget annat. Roll och status kan inte ändras den vägen
+  (migration `20261121150000_my_main`).
 - SELECT på `memberships`: egen rad för alla inloggade, alla rader för admin.
 
 ### Hjälpfunktioner

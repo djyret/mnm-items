@@ -123,7 +123,7 @@ export function Karaktarer() {
                   </div>
                   {c.notes && <p className="note">{c.notes}</p>}
                   <div className="char__stats">
-                    <Link to={`/?karaktar=${c.id}`}><b>{held.length}</b> {t('forradet.chars.items')}</Link>
+                    <Link to={`/forrad?karaktar=${c.id}`}><b>{held.length}</b> {t('forradet.chars.items')}</Link>
                     <span><b>{lentOut}</b> {t('forradet.chars.lentOut')}</span>
                     <span><b>{borrowed}</b> {t('forradet.chars.borrowed')}</span>
                   </div>

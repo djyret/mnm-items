@@ -633,7 +633,7 @@ textarea { resize: vertical; }
 }
 /* Bilden skalas efter sidbredden men max 1400px; bredare skärmar får mjuka kanter mot
    tavernabakgrunden. Toppen (takbjälke) beskärs med --lift. Hyllkanten ligger på 57 % av
-   bildhöjden (778px av 2020px bredd); menyn läggs på bänkytan strax under. */
+   bildhöjden (778px av 2020px bredd). Menyn står sedan 2026-11 i en kolumn till vänster (.nav--rail). */
 .hero {
   --img-w: clamp(780px, 100vw, 1400px);
   --lift: calc(var(--img-w) * 0.04);
@@ -1946,3 +1946,168 @@ html[lang='en'] .hero { background-image: url('/bilder/header-en.webp'); }
 .armory__setactions { margin-left: auto; display: flex; gap: 0.4rem; padding-right: 0.2rem; }
 .doll--set { box-shadow: inset 0 0 0 1px var(--bronze-dark), inset 0 0 30px rgba(224, 184, 114, 0.06); }
 .gstats__diff { margin-right: 0.45rem; font-size: 0.78em; }
+
+/* ---------- Skalet: menyn längs vänsterkanten ---------- */
+/* Headern bär inte längre menyn; den slutar strax under hyllkanten */
+.hero__inner { padding-bottom: 0.4rem; }
+.shell {
+  flex: 1;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0 0.5rem;
+  width: 100%;
+  max-width: calc(1400px + 220px);
+  margin: 0 auto;
+  padding-left: 16px;
+}
+.nav--rail {
+  position: sticky;
+  top: 16px;
+  align-self: start;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 0.55rem;
+  margin: 0;
+  padding-top: 1.75rem;
+}
+.nav--rail .menu-img { --h: 42px; }
+.nav--rail .menu-img:hover { transform: translateX(2px); }
+@media (max-width: 900px) {
+  .shell { grid-template-columns: minmax(0, 1fr); padding-left: 0; }
+  .nav--rail { position: static; flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; margin: 0 auto; padding-top: 0.6rem; }
+  .nav--rail .menu-img { --h: 40px; }
+  .nav--rail .menu-img:hover { transform: translateY(-1px); }
+}
+
+/* ---------- Startsidan: karaktärsblad och vägg ---------- */
+.start { display: grid; grid-template-columns: minmax(330px, 390px) minmax(0, 1fr); gap: 2rem 2.6rem; align-items: start; }
+.start--single { grid-template-columns: minmax(0, 1fr); }
+.start-sheet { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+.start-sheet__head { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+.start-sheet__name { margin: 0; font-family: var(--font-title); font-weight: 700; font-size: 1.6rem; letter-spacing: 0.04em; line-height: 1.1; color: #f0e4c8; text-shadow: 0 2px 4px #000; }
+.start-sheet__actions { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; margin-top: 1.1rem; }
+/* Kort statsruta i karaktärsbladet: vitals, sedan bara det gearen ger */
+.gsum { margin-top: 1rem; padding-top: 0.8rem; border-top: 1px solid var(--iron-dark); }
+.gsum dl { margin: 0; }
+.gsum__vitals { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 1rem; }
+.gsum__vitals .gstats__row { flex-direction: column; align-items: flex-start; gap: 0; }
+.gsum__vitals dd { font-size: 1.3rem; line-height: 1.2; }
+.gsum__extra { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 1.2rem; margin-top: 0.6rem !important; padding-top: 0.5rem; border-top: 1px solid var(--iron-dark); }
+.gsum .bonus__note { font-family: var(--font-body); font-variant: normal; }
+.start-pick__intro { margin: 0 0 0.9rem; color: var(--text-dim); }
+.start-pick .actions { margin-top: 0.9rem; }
+
+/* Kompakt docka: samma placering som Armory, rutorna är länkar och etiketterna borta */
+.doll--mini { grid-template-columns: 44px minmax(0, 1fr) 44px; gap: 0.35rem 0.45rem; }
+.doll--mini .doll__slot { width: 44px; text-decoration: none; }
+.doll--mini .item-icon--sm { width: 44px; height: 44px; }
+.doll--mini .doll__row { gap: 0.35rem; }
+.doll--mini .doll__row--top { justify-content: space-between; }
+.doll--mini .doll__col { gap: 0.35rem; }
+.doll--mini .doll__portrait { min-height: 0; }
+.doll--mini .doll__portrait img { position: absolute; inset: 0; }
+
+.start-wall { min-width: 0; }
+.start-wall__title { margin-top: 0; }
+/* Den senaste kvällen stor till vänster, två äldre staplade bredvid */
+.start-wall__board {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  gap: 1.6rem 1.8rem;
+  align-items: start;
+  padding: 0.6rem 0.4rem 0;
+}
+.start-note {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  /* Texten håller sig innanför den brända kanten (18px i 9-slicen) */
+  padding: 20px 22px 24px;
+  color: var(--ink);
+  text-decoration: none;
+  isolation: isolate;
+  transform: rotate(var(--tilt, 0deg));
+  filter: drop-shadow(0 10px 12px rgba(0, 0, 0, 0.55));
+  transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.22s;
+}
+/* Pergamentet speglas per lapp så att grannar inte har samma avrivna kant */
+.start-note::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border: 18px solid transparent;
+  border-image: url('/bilder/pergament.webp') 56 fill / 18px stretch;
+  transform: scale(var(--flip, 1), 1);
+}
+.start-note::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin-left: -8px;
+  background: url('/bilder/spik.webp') center / cover;
+  transform: rotate(calc(var(--tilt, 0deg) * 7));
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.75));
+  z-index: 2;
+}
+.start-note:hover { color: var(--ink); transform: rotate(0deg) translateY(-3px); filter: drop-shadow(0 16px 16px rgba(0, 0, 0, 0.6)); z-index: 3; }
+.start-note:focus-visible { outline: 2px solid var(--bronze-light); outline-offset: 6px; }
+.start-note--lead { grid-row: span 2; padding: 22px 24px 26px; }
+.start-note__img {
+  display: block;
+  border-style: solid;
+  border-width: 13px 9px 11px;
+  border-image: url('/bilder/item-ram.webp') 60 38 50 37 / 13px 9px 11px stretch;
+  background: #0a0907;
+}
+.start-note__img img { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; }
+.start-note__img > span { display: grid; place-items: center; aspect-ratio: 3 / 2; color: var(--text-dim); font-style: italic; }
+.start-note__title {
+  margin-top: 0.35rem;
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-variant: small-caps;
+  font-size: 1.12rem;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+  text-wrap: balance;
+}
+.start-note--lead .start-note__title { font-size: clamp(1.4rem, 1.9vw, 1.8rem); }
+.start-note--lead .start-note__title::first-letter { color: var(--pin); }
+.start-note__meta { font-style: italic; font-size: 0.95rem; color: var(--ink-soft); }
+.start-note__summary {
+  margin-top: 0.2rem;
+  font-size: 1.06rem;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.start-note__read { margin-top: 0.3rem; font-family: var(--font-title); font-weight: 700; font-variant: small-caps; color: var(--pin); }
+.start-wall__foot { display: flex; justify-content: flex-end; margin-top: 1.6rem; }
+
+@media (max-width: 1200px) {
+  .start { grid-template-columns: minmax(0, 1fr); }
+  .start-sheet { max-width: 440px; }
+}
+/* Armorys mobilregel staplar dockan; den kompakta behåller fönstret, toppraden över hela bredden */
+@media (max-width: 600px) {
+  .doll.doll--mini { grid-template-columns: 44px minmax(0, 1fr) 44px; grid-template-rows: auto 1fr auto; grid-template-areas: "top top top" "left portrait right" "left bottom right"; }
+  .doll--mini .doll__col { flex-direction: column; flex-wrap: nowrap; }
+  .doll--mini .doll__row { flex-direction: row; flex-wrap: nowrap; justify-content: space-between; }
+}
+@media (max-width: 700px) {
+  .start-wall__board { grid-template-columns: minmax(0, 1fr); }
+  .start-note--lead { grid-row: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .start-note { transition: none; }
+}
