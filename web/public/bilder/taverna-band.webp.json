@@ -1,17 +1,63 @@
 {
-  "derivation": "Preserved the source band and its centre alpha fade. Behind the last 96 rows, ramped in each continuation at its global y phase, restoring the post faces to opaque at the bottom edge.",
-  "source": "header-band-1.webp",
-  "inferredPostFaceColumns": [
-    [
-      31,
-      165
-    ],
-    [
-      2393,
-      2528
-    ]
+  "timestamp": "2026-11-21T15:32:23.545Z",
+  "generator": "Built-in image_gen",
+  "prompts": [
+    "Create one transparent sprite sheet with FOUR separated full-body seated fantasy characters, one centered in each quadrant of a square canvas, with wide gutters. In order of attached reference images: top left Gabbex (brown curls, young cheeky halfling face, green leaf cloak, bronze tree emblem, gnarled spiral green staff), top right Derinx (round glasses, long white beard, tall floppy purple gold-trimmed wizard hat, purple embroidered robe and tiny purple spiral staff), bottom left Daremx (bushy white eyebrows and beard, brass goggles on navy cap, navy gold-trim coat, a small flame in one hand), bottom right Fizzler (original character with pale skin, white forked beard, dark saturated blue #0054c2 pointed hooded travel robe, small handheld blue portal swirl). Final input is the dark tavern where these will be composited, for light/reference only. Match the characters' expressive stylized 3D-rendered comic faces, rounded exaggerated gnome anatomy, and richly textured fabric. All four are seated on an invisible raised front edge facing us, seen from near eye level and slightly above the shelf, upper bodies upright, hips and thighs supported by the invisible edge, quizzical and relaxed, looking slightly down, with both short legs bending down from the knee, dangling down visibly with separate boots. Show all shoes and accessories. No floor, shelf, text, backgrounds, outlines or ground shadows; only the four isolated figures, with genuine transparent pixels all around and between them. Moody warm amber candlelight, muted deep rich colours, dark soft shadows. Light comes from left on the top row and from right on the bottom row. Avoid oversize magic effects.",
+    "Revise this transparent four-quadrant sprite sheet for a fantasy tavern header. Keep exactly the same four designs in their existing quadrants, substantial transparent gutters, and full bodies including shoes. Change the poses and expressions substantially: this is a quiet moment sitting on a ledge, so elbows are DOWN beside the ribs, hands rest on thighs or casually hold their accessory at lap height, and eyes are open looking toward the page below. Nobody waves; no wrists higher than the shoulder line. Gabbex at top left actually grips his green spiral staff, his other hand on his knee, with a lopsided grin. Derinx at top right leans with a forearm on his knee, other hand gripping his violet staff. Daremx at bottom left studies a tiny orange flame cupped low in one hand. Fizzler at bottom right is leaning back slightly, with a tiny blue portal held beside one hip. Make individual dangling leg positions subtly asymmetric. Preserve the convincing seated bend at the knees and the warm amber lighting. No furniture or floor. Genuine transparent background. Draw clean alpha edges."
   ],
-  "bottomJoinY": 640,
-  "stripBackgroundOriginY": 0,
-  "timestamp": "2026-11-21T14:57:04.216Z"
+  "composite": "Character-only alpha sprites, dimmed to match candlelight, and soft shelf contact shadows over original band",
+  "placements": [
+    {
+      "name": "Gabbex",
+      "region": [
+        0,
+        0,
+        625,
+        660
+      ],
+      "x": 717,
+      "seat": 506,
+      "height": 178,
+      "knee": 0.735
+    },
+    {
+      "name": "Derinx",
+      "region": [
+        625,
+        0,
+        629,
+        654
+      ],
+      "x": 875,
+      "seat": 506,
+      "height": 190,
+      "knee": 0.775
+    },
+    {
+      "name": "Daremx",
+      "region": [
+        0,
+        660,
+        625,
+        594
+      ],
+      "x": 1789,
+      "seat": 506,
+      "height": 181,
+      "knee": 0.745
+    },
+    {
+      "name": "Fizzler",
+      "region": [
+        625,
+        654,
+        629,
+        600
+      ],
+      "x": 2032,
+      "seat": 362,
+      "height": 170,
+      "knee": 0.765
+    }
+  ]
 }
