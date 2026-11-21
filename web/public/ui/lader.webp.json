@@ -1,0 +1,6 @@
+{
+  "prompt": "Square evenly lit subtly textured very dark brown fine-grain leather swatch that fills the entire image and can tile. No borders or perspective. Straight-on, isolated single physical UI asset for Loot & Lore, warm tavern candlelight, realistic detailed painted material. The references provide material and styling only. Fill the entire canvas edge-to-edge. No lettering except a specified symbol, no surrounding objects.",
+  "timestamp": "2026-11-21T16:48:13.273Z",
+  "process": "Built-in imagegen with approved style references, then Sharp crop, resize and lossless WebP encoding.",
+  "correction": "Blended opposite boundaries to make the tile edges match."
+}

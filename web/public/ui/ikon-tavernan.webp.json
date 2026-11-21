@@ -1,0 +1,5 @@
+{
+  "prompt": "A wooden tavern tankard with metal hoops and a little foam as a compact painted RPG inventory icon, legible at 32px. Straight-on, isolated single physical UI asset for Loot & Lore, warm tavern candlelight, realistic detailed painted material. The references provide material and styling only. Use actual alpha outside silhouette. No lettering except a specified symbol, no surrounding objects.",
+  "timestamp": "2026-11-21T16:52:02.045Z",
+  "process": "Built-in imagegen with approved style references, then Sharp crop, resize and lossless WebP encoding."
+}

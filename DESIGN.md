@@ -152,6 +152,16 @@ The system is dense where it administers (stash grid, filters, tables) and gener
 - Bronze filigree corner ornaments on panels and frames.
 - Parchment and ink are the chronicle's material: Krönikan and the chronicle notes on the start page's wall, nowhere else.
 
+## Material System (2026-11)
+
+The interface is built from painted materials in `web/public/ui/` (9-slice border-images, each with a provenance `.json`), and this section wins over older iron, stone and filigree descriptions further down:
+
+- **Leather and brass are for tools.** Panels default to the quiet leather (`panel-tyst.webp`, slice 40, 20px): smooth dark leather with one stitched seam, calm enough for forms and tables. Hero surfaces (the start page character sheet) use the heavy leather (`panel--tung`, `panel-tung.webp`, slice 96): tooled leather with brass corner caps and studs.
+- **Buttons and tabs** are stitched leather (`knapp-lader.webp`, slice 32, 12px; 9px small); primary and the active tab are brass leather (`knapp-massing.webp`) with dark ink text; danger is red leather (`knapp-fara.webp`). Inputs and selects are a recessed leather well (`falt.webp`, slice 20, 10px).
+- **The menu** is a column of rounded leather plaques with a stitched seam and a brass stud at each end (`meny.webp`, slice 76 64 25 64 drawn on a `::before`), a painted icon (`ikon-*.webp`, 34px) and the label as HTML text in Cinzel small caps. The active page is polished golden leather (`meny-aktiv.webp`) with dark text. Help text shows small inline copies (`menu-item--inline`).
+- **Paper is for memories.** Chronicle sheets, story roll, title sign and wall notes use torn, candle-stained paper (`papper-1.webp`, slice 60), with a dog-eared corner overlay (`horn.webp`) and faint stains (`flack-*.webp`) on start-page notes.
+- **Wax seals mark what is special**: red with ribbons for the latest evening (`sigill-band-rod.webp`), and red/green/blue seals (`sigill-*.webp`) reserved for featured/completed/in-progress states; `medaljong.webp` is reserved for Hall of Fame.
+
 ## Colors
 
 Candlelight on dark wood: a near-black brown base, cream text, and one metal family (gold and bronze) for emphasis, with parchment and ink as the chronicle's paper.

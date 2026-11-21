@@ -1,0 +1,6 @@
+{
+  "prompt": "A very wide 5:1 rounded dark brown stitched leather plaque, with exactly one single brass stud centered vertically at each end. Match rounded plaques in first reference. No content. Straight-on, isolated single physical UI asset for Loot & Lore, warm tavern candlelight, realistic detailed painted material. The references provide material and styling only. Use actual alpha outside silhouette. No lettering, no surrounding objects. Uniform edges and calm center for CSS border-image; no decorative details along edges except uniform stitches.",
+  "timestamp": "2026-11-21T16:45:25.259Z",
+  "process": "Built-in imagegen with approved style references, then Sharp crop, resize and lossless WebP encoding.",
+  "correction": "Softened leather grain in the stretchable center."
+}

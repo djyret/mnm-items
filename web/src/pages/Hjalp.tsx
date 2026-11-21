@@ -5,13 +5,20 @@ import type { Access } from '../lib/auth'
 import { useI18n, type Key } from '../lib/i18n'
 import { Icon } from '../components/Icon'
 
-const MENU = `${import.meta.env.BASE_URL}ikoner/meny/`
+const UI = `${import.meta.env.BASE_URL}ui/`
 const ICON = `${import.meta.env.BASE_URL}ikoner/`
+/** Menyns ikonnamn där de skiljer sig från knappens gamla bildnamn */
+const IKON: Record<string, string> = { 'alt-vy': 'alts', salda: 'forsaljning' }
 
-/** Bild av en menyknapp, så man känner igen den. */
+/** En liten kopia av menyskylten, så man känner igen knappen. */
 function Knapp({ namn, bild }: { namn: string; bild: string }) {
   const { t } = useI18n()
-  return <img className="help-btnpic" src={`${MENU}${bild}.webp`} alt={t('admin.help.buttonAlt', { name: namn })} title={namn} />
+  return (
+    <span className="menu-item menu-item--inline" role="img" aria-label={t('admin.help.buttonAlt', { name: namn })}>
+      <img className="menu-item__ikon" src={`${UI}ikon-${IKON[bild] ?? bild}.webp`} alt="" />
+      <span>{namn}</span>
+    </span>
+  )
 }
 
 /** Fetstil för en knapp eller ett fält på sidan. */

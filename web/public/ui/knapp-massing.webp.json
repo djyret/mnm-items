@@ -1,0 +1,6 @@
+{
+  "prompt": "A wide 3:1 polished golden-brass leather button with fine stitching, chamfered rounded corners and minuscule corner brass dots. Straight-on, isolated single physical UI asset for Loot & Lore, warm tavern candlelight, realistic detailed painted material. The references provide material and styling only. Use actual alpha outside silhouette. No lettering except a specified symbol, no surrounding objects. Uniform edges and calm center for CSS border-image; no decorative details along edges except uniform stitches or fine paper tears.",
+  "timestamp": "2026-11-21T16:50:04.909Z",
+  "process": "Built-in imagegen with approved style references, then Sharp crop, resize and lossless WebP encoding.",
+  "correction": "Cloned undisturbed brass leather over a central ornament."
+}

@@ -1,0 +1,5 @@
+{
+  "prompt": "Circular embossed antique warm brass medallion, compass rose surrounded by a laurel wreath, finely beaded rim. Straight-on, isolated single physical UI asset for Loot & Lore, warm tavern candlelight, realistic detailed painted material. The references provide material and styling only. Use actual alpha outside silhouette. No lettering except a specified symbol, no surrounding objects.",
+  "timestamp": "2026-11-21T16:49:16.144Z",
+  "process": "Built-in imagegen with approved style references, then Sharp crop, resize and lossless WebP encoding."
+}

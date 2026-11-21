@@ -47,7 +47,7 @@ function MainSheet() {
   const info = [main.level && t('start.level', { n: main.level }), main.race, main.class && (CLASSES[main.class] || main.class)].filter(Boolean).join(' · ')
   return (
     <section className="start-sheet" aria-labelledby="start-main-name">
-      <div className="panel start-sheet__card">
+      <div className="panel panel--tung start-sheet__card">
         <header className="start-sheet__head">
           <ClassIcon code={main.class} size={44} />
           <div>
@@ -252,13 +252,18 @@ function Wall({ intro }: { intro: boolean }) {
             return (
               <Link key={c.id} to={`/kronikan/${c.id}`} className={`start-note${i === 0 ? ' start-note--lead' : ''}`} style={style}
                 aria-label={`${c.title}, ${meta}`}>
+                {i === 0 && <img className="start-note__sigill" src={`${import.meta.env.BASE_URL}ui/sigill-band-rod.webp`} alt="" />}
                 <span className="start-note__img">
                   {cover ? <img src={kronikaUrl(cover.image_path)!} alt="" loading={i === 0 ? 'eager' : 'lazy'} /> : <span>{t('kronikan.list.noPictures')}</span>}
                 </span>
-                <span className="start-note__title">{c.title}</span>
-                <span className="start-note__meta">{meta}</span>
-                {i === 0 && c.summary && <span className="start-note__summary">{c.summary}</span>}
-                {i === 0 && <span className="start-note__read">{t('start.readEvening')}</span>}
+                <span className="start-note__text">
+                  <span className="start-note__title">{c.title}</span>
+                  <span className="start-note__meta">{meta}</span>
+                  {i === 0 && c.summary && <span className="start-note__summary">{c.summary}</span>}
+                  {i === 0 && <span className="start-note__read">{t('start.readEvening')}</span>}
+                </span>
+                {i === 0 && <span className="start-note__flack" aria-hidden="true" />}
+                <span className="start-note__horn" aria-hidden="true" />
               </Link>
             )
           })}

@@ -26,22 +26,18 @@ import { Kronikan } from './pages/Kronikan'
 import { Stilbibel } from './pages/Stilbibel'
 import { Start } from './pages/Start'
 
-/** Menyknapparna är färdiga bilder (järn = vanlig, guld = aktiv sida). Område = vad adminpanelen styr. */
+/** Menyn: läderskyltar med målad ikon och text i HTML (guldläder = aktiv sida). Område = vad adminpanelen styr. */
 const NAV: [string, Key, string, Area | null][] = [
   ['/', 'nav.home', 'hem', null],
   ['/forrad', 'nav.stash', 'forrad', 'forradet'],
   ['/ny', 'nav.add', 'lagg-till', 'forradet'],
   ['/karaktarer', 'nav.characters', 'karaktarer', 'forradet'],
-  ['/alt', 'nav.alts', 'alt-vy', 'forradet'],
-  ['/salda', 'nav.sales', 'salda', 'forradet'],
+  ['/alt', 'nav.alts', 'alts', 'forradet'],
+  ['/salda', 'nav.sales', 'forsaljning', 'forradet'],
   ['/kronikan', 'nav.chronicle', 'kronikan', 'kronikan'],
   ['/hjalp', 'nav.help', 'hjalp', null],
 ]
-const MENU = `${import.meta.env.BASE_URL}ikoner/meny/`
-/** Menyknappar som har en målad engelsk version i ikoner/meny/en/; övriga visar den svenska bilden. */
-const EN_MENU = new Set<string>(['hem', 'forrad', 'lagg-till', 'karaktarer', 'salda', 'kronikan', 'hjalp'])
-const menuSrc = (lang: string, icon: string, suffix: string) =>
-  `${MENU}${lang === 'en' && EN_MENU.has(icon) ? 'en/' : ''}${icon}${suffix}.webp`
+const UI = `${import.meta.env.BASE_URL}ui/`
 
 const F = (page: ReactNode) => <RequireArea area="forradet">{page}</RequireArea>
 const K = (page: ReactNode) => <RequireArea area="kronikan">{page}</RequireArea>
@@ -72,9 +68,9 @@ function Shell() {
       <div className="shell">
         <nav className="nav nav--rail" aria-label={t('nav.label')}>
           {NAV.filter(([to, , , area]) => (to !== '/ny' || canEdit) && (!area || canView(area))).map(([to, label, icon]) => (
-            <NavLink key={to} to={to} end={to === '/'} className="menu-img" aria-label={t(label)} title={t(label)}>
-              <img className="menu-img__off" src={menuSrc(lang, icon, '')} alt="" />
-              <img className="menu-img__on" src={menuSrc(lang, icon, '-aktiv')} alt="" />
+            <NavLink key={to} to={to} end={to === '/'} className="menu-item">
+              <img className="menu-item__ikon" src={`${UI}ikon-${icon}.webp`} alt="" />
+              <span>{t(label)}</span>
             </NavLink>
           ))}
         </nav>

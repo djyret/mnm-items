@@ -1,0 +1,6 @@
+{
+  "prompt": "Isolated triangular dog-eared bottom-right corner of warm pale cream vintage parchment, curl with golden underside and folded fine diagonal edge. Include only the corner in triangle silhouette. Straight-on, isolated single physical UI asset for Loot & Lore, warm tavern candlelight, realistic detailed painted material. The references provide material and styling only. Use actual alpha outside silhouette. No lettering except a specified symbol, no surrounding objects.",
+  "timestamp": "2026-11-21T16:46:54.432Z",
+  "process": "Built-in imagegen with approved style references, then Sharp crop, resize and lossless WebP encoding.",
+  "correction": "Masked the artwork down to the actual fold and removed the incidental wax seal."
+}

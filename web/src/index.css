@@ -1219,7 +1219,7 @@ input[type='color'] { padding: 2px; height: var(--ctl-h, 2.4rem); cursor: pointe
   gap: 0.15rem;
   position: relative;
   border: 24px solid transparent;
-  border-image: url('/bilder/pergament.webp') 56 fill / 24px stretch;
+  border-image: url('/ui/papper-1.webp') 60 fill / 24px stretch;
   padding: 0.2rem 1.6rem 0.3rem;
   background: none;
   box-shadow: none;
@@ -1255,7 +1255,7 @@ input[type='color'] { padding: 2px; height: var(--ctl-h, 2.4rem); cursor: pointe
   overflow: auto;
   padding: 10px 6px 8px 10px;
   border: 26px solid transparent;
-  border-image: url('/bilder/pergament.webp') 56 fill / 26px stretch;
+  border-image: url('/ui/papper-1.webp') 60 fill / 26px stretch;
   color: var(--ink);
   font-size: 1.06rem;
   line-height: 1.6;
@@ -1349,7 +1349,7 @@ input[type='color'] { padding: 2px; height: var(--ctl-h, 2.4rem); cursor: pointe
   padding: 4px 4px 2px;
   text-align: left;
   border: 18px solid transparent;
-  border-image: url('/bilder/pergament.webp') 56 fill / 18px stretch;
+  border-image: url('/ui/papper-1.webp') 60 fill / 18px stretch;
   background: none;
   filter: drop-shadow(0 10px 12px rgba(0, 0, 0, 0.55));
 }
@@ -1385,7 +1385,7 @@ input[type='color'] { padding: 2px; height: var(--ctl-h, 2.4rem); cursor: pointe
   inset: 0;
   z-index: -1;
   border: 18px solid transparent;
-  border-image: url('/bilder/pergament.webp') 56 fill / 18px stretch;
+  border-image: url('/ui/papper-1.webp') 60 fill / 18px stretch;
   transform: scale(var(--flip, 1), calc(var(--flip, 1) * -1));
 }
 /* Spelets namnfärger är gjorda för mörk bakgrund; mörkna dem mot pergamentet */
@@ -1623,7 +1623,7 @@ blockquote.kr-note { font-family: var(--font-title); font-weight: 700; }
   translate: -50% 0;
   padding: 0.5rem 1.4rem 0.6rem;
   border: 26px solid transparent;
-  border-image: url('/bilder/pergament.webp') 56 fill / 26px stretch;
+  border-image: url('/ui/papper-1.webp') 60 fill / 26px stretch;
   color: var(--ink);
   font-family: var(--font-body);
   font-size: clamp(1.1rem, 1.75vw, 1.42rem);
@@ -1681,7 +1681,7 @@ blockquote.kr-note { font-family: var(--font-title); font-weight: 700; }
   margin: 0 auto;
   padding: 1.6rem 2.6rem 1.2rem;
   border: 30px solid transparent;
-  border-image: url('/bilder/pergament.webp') 56 fill / 30px stretch;
+  border-image: url('/ui/papper-1.webp') 60 fill / 30px stretch;
   color: var(--ink);
   font-size: 1.16rem;
   line-height: 1.7;
@@ -2043,7 +2043,7 @@ blockquote.kr-note { font-family: var(--font-title); font-weight: 700; }
   inset: 0;
   z-index: -1;
   border: 18px solid transparent;
-  border-image: url('/bilder/pergament.webp') 56 fill / 18px stretch;
+  border-image: url('/ui/papper-1.webp') 60 fill / 18px stretch;
   transform: scale(var(--flip, 1), 1);
 }
 .start-note::before {
@@ -2161,3 +2161,186 @@ main:focus { outline: none; }
 
 /* Förrådet filtrerat från startsidans "Sedan sist" */
 .results__since { display: inline-flex; align-items: center; gap: 0.6rem; color: var(--gold); font-style: italic; }
+
+/* =====================================================================================
+   Lädersystemet (2026-11): läder och mässing för verktyg, papper för minnen, vaxsigill för
+   det som är särskilt. Materialen är målade 9-slices i /ui/ (se ui/*.json för ursprung).
+   Ersätter järnramar, stenytor och filigranhörn; ligger sist så att det vinner över äldre regler.
+   ===================================================================================== */
+:root {
+  --ui: url('/ui/');
+  --ink-on-brass: #2a1606;
+}
+
+/* ---------- Paneler: tyst läder som grund, tungt läder för de ytor som ska synas mest ---------- */
+.frame, .panel {
+  background: none;
+  outline: none;
+  box-shadow: none;
+  border-radius: 0;
+  border: 20px solid transparent;
+  border-image: url('/ui/panel-tyst.webp') 40 fill / 20px stretch;
+  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.5));
+}
+.frame::before, .panel::before { display: none; }
+.panel { padding: 0.45rem 0.55rem; }
+.panel--tung {
+  border-width: 40px;
+  border-image: url('/ui/panel-tung.webp') 96 fill / 40px stretch;
+  padding: 0;
+}
+.panel-title { border-image: none; }
+
+/* ---------- Menyn: rundade läderskyltar med nitar och stygn, ikon och text i HTML ---------- */
+.menu-item {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 196px;
+  height: 50px;
+  padding: 0 22px 0 20px;
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-variant: small-caps;
+  font-size: 1.08rem;
+  letter-spacing: 0.04em;
+  color: #f3e6c8;
+  text-decoration: none;
+  text-shadow: 0 1px 2px #000, 0 0 6px rgba(0, 0, 0, 0.6);
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.6));
+  transition: transform 0.12s, filter 0.12s;
+}
+.menu-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-style: solid;
+  border-width: 34px 30px 11px 30px;
+  border-image: url('/ui/meny.webp') 76 64 25 64 fill / 34px 30px 11px 30px stretch;
+}
+.menu-item__ikon { width: 34px; height: 34px; object-fit: contain; flex: none; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8)); }
+.menu-item:hover { color: #fff6df; transform: translateX(2px); filter: drop-shadow(0 5px 8px rgba(0, 0, 0, 0.65)) brightness(1.12); }
+.menu-item.active { color: var(--ink-on-brass); text-shadow: 0 1px 0 rgba(255, 236, 190, 0.55); }
+.menu-item.active::before { border-image-source: url('/ui/meny-aktiv.webp'); }
+.menu-item:focus-visible { outline: 2px solid var(--bronze-light); outline-offset: 3px; }
+/* Hjälpsidans små kopior av menyskyltarna, i löptexten */
+.menu-item--inline { display: inline-flex; vertical-align: middle; width: auto; height: 36px; padding: 0 16px 0 12px; font-size: 0.9rem; margin: 0 0.15em; }
+.menu-item--inline::before { border-width: 24px 21px 8px 21px; border-image-width: 24px 21px 8px 21px; }
+.menu-item--inline .menu-item__ikon { width: 24px; height: 24px; }
+.menu-item--inline:hover { transform: none; }
+@media (max-width: 900px) {
+  .menu-item { width: 168px; height: 44px; font-size: 0.98rem; }
+  .menu-item:hover { transform: translateY(-1px); }
+}
+
+/* ---------- Knappar: sytt läder, mässing för det primära, rött läder för det farliga ---------- */
+.btn {
+  --frame-metal: none;
+  --face: none;
+  min-height: 2.6rem;
+  padding: 0.15rem 0.95rem 0.2rem;
+  border: 12px solid transparent;
+  border-image: url('/ui/knapp-lader.webp') 32 fill / 12px stretch;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: #f3e6c8;
+  text-shadow: 0 1px 2px #000;
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.55));
+}
+.btn:hover { filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.6)) brightness(1.14); }
+.btn:active { filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6)) brightness(0.94); }
+.btn:disabled { opacity: 0.45; filter: none; }
+.btn--primary { border-image-source: url('/ui/knapp-massing.webp'); color: var(--ink-on-brass); text-shadow: 0 1px 0 rgba(255, 236, 190, 0.5); }
+.btn--danger { border-image-source: url('/ui/knapp-fara.webp'); color: #ffe9df; }
+.btn--ghost { filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.5)) brightness(0.86); }
+.btn--small { min-height: 2.05rem; padding: 0 0.6rem; border-width: 9px; border-image-width: 9px; font-size: 0.86rem; }
+.btn:focus-visible { outline: 2px solid var(--bronze-light); outline-offset: 3px; }
+
+/* ---------- Fält och väljare: infällt läder ---------- */
+input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']), textarea, select {
+  border: 10px solid transparent;
+  border-image: url('/ui/falt.webp') 20 fill / 10px stretch;
+  border-radius: 0;
+  background-color: transparent;
+  box-shadow: none;
+  padding: 0.18rem 0.35rem;
+}
+select {
+  padding-right: 1.8rem;
+  background: var(--select-arrow) right 0.45rem center / 11px no-repeat;
+}
+input:not([type='checkbox']):not([type='radio']):focus, textarea:focus, select:focus {
+  box-shadow: none;
+  outline: 2px solid var(--bronze-light);
+  outline-offset: 1px;
+}
+
+/* ---------- Flikar: läder, den aktiva i mässing ---------- */
+.kr-tabs { background: none; border: 0; box-shadow: none; padding: 0; gap: 6px; }
+.kr-tab {
+  border: 10px solid transparent;
+  border-image: url('/ui/knapp-lader.webp') 32 fill / 10px stretch;
+  background: none;
+  box-shadow: none;
+  color: #e9dcc0;
+  padding: 0.05rem 0.7rem;
+}
+.kr-tab.active { border-image-source: url('/ui/knapp-massing.webp'); background: none; color: var(--ink-on-brass); text-shadow: 0 1px 0 rgba(255, 236, 190, 0.5); box-shadow: none; }
+
+/* ---------- Papper: rivet, fläckigt, med hundöron; sigill för det särskilda ---------- */
+.start-note__horn {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  width: 70px;
+  height: 70px;
+  background: url('/ui/horn.webp') center / contain no-repeat;
+  pointer-events: none;
+}
+.start-note__flack {
+  position: absolute;
+  right: 12%;
+  top: 46%;
+  width: 110px;
+  height: 110px;
+  background: url('/ui/flack-1.webp') center / contain no-repeat;
+  opacity: 0.35;
+  pointer-events: none;
+}
+/* Senaste kvällen bär vaxsigill med band i stället för spik */
+.start-note--lead::before { display: none; }
+.start-note__sigill {
+  position: absolute;
+  top: -10px;
+  left: -14px;
+  width: 78px;
+  height: auto;
+  transform: rotate(-8deg);
+  filter: drop-shadow(0 4px 5px rgba(0, 0, 0, 0.55));
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ---------- Startsidan i lädersystemet: smalare blad, senaste kvällen överst över hela väggen ---------- */
+.start { grid-template-columns: minmax(300px, 340px) minmax(0, 1fr); }
+.start-wall__board { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto; gap: 1.6rem; }
+.start-note { display: grid; grid-template-columns: minmax(0, 42%) minmax(0, 1fr); gap: 0.4rem 0.9rem; align-items: start; }
+.start-note--lead { grid-column: 1 / -1; grid-row: auto; grid-template-columns: minmax(0, 48%) minmax(0, 1fr); }
+.start-note__text { display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; }
+.start-note__title { margin-top: 0; }
+.start-note:not(.start-note--lead) .start-note__title { font-size: 1.02rem; }
+.start-sheet__card .doll--mini { margin-top: 0.2rem; }
+@media (max-width: 700px) {
+  .start-wall__board { grid-template-columns: minmax(0, 1fr); }
+  .start-note, .start-note--lead { grid-template-columns: minmax(0, 1fr); }
+}
+.start--single { grid-template-columns: minmax(0, 1fr); }
+.kr-tab.active { color: #1d0f04; }
+/* Bladet: tunt nog lädersom för att dockans rader ska rymmas */
+.start { grid-template-columns: minmax(320px, 360px) minmax(0, 1fr); }
+.start--single { grid-template-columns: minmax(0, 1fr); }
+.start-sheet__card.panel--tung { border-width: 30px; border-image-width: 30px; padding: 0.2rem; }
