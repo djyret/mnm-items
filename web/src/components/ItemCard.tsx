@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { statusLabel } from '../lib/constants'
 import { useI18n } from '../lib/i18n'
 import { useStore } from '../lib/store'
-import { imageUrl } from '../lib/supabase'
+import { itemIconUrl } from '../lib/items'
 import type { Item } from '../lib/types'
 import { ItemTooltip } from './ItemTooltip'
 import { Money } from './Money'
@@ -61,7 +61,7 @@ export function ItemCard({ item, own = false, selected, onSelect }: {
           />
         )}
       </div>
-      <ItemTooltip item={item} compact iconUrl={imageUrl(item.icon_path)} />
+      <ItemTooltip item={item} compact iconUrl={itemIconUrl(item)} />
       <div className="card__foot">
         <span className="card__from">
           <PersonIcon />

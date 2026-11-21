@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { isEquipSlot, slotLabel } from '../lib/armory'
+import { WikiCredit, WikiSearch } from '../components/Wiki'
+import { fetchWikiItem, findExact, wikiFields, wikiToDraft, type WikiHit } from '../lib/wiki'
 import { ItemFields, OwnershipFields } from '../components/ItemForm'
 import { ItemTooltip } from '../components/ItemTooltip'
 import { useI18n } from '../lib/i18n'
@@ -68,11 +70,28 @@ export function NyItem() {
         setIcon(ic)
         setIconPreview(URL.createObjectURL(ic))
       }
+      // Länka till wikin om namnet finns där exakt; ett fel här stoppar inte avläsningen
+      const hit = await findExact(parsed.name).catch(() => null)
+      if (hit) setDraft((d) => ({ ...d, ...wikiFields(hit) }))
     } catch (e) {
       setError(t('forradet.new.fillByHand', { error: (e as Error).message }))
     }
     setPhase('klar')
   }, [t])
+
+  async function pickFromWiki(hit: WikiHit) {
+    setError(null)
+    setPhase('laser')
+    try {
+      const { item, wiki } = await fetchWikiItem(hit.id)
+      setDraft((d) => wikiToDraft(item, wiki, d))
+      setIcon(null)
+      setIconPreview(wiki.icon)
+    } catch (e) {
+      setError((e as Error).message)
+    }
+    setPhase('klar')
+  }
 
   // Ctrl+V var som helst på sidan
   useEffect(() => {
@@ -177,6 +196,13 @@ export function NyItem() {
         </div>
       )}
 
+      {phase === 'tom' && (
+        <div className="panel">
+          <h2 className="panel-title">{t('wiki.orSearch')}</h2>
+          <WikiSearch onPick={pickFromWiki} />
+        </div>
+      )}
+
       {phase === 'laser' && (
         <div className="panel center">
           {preview && <img className="shot" src={preview} alt="" />}
@@ -194,6 +220,12 @@ export function NyItem() {
           </div>
           <div className="panel">
             <h2 className="panel-title">{t('forradet.new.check')}</h2>
+            {draft.wiki_url && (
+              <p className="wiki-linked">
+                {t('wiki.linked')} <a href={draft.wiki_url} target="_blank" rel="noreferrer">{t('wiki.open')}</a>
+                {' '}<WikiCredit />
+              </p>
+            )}
             <ItemFields draft={draft} onChange={setDraft} />
             <h2 className="panel-title">{t('forradet.new.where')}</h2>
             <OwnershipFields draft={draft} onChange={setDraft} />

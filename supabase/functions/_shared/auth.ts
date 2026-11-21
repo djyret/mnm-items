@@ -73,3 +73,19 @@ export async function authorize(req: Request, fn: Fn): Promise<Caller | Response
     },
   };
 }
+
+/**
+ * Inloggad redaktör, utan AI-kvot (för uppslag som inte kostar AI, t.ex. wikin).
+ * Returnerar null om det är okej, annars ett färdigt felsvar.
+ */
+export async function requireEditor(req: Request): Promise<Response | null> {
+  const base = Deno.env.get("SUPABASE_URL")!;
+  const anon = Deno.env.get("SUPABASE_ANON_KEY")!;
+  const token = req.headers.get("authorization")?.match(/^Bearer\s+(.+)$/i)?.[1];
+  if (!token || token === anon) return json({ error: "Logga in med Discord.", code: "auth" }, 401);
+  const headers = { apikey: anon, Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
+  const res = await fetch(`${base}/rest/v1/rpc/can_edit`, { method: "POST", headers, body: "{}" });
+  if (res.status === 401) return json({ error: "Inloggningen har gått ut. Logga in igen.", code: "auth" }, 401);
+  if (!res.ok || (await res.json()) !== true) return json({ error: "Bara redaktörer kan slå upp på wikin.", code: "forbidden" }, 403);
+  return null;
+}

@@ -11,7 +11,7 @@ const NONE = '00000000-0000-0000-0000-000000000000'
 
 const TABLES = ['characters', 'items', 'item_events', 'wishlist', 'chronicle_chapters', 'chronicle_entries', 'chronicle_cast', 'chronicle_settings']
 const BUCKETS = ['item-images', 'kronikan']
-const FUNCTIONS = ['parse-item', 'berattelse', 'seriebild']
+const FUNCTIONS = ['parse-item', 'berattelse', 'seriebild', 'wiki-item']
 
 let failed = 0
 const check = (label, pass, detail = '') => {

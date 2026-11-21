@@ -88,6 +88,20 @@ export const sv = {
   'armory.slot.SECONDARY': 'Sekundär',
   'armory.slot.RANGE': 'Avstånd',
   'armory.slot.AMMO': 'Ammo',
+
+  'wiki.title': 'Wikin',
+  'wiki.credit': 'Itemdata från',
+  'wiki.search': 'Sök',
+  'wiki.searching': 'Söker …',
+  'wiki.searchPlaceholder': 'Sök item på wikin',
+  'wiki.noHits': 'Inget item med det namnet på wikin.',
+  'wiki.use': 'Använd',
+  'wiki.orSearch': 'Eller hämta från wikin',
+  'wiki.linked': 'Länkad till wikin.',
+  'wiki.open': 'Öppna på wikin',
+  'wiki.openItem': 'Öppna {name} på wikin',
+  'wiki.link': 'Länka till wikin',
+  'wiki.fillEmpty': 'Fyll tomma fält från wikin',
 } as const
 
 export const en: { [K in keyof typeof sv]: string } = {
@@ -175,4 +189,18 @@ export const en: { [K in keyof typeof sv]: string } = {
   'armory.slot.SECONDARY': 'Secondary',
   'armory.slot.RANGE': 'Range',
   'armory.slot.AMMO': 'Ammo',
+
+  'wiki.title': 'Wiki',
+  'wiki.credit': 'Item data from',
+  'wiki.search': 'Search',
+  'wiki.searching': 'Searching …',
+  'wiki.searchPlaceholder': 'Search the wiki for an item',
+  'wiki.noHits': 'No item with that name on the wiki.',
+  'wiki.use': 'Use',
+  'wiki.orSearch': 'Or fetch it from the wiki',
+  'wiki.linked': 'Linked to the wiki.',
+  'wiki.open': 'Open on the wiki',
+  'wiki.openItem': 'Open {name} on the wiki',
+  'wiki.link': 'Link to the wiki',
+  'wiki.fillEmpty': 'Fill empty fields from the wiki',
 }

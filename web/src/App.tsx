@@ -14,6 +14,7 @@ import { Forrad } from './pages/Forrad'
 import { ItemPage } from './pages/ItemPage'
 import { Karaktarer } from './pages/Karaktarer'
 import { Armory } from './pages/Armory'
+import { WikiCredit } from './components/Wiki'
 import { NyItem } from './pages/NyItem'
 import { Salda } from './pages/Salda'
 import { Hjalp } from './pages/Hjalp'
@@ -101,6 +102,7 @@ function Shell() {
       <footer className="site-foot">
         <Compass />
         <span>{t('app.footer')}</span>
+        <WikiCredit />
       </footer>
     </>
   )

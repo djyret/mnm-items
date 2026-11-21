@@ -1,7 +1,7 @@
 import { STAT_GROUPS, normalizeStatKey } from './constants'
 import { callFunction } from './functions'
 import { getLang, translate } from './i18n'
-import { IMAGE_BUCKET, supabase } from './supabase'
+import { IMAGE_BUCKET, imageUrl, supabase } from './supabase'
 import type { Character, Item, ItemDraft, ParsedItem } from './types'
 
 export const emptyDraft = (): ItemDraft => ({
@@ -31,7 +31,15 @@ export const emptyDraft = (): ItemDraft => ({
   found_chapter_id: null,
   enchant_name: null,
   enchant_stats: {},
+  wiki_id: null,
+  wiki_url: null,
+  wiki_icon: null,
 })
+
+/** Ikonen att visa: egen utklippt ikon först, annars wikins. */
+export function itemIconUrl(item: Pick<Item, 'icon_path' | 'wiki_icon'>): string | null {
+  return imageUrl(item.icon_path) ?? item.wiki_icon ?? null
+}
 
 export function parsedToDraft(p: ParsedItem, base: ItemDraft): ItemDraft {
   const stats: Record<string, number> = {}

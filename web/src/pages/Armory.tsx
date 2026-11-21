@@ -11,7 +11,7 @@ import {
 import { useAuth } from '../lib/auth'
 import { CLASSES, SLOTS, statHelp } from '../lib/constants'
 import { useI18n } from '../lib/i18n'
-import { canUse, compressImage, deleteImages, uploadImage } from '../lib/items'
+import { canUse, compressImage, deleteImages, itemIconUrl, uploadImage } from '../lib/items'
 import { useStore } from '../lib/store'
 import { imageUrl, supabase } from '../lib/supabase'
 import type { Character, Item, ItemEvent, WishlistItem } from '../lib/types'
@@ -53,7 +53,7 @@ function ArmoryFor({ char, items }: { char: Character; items: Item[] }) {
         title={item ? `${slotLabel(slot)}: ${item.name}` : slotLabel(slot)}
         onClick={() => setSelected(selected === slot ? null : slot)}
       >
-        <ItemIcon src={item ? imageUrl(item.icon_path) : null} slot={slotBase(slot)} size="sm" />
+        <ItemIcon src={item ? itemIconUrl(item) : null} slot={slotBase(slot)} size="sm" />
         <span className="doll__label">{item ? item.name : slotLabel(slot)}</span>
       </button>
     )
@@ -186,7 +186,7 @@ function SlotPanel({ char, slot, item, items }: { char: Character; slot: string;
       {error && <div className="alert">{error}</div>}
       {item ? (
         <>
-          <Link to={`/item/${item.id}`} className="armory__tooltip"><ItemTooltip item={item} compact iconUrl={imageUrl(item.icon_path)} /></Link>
+          <Link to={`/item/${item.id}`} className="armory__tooltip"><ItemTooltip item={item} compact iconUrl={itemIconUrl(item)} /></Link>
           {item.status === 'utlanad' && (
             <p className="note">{t('armory.borrowedFrom', { name: charById(item.holder_id)?.name ?? '?' })}</p>
           )}
@@ -205,7 +205,7 @@ function SlotPanel({ char, slot, item, items }: { char: Character; slot: string;
           <ul className="armory__list">
             {own.map((i) => (
               <li key={i.id}>
-                <ItemIcon src={imageUrl(i.icon_path)} slot={i.slots[0]} size="sm" />
+                <ItemIcon src={itemIconUrl(i)} slot={i.slots[0]} size="sm" />
                 <Link to={`/item/${i.id}`}>{i.name}</Link>
                 {i.equipped_slot && <small>{t('armory.nowIn', { slot: slotLabel(i.equipped_slot) })}</small>}
                 <button className="btn btn--small" disabled={busy} onClick={() => run(() => equipItem(i.id, slot))}>{t('armory.equip')}</button>
@@ -226,7 +226,7 @@ function SlotPanel({ char, slot, item, items }: { char: Character; slot: string;
           <ul className="armory__list">
             {others.slice(0, 6).map((i) => (
               <li key={i.id}>
-                <ItemIcon src={imageUrl(i.icon_path)} slot={i.slots[0]} size="sm" />
+                <ItemIcon src={itemIconUrl(i)} slot={i.slots[0]} size="sm" />
                 <Link to={`/item/${i.id}`}>{i.name}</Link>
                 <small>{t('armory.heldBy', { name: charById(i.holder_id)?.name ?? '?' })}</small>
               </li>
@@ -294,7 +294,7 @@ function EquippedList({ worn }: { worn: Map<string, Item> }) {
           return (
             <li key={s}>
               <span className="armory__slotname">{slotLabel(s)}</span>
-              <ItemIcon src={imageUrl(i.icon_path)} slot={slotBase(s)} size="sm" />
+              <ItemIcon src={itemIconUrl(i)} slot={slotBase(s)} size="sm" />
               <Link to={`/item/${i.id}`}>{i.name}</Link>
               {ch && <small><Link to={`/kronikan/${ch.id}`}>{t('armory.foundIn', { title: ch.title })}</Link></small>}
             </li>
@@ -316,7 +316,7 @@ function StashList({ char, items }: { char: Character; items: Item[] }) {
       <ul className="armory__list armory__list--wide">
         {list.map((i) => (
           <li key={i.id}>
-            <ItemIcon src={imageUrl(i.icon_path)} slot={i.slots[0]} size="sm" />
+            <ItemIcon src={itemIconUrl(i)} slot={i.slots[0]} size="sm" />
             <Link to={`/item/${i.id}`}>{i.name}</Link>
             <StatusBadge item={i} />
           </li>

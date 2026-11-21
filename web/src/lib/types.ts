@@ -48,6 +48,10 @@ export interface Item {
   enchant_name: string | null
   /** Enchantens stats, läggs ovanpå itemets egna: {"WIS": 4} */
   enchant_stats: Record<string, number>
+  /** Monsters and Memories Wiki: stabilt id, sidans adress och ikon */
+  wiki_id: string | null
+  wiki_url: string | null
+  wiki_icon: string | null
   created_at: string
   updated_at: string
 }

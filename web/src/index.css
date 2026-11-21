@@ -1929,3 +1929,12 @@ html[lang='en'] .hero { background-image: url('/bilder/header-en.webp'); }
 .gstats__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.2rem; }
 .gstats__grid dl + dl { border-left: 1px solid var(--iron-dark); padding-left: 1.2rem; }
 .gstats .bonus__note { font-family: var(--font-body); font-variant: normal; }
+
+/* Monsters and Memories Wiki: sökning, länk och källhänvisning (wikins villkor) */
+.wiki-credit { display: block; margin-top: 0.6rem; color: var(--text-dim); font-size: 0.82rem; }
+.site-foot .wiki-credit { margin-top: 0.3rem; }
+.wiki-search__form { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.6rem; }
+.wiki-search__form input { flex: 1 1 220px; width: auto; }
+.wiki-search__hits { margin: 0.4rem 0; }
+.wiki-linked { margin: 0 0 0.8rem; }
+.wiki-linked .wiki-credit { display: inline; margin: 0; }

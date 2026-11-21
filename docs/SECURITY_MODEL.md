@@ -172,6 +172,13 @@ Nytt (steg 2):
 
 **Beroende:** steg 2 (låsa Storage-skrivning) och den här ändringen måste gå ut tillsammans, annars slutar seriebilder fungera.
 
+### `wiki-item` (2026-11-21)
+
+Proxy mot Monsters and Memories Wikis partner-API. Nyckeln ligger bara i secret `MNM_WIKI_KEY` och skickas
+aldrig till webbläsaren. `requireEditor()` i `_shared/auth.ts` kräver inloggad redaktör (`can_edit()` via RPC)
+men bokar ingen AI-kvot, eftersom uppslag inte kostar AI. Wikins egen gräns är 120 anrop/minut per nyckel.
+Funktionen skriver inget i databasen; webben sparar `wiki_id`/`wiki_url`/`wiki_icon` med användarens rättigheter.
+
 ## Inloggning (Discord + GitHub Pages)
 
 - Supabase-klienten skapas med `auth: { flowType: 'pkce' }`. Då kommer OAuth-svaret som `?code=…` i query-strängen

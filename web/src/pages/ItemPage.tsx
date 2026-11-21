@@ -6,13 +6,15 @@ import { ItemTooltip } from '../components/ItemTooltip'
 import { Money, PriceInput } from '../components/Money'
 import { formatPrice } from '../lib/money'
 import { EVENT_NOTES, STATUSES } from '../lib/constants'
-import { compressImage, cropIcon, deleteImages, logEvent, parseImage, uploadImage } from '../lib/items'
+import { compressImage, cropIcon, deleteImages, itemIconUrl, logEvent, parseImage, uploadImage } from '../lib/items'
 import { useAuth } from '../lib/auth'
 import { useI18n, type Key } from '../lib/i18n'
 import { useStore } from '../lib/store'
 import { imageUrl, supabase } from '../lib/supabase'
 import type { Item, ItemDraft, ItemEvent } from '../lib/types'
 import { Icon } from '../components/Icon'
+import { WikiCredit, WikiSearch } from '../components/Wiki'
+import { fetchWikiItem, fillEmpty, findExact } from '../lib/wiki'
 import { equipItem, sameName, slotLabel, slotsFor, unequipItem, useChapters, wearerOf } from '../lib/armory'
 
 /** item_events.kind som har en text; okända koder visas som de är. */
@@ -35,6 +37,7 @@ export function ItemPage() {
   const { items, characters, wishlist, charById, reload, loading } = useStore()
   const chapters = useChapters()
   const [equipSlot, setEquipSlot] = useState('')
+  const [wikiSearch, setWikiSearch] = useState(false)
   const navigate = useNavigate()
   const { canEdit } = useAuth()
   const { t, locale } = useI18n()
@@ -152,6 +155,25 @@ export function ItemPage() {
     setBusy(false)
   }
 
+  /** Länkar till wikin (känt id, exakt namn, annars sökruta) och fyller bara tomma fält. */
+  async function linkWiki(id?: string) {
+    setBusy(true)
+    setError(null)
+    try {
+      const wikiId = id ?? item!.wiki_id ?? (await findExact(item!.name))?.id
+      if (!wikiId) {
+        setWikiSearch(true)
+      } else {
+        const { item: w, wiki } = await fetchWikiItem(wikiId)
+        const ok = await patch(fillEmpty(item!, w, wiki), [item!.id, 'redigerad', { note: 'Monsters and Memories Wiki' }])
+        if (ok) setWikiSearch(false)
+      }
+    } catch (e) {
+      setError((e as Error).message)
+    }
+    setBusy(false)
+  }
+
   async function equipAction(fn: () => Promise<string | null>) {
     setBusy(true)
     setError(null)
@@ -179,7 +201,7 @@ export function ItemPage() {
       <Link to="/" className="back"><Icon name="vanster" size={14} /> {t('nav.stash')}</Link>
       <div className="item-layout">
         <div className="item-layout__main">
-          <ItemTooltip item={editing && draft ? draft : item} iconUrl={imageUrl(item.icon_path)} />
+          <ItemTooltip item={editing && draft ? draft : item} iconUrl={itemIconUrl(item)} />
           {img && (
             <a href={img} target="_blank" rel="noreferrer" title={t('forradet.itemPage.openOriginal')}>
               <img className="shot" src={img} alt={t('forradet.itemPage.screenshotOf', { name: item.name })} />
@@ -293,6 +315,26 @@ export function ItemPage() {
                   {t('forradet.itemPage.undoSold')}
                 </button>
               )}
+            </div>
+          )}
+
+          {!editing && (item.wiki_url || canEdit) && (
+            <div className="panel">
+              <h2 className="panel-title">{t('wiki.title')}</h2>
+              {item.wiki_url && (
+                <p className="wiki-linked">
+                  <a href={item.wiki_url} target="_blank" rel="noreferrer">{t('wiki.openItem', { name: item.name })}</a>
+                </p>
+              )}
+              {canEdit && (
+                <div className="actions">
+                  <button className="btn btn--small" disabled={busy} onClick={() => linkWiki()}>
+                    {item.wiki_id ? t('wiki.fillEmpty') : t('wiki.link')}
+                  </button>
+                </div>
+              )}
+              {canEdit && wikiSearch && <WikiSearch initial={item.name} busy={busy} onPick={(h) => linkWiki(h.id)} />}
+              {!wikiSearch && <WikiCredit />}
             </div>
           )}
 
