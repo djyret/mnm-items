@@ -51,6 +51,7 @@ function statKey(label: string): string {
 function toParsed(w: WikiItem) {
   const stats: { key: string; value: number }[] = [];
   const extra: string[] = [];
+  let flavor: string | null = null;
   let ac: number | null = null;
   const flags = w.flags.map((f) => f.toUpperCase());
 
@@ -58,7 +59,10 @@ function toParsed(w: WikiItem) {
     for (const { label, value } of row) {
       if (label === null) {
         // Flaggor (MAGIC …) och fristående ord som "Two Handed"
-        if (!flags.includes(value.toUpperCase())) extra.push(value);
+        if (flags.includes(value.toUpperCase())) continue;
+        // Flavor-text står utan etikett i fönstret: en mening med gemener och flera ord
+        if (/[a-z]/.test(value) && value.trim().split(/\s+/).length >= 4) flavor ??= value;
+        else extra.push(value);
         continue;
       }
       if (label === "AC") {
@@ -80,7 +84,7 @@ function toParsed(w: WikiItem) {
     ac: Number.isFinite(ac) ? ac : null,
     stats,
     effect: w.effects[0] ?? null,
-    description: w.description,
+    description: w.description ?? flavor,
     weight: w.weight,
     size: w.size,
     classes: w.classes,
