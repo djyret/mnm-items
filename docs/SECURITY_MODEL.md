@@ -119,7 +119,7 @@ Att byta `visibility` är en vanlig update för Editors. Med "Editor ändrar all
 
 | Område | Tabeller / storage |
 |---|---|
-| `forradet` | `characters`, `items`, `item_events`, `wishlist`, listning i `item-images` (även porträtt) |
+| `forradet` | `characters`, `items`, `item_events`, `wishlist`, `gear_sets`, `gear_set_items`, listning i `item-images` (även porträtt) |
 | `kronikan` | `chronicle_chapters` (plus kapitlets `visibility`), `chronicle_entries` (via `can_read_chapter`), `chronicle_cast`, listning i `kronikan` |
 | `stilbibeln` | `chronicle_settings` |
 

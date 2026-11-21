@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { WikiSearch } from '../components/Wiki'
+import { MAX_SETS, asItem, putSetItem, removeSetItem, rowFromStash, rowFromWiki, useGearSets } from '../lib/gearsets'
+import { fetchWikiItem } from '../lib/wiki'
 import { StatusBadge } from '../components/Badges'
 import { ClassIcon } from '../components/ClassIcon'
 import { Icon } from '../components/Icon'
@@ -39,12 +41,49 @@ export function Armory() {
 
 function ArmoryFor({ char, items }: { char: Character; items: Item[] }) {
   const { t } = useI18n()
+  const { canEdit } = useAuth()
   const [selected, setSelected] = useState<string | null>(null)
   const [tab, setTab] = useState<Tab>('equipped')
+  // 'now' = det karaktären har på sig, annars id för ett önskeset
+  const [view, setView] = useState<string>('now')
+  const [setError, setSetError] = useState<string | null>(null)
+  const gear = useGearSets(char.id)
   const worn = useMemo(() => equippedBy(items, char.id), [items, char.id])
+  const activeSet = gear.sets.find((s) => s.id === view) ?? null
+  const shown = useMemo(() => {
+    if (!activeSet) return worn
+    return new Map(gear.rows.filter((r) => r.set_id === activeSet.id).map((r) => [r.slot, asItem(r)]))
+  }, [activeSet, gear.rows, worn])
+
+  async function addSet() {
+    setSetError(null)
+    const name = t('armory.sets.defaultName', { n: gear.sets.length + 1 })
+    const { data, error } = await supabase.from('gear_sets')
+      .insert({ character_id: char.id, name, position: gear.sets.length }).select('id').single()
+    if (error) return setSetError(error.message)
+    await gear.reload()
+    setView(data.id)
+  }
+
+  async function renameSet() {
+    if (!activeSet) return
+    const name = prompt(t('armory.sets.renamePrompt'), activeSet.name)?.trim()
+    if (!name || name === activeSet.name) return
+    const { error } = await supabase.from('gear_sets').update({ name }).eq('id', activeSet.id)
+    if (error) setSetError(error.message)
+    await gear.reload()
+  }
+
+  async function deleteSet() {
+    if (!activeSet || !confirm(t('armory.sets.deleteConfirm', { name: activeSet.name }))) return
+    const { error } = await supabase.from('gear_sets').delete().eq('id', activeSet.id)
+    if (error) setSetError(error.message)
+    setView('now')
+    await gear.reload()
+  }
 
   const slotButton = (slot: string) => {
-    const item = worn.get(slot)
+    const item = shown.get(slot)
     return (
       <button
         key={slot}
@@ -76,8 +115,33 @@ function ArmoryFor({ char, items }: { char: Character; items: Item[] }) {
         </div>
       </header>
 
+      {/* Flikarna ligger ovanför båda kolumnerna så att dockan och statsrutan börjar i samma höjd */}
+      <nav className="kr-tabs armory__sets" aria-label={t('armory.sets.label')}>
+        <button type="button" className={`kr-tab${view === 'now' ? ' active' : ''}`} aria-pressed={view === 'now'}
+          onClick={() => { setView('now'); setSelected(null) }}>
+          {t('armory.sets.now')}
+        </button>
+        {gear.sets.map((s) => (
+          <button key={s.id} type="button" className={`kr-tab${view === s.id ? ' active' : ''}`} aria-pressed={view === s.id}
+            onClick={() => { setView(s.id); setSelected(null) }}
+            onDoubleClick={() => canEdit && view === s.id && renameSet()}>
+            {s.name}
+          </button>
+        ))}
+        {canEdit && gear.sets.length < MAX_SETS && (
+          <button type="button" className="kr-tab armory__addset" onClick={addSet} title={t('armory.sets.addHint')}>+ {t('armory.sets.add')}</button>
+        )}
+        {canEdit && activeSet && (
+          <span className="armory__setactions">
+            <button type="button" className="btn btn--small btn--ghost" onClick={renameSet}>{t('armory.sets.rename')}</button>
+            <button type="button" className="btn btn--small btn--danger" onClick={deleteSet}>{t('common.delete')}</button>
+          </span>
+        )}
+      </nav>
+      {setError && <div className="alert">{setError}</div>}
+
       <div className="armory">
-        <div className="panel doll">
+        <div className={`panel doll${activeSet ? ' doll--set' : ''}`}>
           <div className="doll__row doll__row--top">{DOLL.top.map(slotButton)}</div>
           <div className="doll__col doll__col--left">{DOLL.left.map(slotButton)}</div>
           <Portrait char={char} />
@@ -87,10 +151,12 @@ function ArmoryFor({ char, items }: { char: Character; items: Item[] }) {
 
         <div className="armory__side">
           {/* Stats först: rutan står still när slotpanelen under växer och krymper */}
-          <BonusPanel worn={[...worn.values()]} />
-          {selected
-            ? <SlotPanel char={char} slot={selected} item={worn.get(selected) ?? null} items={items} />
-            : <div className="panel armory__hint">{t('armory.pickSlot')}</div>}
+          <BonusPanel worn={[...shown.values()]} compare={activeSet ? [...worn.values()] : undefined} />
+          {selected && activeSet && (
+            <SetSlotPanel char={char} setId={activeSet.id} slot={selected} item={shown.get(selected) ?? null} items={items} onChange={gear.reload} />
+          )}
+          {selected && !activeSet && <SlotPanel char={char} slot={selected} item={worn.get(selected) ?? null} items={items} />}
+          {!selected && <div className="panel armory__hint">{t(activeSet ? 'armory.sets.pickSlot' : 'armory.pickSlot')}</div>}
         </div>
       </div>
 
@@ -248,6 +314,84 @@ function SlotPanel({ char, slot, item, items }: { char: Character; slot: string;
   )
 }
 
+// ---------- Slot i ett önskeset ----------
+
+function SetSlotPanel({ char, setId, slot, item, items, onChange }: {
+  char: Character
+  setId: string
+  slot: string
+  item: Item | null
+  items: Item[]
+  onChange: () => Promise<void>
+}) {
+  const { canEdit } = useAuth()
+  const { charById } = useStore()
+  const { t } = useI18n()
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  // Förrådets items som passar slotten och som karaktären kan bära
+  const stash = items.filter((i) => i.status !== 'sald' && i.slots.length > 0 && fitsSlot(i, slot) && canUse(i, char))
+
+  async function run(fn: () => Promise<string | null>) {
+    setBusy(true)
+    setError(null)
+    try {
+      const err = await fn()
+      if (err) setError(err)
+    } catch (e) {
+      setError((e as Error).message)
+    }
+    await onChange()
+    setBusy(false)
+  }
+
+  const fromWiki = (wikiId: string) => run(async () => {
+    const { item: w, wiki } = await fetchWikiItem(wikiId)
+    return putSetItem(setId, slot, rowFromWiki(w, wiki))
+  })
+
+  return (
+    <div className="panel">
+      <h2 className="panel-title">{slotLabel(slot)}</h2>
+      {error && <div className="alert">{error}</div>}
+      {item ? (
+        <>
+          <div className="armory__tooltip"><ItemTooltip item={item} compact iconUrl={itemIconUrl(item)} /></div>
+          {item.classes.length > 0 && char.class && !canUse(item, char) && <p className="warn">{t('armory.sets.cantUse', { name: char.name })}</p>}
+          <div className="actions">
+            {item.wiki_url && <a className="btn btn--small" href={item.wiki_url} target="_blank" rel="noreferrer">{t('wiki.open')}</a>}
+            {canEdit && <button className="btn btn--small btn--ghost" disabled={busy} onClick={() => run(() => removeSetItem(setId, slot))}>{t('armory.sets.remove')}</button>}
+          </div>
+        </>
+      ) : (
+        <p className="armory__empty">{t('armory.emptySlot')}</p>
+      )}
+
+      {canEdit && (
+        <>
+          <h3 className="armory__sub">{t('armory.sets.fromWiki')}</h3>
+          <WikiSearch key={slot} slot={slot} busy={busy} onPick={(h) => fromWiki(h.id)} />
+          {stash.length > 0 && (
+            <>
+              <h3 className="armory__sub">{t('armory.sets.fromStash')}</h3>
+              <ul className="armory__list">
+                {stash.slice(0, 8).map((i) => (
+                  <li key={i.id}>
+                    <ItemIcon src={itemIconUrl(i)} slot={i.slots[0]} size="sm" />
+                    <Link to={`/item/${i.id}`}>{i.name}</Link>
+                    <small>{t('armory.heldBy', { name: charById(i.holder_id)?.name ?? '?' })}</small>
+                    <button className="btn btn--small" disabled={busy} onClick={() => run(() => putSetItem(setId, slot, rowFromStash(i)))}>{t('armory.sets.put')}</button>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </>
+      )}
+    </div>
+  )
+}
+
 // ---------- Summa av utrustningen ----------
 
 // Samma uppställning som spelets karaktärsfönster: två kolumner per block
@@ -260,19 +404,30 @@ const SHORT: Record<string, string> = {
   HP: 'Health', MANA: 'Mana', END: 'Endurance', AC: 'Armor Class',
 }
 
-function BonusPanel({ worn }: { worn: Item[] }) {
-  const { t, lang } = useI18n()
+function sumStats(worn: Item[]): Record<string, number> {
   const totals: Record<string, number> = { AC: worn.reduce((s, i) => s + (i.ac ?? 0), 0) }
   for (const i of worn) {
     // Enchanten står skild från grundstatsen i spelet och läggs ovanpå
     for (const [k, v] of [...Object.entries(i.stats), ...Object.entries(i.enchant_stats ?? {})]) totals[k] = (totals[k] ?? 0) + v
   }
+  return totals
+}
+
+/** Statsrutan. Med compare (önskeset) visas skillnaden mot det karaktären har på sig nu. */
+function BonusPanel({ worn, compare }: { worn: Item[]; compare?: Item[] }) {
+  const { t, lang } = useI18n()
+  const totals = sumStats(worn)
+  const base = compare ? sumStats(compare) : null
   const cell = (k: string) => {
     const v = totals[k] ?? 0
+    const diff = base ? v - (base[k] ?? 0) : 0
     return (
       <div key={k} className="gstats__row" title={statHelp(k, lang)}>
         <dt>{SHORT[k] ?? k}</dt>
-        <dd className={v > 0 ? 'gstats__up' : v < 0 ? 'gstats__down' : undefined}>{v}</dd>
+        <dd className={v > 0 ? 'gstats__up' : v < 0 ? 'gstats__down' : undefined}>
+          {diff !== 0 && <small className={`gstats__diff ${diff > 0 ? 'gstats__up' : 'gstats__down'}`}>{diff > 0 ? `+${diff}` : diff}</small>}
+          {v}
+        </dd>
       </div>
     )
   }
@@ -283,7 +438,7 @@ function BonusPanel({ worn }: { worn: Item[] }) {
       <div className="gstats__grid">{ATTRS.map((col) => <dl key={col[0]}>{col.map(cell)}</dl>)}</div>
       <h2 className="gstats__head">{t('armory.resists')}</h2>
       <div className="gstats__grid">{RESISTS.map((col) => <dl key={col[0]}>{col.map(cell)}</dl>)}</div>
-      <small className="bonus__note">{t('armory.bonusNote', { count: worn.length })}</small>
+      <small className="bonus__note">{t(compare ? 'armory.sets.bonusNote' : 'armory.bonusNote', { count: worn.length })}</small>
     </div>
   )
 }
