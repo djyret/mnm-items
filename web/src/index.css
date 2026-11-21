@@ -1837,9 +1837,6 @@ html[lang='en'] .hero { background-image: url('/bilder/header-en.webp'); }
 .armory__list--wide + .btn { margin-top: 0.8rem; }
 .armory__slotname { min-width: 6.5rem; font-family: var(--font-title); font-variant: small-caps; font-size: 0.85rem; color: var(--text-dim); }
 .armory__rowactions { margin-left: auto; display: flex; gap: 0.4rem; }
-.armory__done { opacity: 0.6; }
-.armory__done b { text-decoration: line-through; }
-.armory__wishform { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--iron-dark); }
 .armory__tabs { margin: 1rem 0 0.75rem; flex-wrap: wrap; }
 .armory__tabs .kr-tab { cursor: pointer; font-family: var(--font-title); }
 .armory__tabs .kr-tab:not(.active) { background: none; }

@@ -15,7 +15,7 @@ Ett kompisgäng (tre spelare i dag: Gabbex, Derinx, Daremx) som spelar MMO:t Mon
 Loot & Lore (tidigare MnM Förrådet) är gängets gemensamma förråd och minnesbok.
 
 - **Förrådet:** items avlästa från skärmdumpar, vem som har vad, lån, försäljning.
-- **Armory:** en sida per karaktär med porträtt, utrustning slot för slot, önskelista och historik över vad som tagits på och av.
+- **Armory:** en sida per karaktär med porträtt, utrustning slot för slot, upp till fyra önskeset att jämföra stats mot och historik över vad som tagits på och av.
 - **Krönikan:** gängets äventyr, ett kapitel per spelkväll. Under kvällen dumpas skärmdumpar från spelet; efteråt skriver en AI-krönikör berättelsen och föreslår scener, som blir seriebilder i gängets egen stil (genererade i ChatGPT). Målet är att kunna gå tillbaka och minnas tillsammans, som en serietidning om det de upplevt.
 
 ## Positioning

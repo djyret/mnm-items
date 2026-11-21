@@ -70,18 +70,7 @@ export interface ItemEvent {
   created_at: string
 }
 
-/** En rad i en karaktärs önskelista. */
-export interface WishlistItem {
-  id: string
-  character_id: string
-  name: string
-  slot: string | null
-  item_id: string | null
-  note: string | null
-  created_by: string | null
-  created_at: string
-  fulfilled_at: string | null
-}
+
 
 /** Det parse-item-funktionen returnerar. */
 export interface ParsedItem {

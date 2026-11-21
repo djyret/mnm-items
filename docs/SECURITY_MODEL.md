@@ -119,7 +119,7 @@ Att byta `visibility` är en vanlig update för Editors. Med "Editor ändrar all
 
 | Område | Tabeller / storage |
 |---|---|
-| `forradet` | `characters`, `items`, `item_events`, `wishlist`, `gear_sets`, `gear_set_items`, listning i `item-images` (även porträtt) |
+| `forradet` | `characters`, `items`, `item_events`, `gear_sets`, `gear_set_items`, listning i `item-images` (även porträtt) |
 | `kronikan` | `chronicle_chapters` (plus kapitlets `visibility`), `chronicle_entries` (via `can_read_chapter`), `chronicle_cast`, listning i `kronikan` |
 | `stilbibeln` | `chronicle_settings` |
 
@@ -133,7 +133,7 @@ Webben döljer menyknappar och sidor via `useAreas()` / `RequireArea`, men det �
   eller reserveras. `items_equipment_log` skriver `utrustad`/`avtagen` i `item_events` som anroparen, så RLS gäller.
 - Unikt index: en karaktär bär högst ett item per slot.
 - `equip_item(item, slot)` är `security invoker` (RLS avgör), körbar bara för `authenticated`; anon nekas.
-- `wishlist`: läs `can_view_area('forradet')`, skriv `can_edit()`, samma mönster som övriga tabeller.
+- `wishlist` fanns här men togs bort 2026-11-21 (`20261121140000_drop_wishlist`); önskeseten ersätter den.
 
 ## Storage
 

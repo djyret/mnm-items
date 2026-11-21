@@ -8,18 +8,18 @@ import { ClassIcon } from '../components/ClassIcon'
 import { Icon } from '../components/Icon'
 import { ItemIcon, ItemTooltip } from '../components/ItemTooltip'
 import {
-  DOLL, EQUIP_SLOTS, canEquipOn, equipItem, equippedBy, fitsSlot, sameName, slotBase, slotLabel,
+  DOLL, EQUIP_SLOTS, canEquipOn, equipItem, equippedBy, fitsSlot, slotBase, slotLabel,
   unequipItem, useChapters, wearerOf,
 } from '../lib/armory'
 import { useAuth } from '../lib/auth'
-import { CLASSES, SLOTS, statHelp } from '../lib/constants'
+import { CLASSES, statHelp } from '../lib/constants'
 import { useI18n } from '../lib/i18n'
 import { canUse, compressImage, deleteImages, itemIconUrl, uploadImage } from '../lib/items'
 import { useStore } from '../lib/store'
 import { imageUrl, supabase } from '../lib/supabase'
-import type { Character, Item, ItemEvent, WishlistItem } from '../lib/types'
+import type { Character, Item, ItemEvent } from '../lib/types'
 
-type Tab = 'equipped' | 'stash' | 'wishlist' | 'history'
+type Tab = 'equipped' | 'stash' | 'history'
 
 export function Armory() {
   const { id } = useParams()
@@ -161,7 +161,7 @@ function ArmoryFor({ char, items }: { char: Character; items: Item[] }) {
       </div>
 
       <nav className="kr-tabs armory__tabs" aria-label={t('armory.tabsLabel')}>
-        {(['equipped', 'stash', 'wishlist', 'history'] as const).map((k) => (
+        {(['equipped', 'stash', 'history'] as const).map((k) => (
           <button key={k} type="button" className={`kr-tab${tab === k ? ' active' : ''}`} aria-pressed={tab === k} onClick={() => setTab(k)}>
             {t(`armory.tab.${k}`)}
           </button>
@@ -169,7 +169,6 @@ function ArmoryFor({ char, items }: { char: Character; items: Item[] }) {
       </nav>
       {tab === 'equipped' && <EquippedList worn={worn} />}
       {tab === 'stash' && <StashList char={char} items={items} />}
-      {tab === 'wishlist' && <Wishlist char={char} />}
       {tab === 'history' && <History char={char} />}
     </div>
   )
@@ -488,92 +487,6 @@ function StashList({ char, items }: { char: Character; items: Item[] }) {
         ))}
       </ul>
       <Link className="btn btn--small" to={`/?karaktar=${char.id}`}>{t('armory.openInStash')}</Link>
-    </div>
-  )
-}
-
-function Wishlist({ char }: { char: Character }) {
-  const { canEdit } = useAuth()
-  const { wishlist, items, reload, charById } = useStore()
-  const { t, locale } = useI18n()
-  const [name, setName] = useState('')
-  const [slot, setSlot] = useState('')
-  const [note, setNote] = useState('')
-  const [busy, setBusy] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const mine = wishlist.filter((w) => w.character_id === char.id)
-    .sort((a, b) => Number(!!a.fulfilled_at) - Number(!!b.fulfilled_at))
-
-  async function run(q: PromiseLike<{ error: { message: string } | null }>) {
-    setBusy(true)
-    setError(null)
-    const { error } = await q
-    if (error) setError(error.message)
-    await reload()
-    setBusy(false)
-    return !error
-  }
-
-  async function add(e: React.FormEvent) {
-    e.preventDefault()
-    if (!name.trim()) return
-    const ok = await run(supabase.from('wishlist').insert({ character_id: char.id, name: name.trim(), slot: slot || null, note: note.trim() || null }))
-    if (ok) {
-      setName('')
-      setSlot('')
-      setNote('')
-    }
-  }
-
-  const matches = (w: WishlistItem) =>
-    items.filter((i) => i.status !== 'sald' && sameName(i.name, w.name) && wearerOf(i) !== char.id)
-
-  return (
-    <div className="panel">
-      {error && <div className="alert">{error}</div>}
-      {mine.length === 0 && <p className="armory__empty">{t('armory.wish.empty')}</p>}
-      <ul className="armory__list armory__list--wide">
-        {mine.map((w) => (
-          <li key={w.id} className={w.fulfilled_at ? 'armory__done' : undefined}>
-            <span className="armory__slotname">{w.slot ? slotLabel(w.slot) : '–'}</span>
-            <b>{w.name}</b>
-            {w.note && <small>{w.note}</small>}
-            {w.fulfilled_at
-              ? <small>{t('armory.wish.gotIt', { date: new Date(w.fulfilled_at).toLocaleDateString(locale) })}</small>
-              : matches(w).map((i) => (
-                <small key={i.id}><Link to={`/item/${i.id}`}>{t('armory.wish.inStash', { name: charById(i.holder_id)?.name ?? '?' })}</Link></small>
-              ))}
-            {canEdit && (
-              <span className="armory__rowactions">
-                {!w.fulfilled_at && (
-                  <button className="btn btn--small btn--ghost" disabled={busy}
-                    onClick={() => run(supabase.from('wishlist').update({ fulfilled_at: new Date().toISOString() }).eq('id', w.id))}>
-                    {t('armory.wish.markGot')}
-                  </button>
-                )}
-                <button className="btn btn--small btn--danger" disabled={busy}
-                  onClick={() => confirm(t('armory.wish.deleteConfirm', { name: w.name })) && run(supabase.from('wishlist').delete().eq('id', w.id))}>
-                  {t('common.delete')}
-                </button>
-              </span>
-            )}
-          </li>
-        ))}
-      </ul>
-      {canEdit && (
-        <form className="form armory__wishform" onSubmit={add}>
-          <label className="field"><span>{t('armory.wish.name')}</span><input required value={name} onChange={(e) => setName(e.target.value)} /></label>
-          <label className="field">
-            <span>{t('armory.wish.slot')}</span>
-            <select value={slot} onChange={(e) => setSlot(e.target.value)}>
-              <option value="">{t('armory.wish.anySlot')}</option>
-              {SLOTS.map((s) => <option key={s} value={s}>{slotLabel(s)}</option>)}
-            </select>
-          </label>
-          <label className="field field--wide"><span>{t('armory.wish.note')}</span><input value={note} onChange={(e) => setNote(e.target.value)} placeholder={t('armory.wish.notePlaceholder')} /></label>
-          <div className="actions field--wide"><button className="btn btn--primary" disabled={busy}>{t('armory.wish.add')}</button></div>
-        </form>
-      )}
     </div>
   )
 }

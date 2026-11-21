@@ -1,4 +1,4 @@
-// Texter för Character Armory: karaktärssidan med porträtt, slots, önskelista och historik.
+// Texter för Character Armory: karaktärssidan med porträtt, slots, önskeset och historik.
 // Svenska är källan; engelska måste ha samma nycklar. Variabler skrivs {namn}.
 // Slotnamnen är gränssnittets ord; itemnamn och spelets egna texter översätts inte.
 
@@ -10,7 +10,6 @@ export const sv = {
   'armory.tabsLabel': 'Karaktärens flikar',
   'armory.tab.equipped': 'Utrustat',
   'armory.tab.stash': 'Förråd',
-  'armory.tab.wishlist': 'Önskelista',
   'armory.tab.history': 'Historik',
 
   'armory.portraitOf': 'Porträtt av {name}',
@@ -39,18 +38,6 @@ export const sv = {
   'armory.stashEmpty': 'Inga andra items hos karaktären.',
   'armory.openInStash': 'Visa i förrådet',
 
-  'armory.wish.empty': 'Önskelistan är tom.',
-  'armory.wish.gotIt': 'Fick den {date}',
-  'armory.wish.inStash': 'Finns hos {name}',
-  'armory.wish.markGot': 'Fick den',
-  'armory.wish.deleteConfirm': 'Ta bort {name} från önskelistan?',
-  'armory.wish.name': 'Item',
-  'armory.wish.slot': 'Slot',
-  'armory.wish.anySlot': 'Valfri',
-  'armory.wish.note': 'Anteckning',
-  'armory.wish.notePlaceholder': 'Var den droppar, vem som har den …',
-  'armory.wish.add': 'Lägg till',
-
   'armory.history.empty': 'Ingen utrustning har bytts än.',
   'armory.history.on': 'Tog på',
   'armory.history.off': 'Tog av',
@@ -59,7 +46,7 @@ export const sv = {
   'armory.item.wornBy': 'Sitter på {name} ({slot})',
   'armory.item.equipOn': 'Ta på {name} i',
   'armory.item.foundIn': 'Hittades i',
-  'armory.item.wishedBy': 'Önskas av {names}',
+  'armory.item.wishedBy': 'I önskeset hos {names}',
   'armory.item.foundChapter': 'Hittades i kapitel',
   'armory.item.noChapter': 'Inget kapitel',
   'armory.new.intoSlot': 'Läggs i slotten {slot} hos {name}.',
@@ -132,7 +119,6 @@ export const en: { [K in keyof typeof sv]: string } = {
   'armory.tabsLabel': 'Character tabs',
   'armory.tab.equipped': 'Equipped',
   'armory.tab.stash': 'Stash',
-  'armory.tab.wishlist': 'Wishlist',
   'armory.tab.history': 'History',
 
   'armory.portraitOf': 'Portrait of {name}',
@@ -161,18 +147,6 @@ export const en: { [K in keyof typeof sv]: string } = {
   'armory.stashEmpty': 'No other items on this character.',
   'armory.openInStash': 'Show in the stash',
 
-  'armory.wish.empty': 'The wishlist is empty.',
-  'armory.wish.gotIt': 'Got it {date}',
-  'armory.wish.inStash': 'Held by {name}',
-  'armory.wish.markGot': 'Got it',
-  'armory.wish.deleteConfirm': 'Remove {name} from the wishlist?',
-  'armory.wish.name': 'Item',
-  'armory.wish.slot': 'Slot',
-  'armory.wish.anySlot': 'Any',
-  'armory.wish.note': 'Note',
-  'armory.wish.notePlaceholder': 'Where it drops, who has it …',
-  'armory.wish.add': 'Add',
-
   'armory.history.empty': 'No gear has been changed yet.',
   'armory.history.on': 'Put on',
   'armory.history.off': 'Took off',
@@ -180,7 +154,7 @@ export const en: { [K in keyof typeof sv]: string } = {
   'armory.item.wornBy': 'Worn by {name} ({slot})',
   'armory.item.equipOn': 'Put on {name} in',
   'armory.item.foundIn': 'Found in',
-  'armory.item.wishedBy': 'Wanted by {names}',
+  'armory.item.wishedBy': 'In wish sets for {names}',
   'armory.item.foundChapter': 'Found in chapter',
   'armory.item.noChapter': 'No chapter',
   'armory.new.intoSlot': 'Goes into the {slot} slot on {name}.',

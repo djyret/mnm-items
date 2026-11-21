@@ -15,7 +15,7 @@ import type { Item, ItemDraft, ItemEvent } from '../lib/types'
 import { Icon } from '../components/Icon'
 import { WikiCredit, WikiSearch } from '../components/Wiki'
 import { fetchWikiItem, fillEmpty, findExact, type WikiRef } from '../lib/wiki'
-import { equipItem, sameName, slotLabel, slotsFor, unequipItem, useChapters, wearerOf } from '../lib/armory'
+import { equipItem, slotLabel, slotsFor, unequipItem, useChapters, wearerOf } from '../lib/armory'
 
 /** item_events.kind som har en text; okända koder visas som de är. */
 const EVENT_KINDS = ['skapad', 'flyttad', 'utlanad', 'aterlamnad', 'sald', 'status', 'redigerad'] as const
@@ -34,7 +34,7 @@ function eventNote(note: string, t: (key: Key, vars?: Record<string, string>) =>
 
 export function ItemPage() {
   const { id } = useParams()
-  const { items, characters, wishlist, charById, reload, loading } = useStore()
+  const { items, characters, charById, reload, loading } = useStore()
   const chapters = useChapters()
   const [equipSlot, setEquipSlot] = useState('')
   const [wikiSearch, setWikiSearch] = useState(false)
@@ -67,6 +67,25 @@ export function ItemPage() {
       .catch(() => {})
     return () => { stale = true }
   }, [wikiId, access])
+
+  // Vilka karaktärers önskeset itemet finns i (samma item eller samma wikisida)
+  const [wishedBy, setWishedBy] = useState<string[]>([])
+  useEffect(() => {
+    setWishedBy([])
+    if (!id) return
+    let stale = false
+    const filter = wikiId ? `item_id.eq.${id},wiki_id.eq.${wikiId}` : `item_id.eq.${id}`
+    supabase
+      .from('gear_set_items')
+      .select('gear_sets(character_id)')
+      .or(filter)
+      .then(({ data }) => {
+        if (stale || !data) return
+        const ids = new Set((data as unknown as { gear_sets: { character_id: string } | null }[]).map((r) => r.gear_sets?.character_id))
+        setWishedBy([...ids].map((c) => charById(c)?.name).filter((n): n is string => !!n))
+      })
+    return () => { stale = true }
+  }, [id, wikiId, charById])
 
   useEffect(() => {
     if (!id) return
@@ -204,10 +223,6 @@ export function ItemPage() {
   const fits = slotsFor(item)
   const canEquip = (item.status === 'ledig' || item.status === 'equippad' || item.status === 'utlanad') && !!wearer && fits.length > 0
   const foundIn = chapters.find((c) => c.id === item.found_chapter_id)
-  const wishedBy = wishlist
-    .filter((w) => !w.fulfilled_at && sameName(w.name, item.name))
-    .map((w) => charById(w.character_id)?.name)
-    .filter(Boolean)
 
   return (
     <div className="page">

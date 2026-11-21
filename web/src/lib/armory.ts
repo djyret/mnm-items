@@ -6,7 +6,7 @@ import { getLang, translate, type Lang } from './i18n'
 import { supabase } from './supabase'
 import type { Item } from './types'
 
-/** Slotnamn som har en text: alla platser plus basnamnen EAR/WRIST/FINGER (önskelistan). */
+/** Slotnamn som har en text: alla platser plus basnamnen EAR/WRIST/FINGER (som items anger sina slots). */
 const SLOT_LABEL_KEYS = [
   'HEAD', 'FACE', 'EAR', 'EAR_1', 'EAR_2', 'NECK', 'SHOULDERS', 'BACK', 'CHEST', 'SHIRT',
   'WRIST', 'WRIST_1', 'WRIST_2', 'HANDS', 'FINGER', 'FINGER_1', 'FINGER_2', 'WAIST', 'LEGS', 'FEET',
@@ -106,6 +106,3 @@ export async function unequipItem(itemId: string): Promise<string | null> {
   const { error } = await supabase.from('items').update({ equipped_slot: null }).eq('id', itemId)
   return error?.message ?? null
 }
-
-/** Jämför namn utan skiftläge och extra mellanslag (önskelistan mot förrådet). */
-export const sameName = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase()
