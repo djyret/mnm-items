@@ -247,7 +247,7 @@ Iron-framed stone plaques, tactile and a little heavy.
 Painted raster plaques (`ikoner/meny/*.webp`), all at one height with the width following the image, shadowed as hung rasters; hover brightens; active cross-fades to the gold "on" image with a warm glow.
 - **Rail (default):** a column along the left edge below the header, sticky 16px from the top, 42px plaques with a 0.55rem gap, left-aligned, starting 1.75rem down; hover nudges a plaque 2px to the right.
 - **Row (900px and below):** the rail becomes a static, centred, wrapping row above the content (40px plaques, at most 480px wide); hover lifts 1px instead.
-- **Home:** there is no Home plaque. The painted header sign is the link to the start page (screen-reader label only); do not set it in type.
+- **Home:** the Hem/Home plaque (`hem.webp`, a tavern hearth in the icon box) leads the rail and turns gold on the start page. The painted header sign also links home (screen-reader label only); do not set it in type.
 
 ### Chips
 - **Style:** 2px iron-metal border around a stone face, small-caps Cinzel 0.82rem, 2rem high.
