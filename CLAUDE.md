@@ -10,7 +10,7 @@ Läs först:
 ## Struktur
 
 - `web/`: frontend. `src/pages/` sidor, `src/components/`, `src/lib/` (supabase-klient, auth, access, store, i18n, kronikan, items).
-- `supabase/migrations/`: schema och RLS. `supabase/functions/`: `parse-item` (läser item-skärmdump), `berattelse` (krönika/saga), `seriebild`; gemensam `_shared/auth.ts`.
+- `supabase/migrations/`: schema och RLS. `supabase/functions/`: `parse-item` (läser item-skärmdump), `berattelse` (krönika/saga), `seriebild`, `wiki-item` (uppslag mot Monsters and Memories Wiki, secret `MNM_WIKI_KEY`); gemensam `_shared/auth.ts`.
 - `scripts/check-access.mjs`: kontrollerar vad en utloggad besökare får göra mot produktion.
 - `web/public/bilder/` och `web/public/ikoner/meny/` (`en/` för engelska knappar): målade bilder.
 
@@ -38,7 +38,7 @@ Publicering: push till `main` bygger och publicerar via GitHub Actions. Edge Fun
 - Namn: `ÅÅÅÅMMDDHHMMSS_<namn>.sql`. Ny policy eller tabell ska följa mönstret i `20261120130000_lock_writes.sql` och `20261120150000_area_access.sql`.
 - Körs mot produktion via Management API (`POST /v1/projects/zqdccfjisvkovuikrick/database/query`, `SUPABASE_ACCESS_TOKEN` i `.env`) eller `npx supabase db push --linked`.
 - Torrkör först i `begin; … rollback;` med `set local role anon` och `request.jwt.claims` för att testa policyerna. Kör skarpt bara efter Daniels ja, och registrera sedan raden i `supabase_migrations.schema_migrations`.
-- Facit över körda migrationer: valvet `verktyg/mnm-items-migrationer.md`. Status 2026-11-20: alla 16 filer i `supabase/migrations/` är körda; senaste `20261120170000_item_enchant.sql`.
+- Facit över körda migrationer: valvet `verktyg/mnm-items-migrationer.md`. Status 2026-11-20: alla 17 filer i `supabase/migrations/` är körda; senaste `20261121120000_item_wiki.sql`.
 
 ## Språk (sv/en)
 
