@@ -2463,3 +2463,17 @@ input:not([type='checkbox']):not([type='radio']):focus, textarea:focus, select:f
 .kr-plaque--title { background-image: url('/ui/bred-riven.webp'); padding: 1.4rem 3rem 1.5rem; }
 /* Brända hörnet ner till höger (tomt under texten), så att vaxsigillet uppe till vänster sitter på helt papper */
 .start-note--lead::after { transform: scale(-1, -1); }
+
+/* ---------- Item-rutan vid hover (dockan, Armorys listor, Hem): samma fönster som vid import ---------- */
+.item-hover {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 1000;
+  width: min(340px, calc(100vw - 16px));
+  visibility: hidden; /* tills platsen är uträknad */
+  pointer-events: none;
+  animation: item-hover-in 0.12s ease-out;
+}
+@keyframes item-hover-in { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .item-hover { animation: none; } }

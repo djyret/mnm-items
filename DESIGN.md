@@ -266,6 +266,7 @@ Leather plaques from the Material System (`ui/meny.webp`, `ui/meny-aktiv.webp`) 
 ### Cards / Containers
 - **Panel / frame:** panel gradient, 1px bronze-dark border, near-black outline, panel shadow, bronze filigree corners, 1.1rem padding, gold uppercase panel title with a bronze fading underline.
 - **Item card:** a frame holding the in-game tooltip, which is the 9-slice item frame with stone, a darkened title bar and stone-text body; card footer is a dark recessed strip with holder and badges.
+- **Item hover:** on the character doll (Home and Armory) and in Armory's item lists, hovering an item (or keyboard focus) floats the full in-game tooltip beside it, the same window as on import. Fixed to the viewport, right of the item or left if it does not fit, gone on scroll or Esc; mouse and keyboard only, touch keeps tap.
 
 ### Inputs / Fields
 - **Style:** recessed dark well (`#0f0d0a` to `#191612`), 1px `#4a4237` border with darker top edge, 3px radius, italic muted placeholder.

@@ -6,6 +6,7 @@ import { fetchWikiItem } from '../lib/wiki'
 import { StatusBadge } from '../components/Badges'
 import { ClassIcon } from '../components/ClassIcon'
 import { Icon } from '../components/Icon'
+import { useItemHover } from '../components/ItemHover'
 import { ItemIcon, ItemTooltip } from '../components/ItemTooltip'
 import {
   DOLL, EQUIP_SLOTS, canEquipOn, equipItem, equippedBy, fitsSlot, slotBase, slotLabel,
@@ -49,6 +50,7 @@ function ArmoryFor({ char, items }: { char: Character; items: Item[] }) {
   const [view, setView] = useState<string>('now')
   const [setError, setSetError] = useState<string | null>(null)
   const gear = useGearSets(char.id)
+  const hover = useItemHover()
   const worn = useMemo(() => equippedBy(items, char.id), [items, char.id])
   const activeSet = gear.sets.find((s) => s.id === view) ?? null
   const shown = useMemo(() => {
@@ -91,8 +93,10 @@ function ArmoryFor({ char, items }: { char: Character; items: Item[] }) {
         type="button"
         className={`doll__slot${item ? ' doll__slot--filled' : ''}${selected === slot ? ' doll__slot--selected' : ''}`}
         aria-pressed={selected === slot}
-        title={item ? `${slotLabel(slot)}: ${item.name}` : slotLabel(slot)}
-        onClick={() => setSelected(selected === slot ? null : slot)}
+        title={item ? undefined : slotLabel(slot)}
+        {...hover.bind(item)}
+        // Klicket öppnar slotpanelen med samma item; rutan behövs inte längre
+        onClick={() => { hover.hide(); setSelected(selected === slot ? null : slot) }}
       >
         <ItemIcon src={item ? itemIconUrl(item) : null} slot={slotBase(slot)} size="sm" />
         <span className="doll__label">{item ? item.name : slotLabel(slot)}</span>
@@ -171,6 +175,7 @@ function ArmoryFor({ char, items }: { char: Character; items: Item[] }) {
       {tab === 'equipped' && <EquippedList worn={worn} />}
       {tab === 'stash' && <StashList char={char} items={items} />}
       {tab === 'history' && <History char={char} />}
+      {hover.tip}
     </div>
   )
 }
@@ -232,6 +237,7 @@ function SlotPanel({ char, slot, item, items }: { char: Character; slot: string;
   const { t } = useI18n()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const hover = useItemHover()
 
   // Ägda eller lånade items med känd slot som passar här
   const own = items.filter((i) => i.id !== item?.id && i.slots.length > 0 && fitsSlot(i, slot) && canEquipOn(i, char.id))
@@ -250,6 +256,7 @@ function SlotPanel({ char, slot, item, items }: { char: Character; slot: string;
 
   return (
     <div className="panel">
+      {hover.tip}
       <h2 className="panel-title">{slotLabel(slot)}</h2>
       {error && <div className="alert">{error}</div>}
       {item ? (
@@ -274,8 +281,8 @@ function SlotPanel({ char, slot, item, items }: { char: Character; slot: string;
             {own.map((i) => (
               <li key={i.id}>
                 <ItemIcon src={itemIconUrl(i)} slot={i.slots[0]} size="sm" />
-                <Link to={`/item/${i.id}`}>{i.name}</Link>
-                {i.equipped_slot && <small>{t('armory.nowIn', { slot: slotLabel(i.equipped_slot) })}</small>}
+                <Link to={`/item/${i.id}`} {...hover.bind(i)}>{i.name}</Link>
+                {i.equipped_slot &&<small>{t('armory.nowIn', { slot: slotLabel(i.equipped_slot) })}</small>}
                 <button className="btn btn--small" disabled={busy} onClick={() => run(() => equipItem(i.id, slot))}>{t('armory.equip')}</button>
               </li>
             ))}
@@ -303,7 +310,7 @@ function SlotPanel({ char, slot, item, items }: { char: Character; slot: string;
             {others.slice(0, 6).map((i) => (
               <li key={i.id}>
                 <ItemIcon src={itemIconUrl(i)} slot={i.slots[0]} size="sm" />
-                <Link to={`/item/${i.id}`}>{i.name}</Link>
+                <Link to={`/item/${i.id}`} {...hover.bind(i)}>{i.name}</Link>
                 <small>{t('armory.heldBy', { name: charById(i.holder_id)?.name ?? '?' })}</small>
               </li>
             ))}
@@ -331,6 +338,7 @@ function SetSlotPanel({ char, setId, slot, item, items, onChange }: {
   const [error, setError] = useState<string | null>(null)
   // Förrådets items som passar slotten och som karaktären kan bära
   const stash = items.filter((i) => i.status !== 'sald' && i.slots.length > 0 && fitsSlot(i, slot) && canUse(i, char))
+  const hover = useItemHover()
 
   async function run(fn: () => Promise<string | null>) {
     setBusy(true)
@@ -352,6 +360,7 @@ function SetSlotPanel({ char, setId, slot, item, items, onChange }: {
 
   return (
     <div className="panel">
+      {hover.tip}
       <h2 className="panel-title">{slotLabel(slot)}</h2>
       {error && <div className="alert">{error}</div>}
       {item ? (
@@ -378,7 +387,7 @@ function SetSlotPanel({ char, setId, slot, item, items, onChange }: {
                 {stash.slice(0, 8).map((i) => (
                   <li key={i.id}>
                     <ItemIcon src={itemIconUrl(i)} slot={i.slots[0]} size="sm" />
-                    <Link to={`/item/${i.id}`}>{i.name}</Link>
+                    <Link to={`/item/${i.id}`} {...hover.bind(i)}>{i.name}</Link>
                     <small>{t('armory.heldBy', { name: charById(i.holder_id)?.name ?? '?' })}</small>
                     <button className="btn btn--small" disabled={busy} onClick={() => run(() => putSetItem(setId, slot, rowFromStash(i)))}>{t('armory.sets.put')}</button>
                   </li>
@@ -400,9 +409,11 @@ function EquippedList({ worn }: { worn: Map<string, Item> }) {
   const { t } = useI18n()
   const chapters = useChapters()
   const title = (cid: string | null) => chapters.find((c) => c.id === cid)
+  const hover = useItemHover()
   if (worn.size === 0) return <div className="panel empty">{t('armory.nothingEquipped')}</div>
   return (
     <div className="panel">
+      {hover.tip}
       <ul className="armory__list armory__list--wide">
         {EQUIP_SLOTS.filter((s) => worn.has(s)).map((s) => {
           const i = worn.get(s)!
@@ -411,7 +422,7 @@ function EquippedList({ worn }: { worn: Map<string, Item> }) {
             <li key={s}>
               <span className="armory__slotname">{slotLabel(s)}</span>
               <ItemIcon src={itemIconUrl(i)} slot={slotBase(s)} size="sm" />
-              <Link to={`/item/${i.id}`}>{i.name}</Link>
+              <Link to={`/item/${i.id}`} {...hover.bind(i)}>{i.name}</Link>
               {ch && <small><Link to={`/kronikan/${ch.id}`}>{t('armory.foundIn', { title: ch.title })}</Link></small>}
             </li>
           )
@@ -426,14 +437,16 @@ function StashList({ char, items }: { char: Character; items: Item[] }) {
   const list = items.filter((i) =>
     i.status !== 'sald' && !(i.equipped_slot && wearerOf(i) === char.id) &&
     (i.holder_id === char.id || (i.status === 'utlanad' && i.lent_to_id === char.id)))
+  const hover = useItemHover()
   if (list.length === 0) return <div className="panel empty">{t('armory.stashEmpty')}</div>
   return (
     <div className="panel">
+      {hover.tip}
       <ul className="armory__list armory__list--wide">
         {list.map((i) => (
           <li key={i.id}>
             <ItemIcon src={itemIconUrl(i)} slot={i.slots[0]} size="sm" />
-            <Link to={`/item/${i.id}`}>{i.name}</Link>
+            <Link to={`/item/${i.id}`} {...hover.bind(i)}>{i.name}</Link>
             <StatusBadge item={i} />
           </li>
         ))}

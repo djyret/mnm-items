@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState, type CSSProperties } from 'r
 import { Link, Navigate } from 'react-router-dom'
 import { ClassIcon } from '../components/ClassIcon'
 import { GearSummary } from '../components/GearStats'
+import { useItemHover } from '../components/ItemHover'
 import { MiniDoll } from '../components/MiniDoll'
 import { useAreas } from '../lib/access'
 import { equippedBy } from '../lib/armory'
@@ -96,6 +97,7 @@ function SinceLast({ main }: { main: Character }) {
   const { items } = useStore()
   const { t } = useI18n()
   const [since] = useState(() => visitBaseline(session?.user.id ?? 'anon'))
+  const hover = useItemHover()
   const sinceMs = since ? Date.parse(since) : NaN
 
   const borrowing = items.filter((i) => i.status === 'utlanad' && i.lent_to_id === main.id)
@@ -106,12 +108,13 @@ function SinceLast({ main }: { main: Character }) {
   // Upp till tre itemlänkar, resten som "+N"
   const links = (list: Item[]) => (
     <>
-      {list.slice(0, 3).map((i, n) => <span key={i.id}>{n > 0 && ', '}<Link to={`/item/${i.id}`}>{i.name}</Link></span>)}
+      {list.slice(0, 3).map((i, n) => <span key={i.id}>{n > 0 && ', '}<Link to={`/item/${i.id}`} {...hover.bind(i)}>{i.name}</Link></span>)}
       {list.length > 3 && ` +${list.length - 3}`}
     </>
   )
   return (
     <div className="start-since">
+      {hover.tip}
       <h3 className="start-since__head">{t('start.sinceTitle')}</h3>
       <ul>
         {!Number.isNaN(sinceMs) && (

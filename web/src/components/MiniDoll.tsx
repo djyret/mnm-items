@@ -8,17 +8,19 @@ import { itemIconUrl } from '../lib/items'
 import { imageUrl } from '../lib/supabase'
 import type { Character, Item } from '../lib/types'
 import { ClassIcon } from './ClassIcon'
+import { useItemHover } from './ItemHover'
 import { ItemIcon } from './ItemTooltip'
 
 export function MiniDoll({ char, worn }: { char: Character; worn: Map<string, Item> }) {
   const { t } = useI18n()
   const navigate = useNavigate()
   const portrait = imageUrl(char.portrait_path)
+  const hover = useItemHover()
 
   const slot = (s: string) => {
     const item = worn.get(s)
     return (
-      <span key={s} className={`doll__slot${item ? ' doll__slot--filled' : ''}`} title={item ? `${slotLabel(s)}: ${item.name}` : slotLabel(s)}>
+      <span key={s} className={`doll__slot${item ? ' doll__slot--filled' : ''}`} title={item ? undefined : slotLabel(s)} {...hover.bind(item)}>
         <ItemIcon src={item ? itemIconUrl(item) : null} slot={slotBase(s)} size="sm" />
       </span>
     )
@@ -26,7 +28,9 @@ export function MiniDoll({ char, worn }: { char: Character; worn: Map<string, It
 
   // På pekskärm finns ingen tooltip, så ett tryck ska inte kasta iväg en; där gäller knappen
   const openWithMouse = () => {
-    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) navigate(`/karaktar/${char.id}`)
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return
+    hover.hide()
+    navigate(`/karaktar/${char.id}`)
   }
 
   const equipped = EQUIP_SLOTS.filter((s) => worn.has(s))
@@ -48,6 +52,7 @@ export function MiniDoll({ char, worn }: { char: Character; worn: Map<string, It
           ? <li>{t('armory.nothingEquipped')}</li>
           : equipped.map((s) => <li key={s}>{slotLabel(s)}: {worn.get(s)!.name}</li>)}
       </ul>
+      {hover.tip}
     </>
   )
 }
