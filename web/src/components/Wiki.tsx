@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { fitsSlot } from '../lib/armory'
 import { useI18n } from '../lib/i18n'
-import { WIKI_HOME, searchWiki, type WikiHit } from '../lib/wiki'
+import { WIKI_HOME, searchWiki, wikiIdFromUrl, type WikiHit } from '../lib/wiki'
 import { ItemIcon } from './ItemTooltip'
 
 /** Källhänvisningen wikins villkor kräver där deras data visas. */
@@ -62,7 +62,16 @@ export function WikiSearch({ onPick, initial = '', busy = false, slot }: {
       <input
         className="wiki-search__input"
         value={q}
-        onChange={(e) => setQ(e.target.value)}
+        onChange={(e) => {
+          // En inklistrad wikilänk hämtar itemet direkt i stället för att söka
+          const id = wikiIdFromUrl(e.target.value)
+          if (id) {
+            setQ('')
+            onPick({ id, name: id, url: e.target.value.trim(), icon: null, slot: [] })
+          } else {
+            setQ(e.target.value)
+          }
+        }}
         placeholder={t('wiki.searchPlaceholder')}
         aria-label={t('wiki.searchPlaceholder')}
       />

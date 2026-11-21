@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { isEquipSlot, slotLabel } from '../lib/armory'
 import { WikiCredit, WikiSearch } from '../components/Wiki'
-import { fetchWikiItem, findExact, wikiFields, wikiToDraft } from '../lib/wiki'
+import { fetchWikiItem, findExact, wikiFields, wikiIdFromUrl, wikiToDraft } from '../lib/wiki'
 import { ItemFields, OwnershipFields } from '../components/ItemForm'
 import { ItemTooltip } from '../components/ItemTooltip'
 import { useI18n } from '../lib/i18n'
@@ -109,11 +109,20 @@ export function NyItem() {
       if (file) {
         e.preventDefault()
         handleFile(file)
+        return
+      }
+      // En wikilänk utanför textfälten hämtar itemet från wikin (i sökrutan sköter den sig själv)
+      const target = e.target as HTMLElement | null
+      if (target?.closest('input, textarea, [contenteditable]')) return
+      const wikiId = wikiIdFromUrl(e.clipboardData?.getData('text/plain') ?? '')
+      if (wikiId) {
+        e.preventDefault()
+        pickFromWiki(wikiId)
       }
     }
     window.addEventListener('paste', onPaste)
     return () => window.removeEventListener('paste', onPaste)
-  }, [handleFile])
+  }, [handleFile]) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function save() {
     if (!draft.name.trim()) {

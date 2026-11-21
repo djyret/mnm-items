@@ -29,6 +29,12 @@ export interface WikiRef {
   soldBy?: WikiSource[]
 }
 
+/** "https://monstersandmemories.wiki/items/prince-gorbs-blind-hood" -> "prince-gorbs-blind-hood" */
+export function wikiIdFromUrl(text: string): string | null {
+  const m = text.trim().match(/^(?:https?:\/\/)?(?:www\.)?monstersandmemories\.wiki\/items\/([a-z0-9-]+)\/?(?:[?#].*)?$/i)
+  return m ? m[1].toLowerCase() : null
+}
+
 export async function searchWiki(q: string): Promise<WikiHit[]> {
   const { results } = await callFunction<{ results: WikiHit[] }>('wiki-item', { action: 'search', q })
   return results
