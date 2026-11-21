@@ -12,7 +12,7 @@ Läs först:
 - `web/`: frontend. `src/pages/` sidor, `src/components/`, `src/lib/` (supabase-klient, auth, access, store, i18n, kronikan, items).
 - `supabase/migrations/`: schema och RLS. `supabase/functions/`: `parse-item` (läser item-skärmdump), `berattelse` (krönika/saga), `seriebild`, `wiki-item` (uppslag mot Monsters and Memories Wiki, secret `MNM_WIKI_KEY`); gemensam `_shared/auth.ts`.
 - `scripts/check-access.mjs`: kontrollerar vad en utloggad besökare får göra mot produktion.
-- `web/public/bilder/` och `web/public/ikoner/meny/` (`en/` för engelska knappar): målade bilder.
+- `web/public/bilder/` (taverna, skylt) och `web/public/ui/` (läder, papper, sigill, menyikoner som 9-slices): målade bilder med `.json` om ursprung.
 
 ## Kommandon
 
@@ -46,7 +46,7 @@ Publicering: push till `main` bygger och publicerar via GitHub Actions. Edge Fun
 - Ordböcker i `web/src/lib/i18n/strings/` per område. `sv` är källan (`as const`); `en` är typad mot den, så en saknad nyckel blir byggfel. Lägg alltid till båda.
 - Etiketter som beror på språket slås upp vid rendering (t.ex. `statusLabel(s, lang)`), inte i kartor på modulnivå.
 - Spelets egna namn (zoner, monster, items) stannar på engelska. Det gänget skrivit (krönikor, citat) översätts aldrig. AI-texter skrivs på språket hos den som klickar (`lang` skickas till `berattelse`).
-- Målade bilder: tavernan är `taverna-band.webp` (överdel), `stolpe-vanster/hoger.webp` och `vagg.webp`; skylten per språk `skylt-sv/en.webp`; engelska menyknappar i `ikoner/meny/en/` och listade i `EN_MENU` i `App.tsx`. Nya målade bilder görs i ChatGPT: i T3 Code via `delegate_task` till Codex (`image_gen`), se `~/.claude/CLAUDE.md`.
+- Målade bilder: tavernan är `taverna-band.webp` (överdel), `stolpe-vanster/hoger.webp` och `vagg.webp`; skylten per språk `skylt-sv/en.webp`; menyn är läderskyltar (`ui/meny*.webp`) med ikon (`ui/ikon-*.webp`) och text i HTML, så den behöver inga språkversioner. Nya målade bilder görs i ChatGPT: i T3 Code via `delegate_task` till Codex (`image_gen`), se `~/.claude/CLAUDE.md`.
 
 ## Arbetssätt
 
