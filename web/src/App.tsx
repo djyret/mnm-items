@@ -53,6 +53,10 @@ function Shell() {
   const { t, lang } = useI18n()
   return (
     <>
+      {/* HashRouter: en vanlig #-länk skulle byta route, så hopplänken flyttar fokus själv */}
+      <a href="#innehall" className="skip-link" onClick={(e) => { e.preventDefault(); document.getElementById('innehall')?.focus() }}>
+        {t('app.skipToContent')}
+      </a>
       {/* Utanför headern men ovanpå den: headerbildens mask skulle annars tona ut hörnet */}
       <AccountBar />
       <header className="hero">
@@ -73,7 +77,7 @@ function Shell() {
             </NavLink>
           ))}
         </nav>
-        <main>
+        <main id="innehall" tabIndex={-1}>
         {error && <div className="page"><div className="alert">{t('app.dbError', { error })}</div></div>}
         <Routes>
           <Route path="/" element={<Start />} />

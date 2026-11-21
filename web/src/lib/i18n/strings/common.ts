@@ -8,6 +8,7 @@ export const sv = {
   'app.headline': 'Loot & Lore – Monsters & Memories. Gängets förråd och krönika',
   'app.footer': 'Delad loot för framtida äventyr',
   'app.dbError': 'Kunde inte nå databasen: {error}',
+  'app.skipToContent': 'Hoppa till innehållet',
 
   'nav.label': 'Huvudmeny',
   'nav.home': 'Hem',
@@ -47,6 +48,7 @@ export const en: { [K in keyof typeof sv]: string } = {
   'app.headline': 'Loot & Lore – Monsters & Memories. The gang’s stash and chronicle',
   'app.footer': 'Shared loot for adventures to come',
   'app.dbError': 'Could not reach the database: {error}',
+  'app.skipToContent': 'Skip to content',
 
   'nav.label': 'Main menu',
   'nav.home': 'Home',

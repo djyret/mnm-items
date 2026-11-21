@@ -2104,10 +2104,58 @@ html[lang='en'] .hero { background-image: url('/bilder/header-en.webp'); }
   .doll--mini .doll__col { flex-direction: column; flex-wrap: nowrap; }
   .doll--mini .doll__row { flex-direction: row; flex-wrap: nowrap; justify-content: space-between; }
 }
+/* På telefon går minnena före administrationen: väggen först, karaktärsbladet under */
 @media (max-width: 700px) {
+  .start-wall { order: -1; }
   .start-wall__board { grid-template-columns: minmax(0, 1fr); }
   .start-note--lead { grid-row: auto; }
 }
 @media (prefers-reduced-motion: reduce) {
   .start-note { transition: none; }
 }
+
+/* ---------- Tillgänglighet i skalet ---------- */
+/* Hopplänken syns bara när den får fokus med tangentbordet */
+.skip-link {
+  position: absolute;
+  top: 8px;
+  left: 16px;
+  z-index: 50;
+  padding: 0.4rem 0.9rem;
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-variant: small-caps;
+  color: #fff6df;
+  background: #2a241d;
+  border: 1px solid var(--bronze-light);
+  border-radius: var(--radius);
+  transform: translateY(-160%);
+  transition: transform 0.15s;
+}
+.skip-link:focus { transform: none; }
+main:focus { outline: none; }
+/* Samma bronsring överallt i stället för webbläsarens standard */
+.menu-img:focus-visible, .btn:focus-visible, .brand-link:focus-visible { outline: 2px solid var(--bronze-light); outline-offset: 3px; }
+
+/* ---------- Startsidan, tillägg ---------- */
+@media (hover: hover) and (pointer: fine) { .doll--mini { cursor: pointer; } }
+.start-since { margin-top: 1rem; padding-top: 0.8rem; border-top: 1px solid var(--iron-dark); }
+.start-since__head {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-title);
+  font-weight: 500;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.start-since ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 0.2rem; color: var(--text); font-size: 0.98rem; }
+.start-wall__intro { margin: -0.6rem 0 1rem; color: var(--text-dim); font-style: italic; }
+.start-wall__error { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+/* Utan karaktärsbladet blir väggen annars för bred: rubrik och ingress ska rymmas i första skärmen */
+.start--single .start-wall { max-width: 980px; }
+/* Den stora lappens omslag är bredare än högt, så titel och ingress hinner med i första skärmen */
+.start-note--lead .start-note__img img, .start-note--lead .start-note__img > span { aspect-ratio: 16 / 9; }
+
+/* Förrådet filtrerat från startsidans "Sedan sist" */
+.results__since { display: inline-flex; align-items: center; gap: 0.6rem; color: var(--gold); font-style: italic; }

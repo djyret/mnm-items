@@ -21,7 +21,7 @@ export function Forrad() {
   const { items, characters, loading } = useStore()
   const [params, setParams] = useSearchParams()
   const [newStat, setNewStat] = useState('')
-  const { t, lang } = useI18n()
+  const { t, lang, locale } = useI18n()
 
   const q = params.get('q') ?? ''
   const slot = params.get('slot') ?? ''
@@ -30,6 +30,9 @@ export function Forrad() {
   const status = params.get('status') ?? 'aktiva'
   const sort = (params.get('sort') ?? 'nyast') as Sort
   const mins = parseMins(params.get('min'))
+  // Från startsidans "Sedan sist": bara items som lagts in efter senaste besöket
+  const sedan = params.get('sedan')
+  const sedanMs = sedan ? Date.parse(sedan) : NaN
 
   const update = (k: string, v: string | null) => {
     const p = new URLSearchParams(params)
@@ -57,6 +60,7 @@ export function Forrad() {
     const needle = q.trim().toLowerCase()
     const out = items.filter((i) => {
       if (needle && ![i.name, i.effect, i.description, i.notes].some((s) => s?.toLowerCase().includes(needle))) return false
+      if (!Number.isNaN(sedanMs) && Date.parse(i.created_at) <= sedanMs) return false
       if (slot && !i.slots.includes(slot)) return false
       if (cls && !(i.classes.includes(cls) || i.classes.includes('ALL'))) return false
       if (holder && i.holder_id !== holder && i.lent_to_id !== holder) return false
@@ -79,7 +83,7 @@ export function Forrad() {
       out.sort(by((i) => i.stats[k] ?? -999))
     }
     return out
-  }, [items, q, slot, cls, holder, status, mins, sort, lang])
+  }, [items, q, slot, cls, holder, status, mins, sort, lang, sedanMs])
 
   const activeFilters = [...params.keys()].filter((k) => k !== 'sort').length
 
@@ -165,6 +169,12 @@ export function Forrad() {
       <section className="results">
         <div className="results__head">
           <span>{loading ? t('common.loading') : t('forradet.stash.count', { shown: filtered.length, total: items.length })}</span>
+          {!Number.isNaN(sedanMs) && (
+            <span className="results__since">
+              {t('forradet.stash.since', { date: new Date(sedanMs).toLocaleString(locale, { dateStyle: 'medium', timeStyle: 'short' }) })}
+              <button type="button" className="btn btn--small btn--ghost" onClick={() => update('sedan', null)}>{t('forradet.stash.sinceClear')}</button>
+            </span>
+          )}
           <EditorOnly><Link to="/ny" className="btn btn--primary">{t('forradet.stash.add')}</Link></EditorOnly>
         </div>
         {!loading && items.length === 0 && (
