@@ -3,9 +3,9 @@
 // Wiki" med länk och länka varje item till sin wikisida (görs i webben).
 //
 // POST { action: "search", q }  -> { results: [{ id, name, url, icon, slot }] }
-// POST { action: "item", id }   -> { item: ParsedItem, wiki: { id, url, icon, gameLinkId } }
+// POST { action: "item", id }   -> { item: ParsedItem, wiki: { id, url, icon, gameLinkId, droppedBy, soldBy } }
 // item har samma form som parse-item returnerar, så webben fyller formuläret på samma sätt.
-import { cors, json, requireEditor } from "../_shared/auth.ts";
+import { cors, json, requireMember } from "../_shared/auth.ts";
 
 const API = "https://monstersandmemories.wiki/api/partner/v1";
 
@@ -26,6 +26,14 @@ interface WikiItem {
   races: string[];
   description: string | null;
   flags: string[];
+  droppedBy?: { name: string; url?: string }[];
+  soldBy?: { name: string; url?: string }[];
+}
+
+/** "Fallen Pass\nSivah Arjun" -> { npc: "Sivah Arjun", zone: "Fallen Pass" } */
+function source(s: { name: string; url?: string }) {
+  const parts = String(s.name ?? "").split("\n").map((p) => p.trim()).filter(Boolean);
+  return { npc: parts[parts.length - 1] ?? "", zone: parts.length > 1 ? parts[0] : null, url: s.url ?? null };
 }
 
 // Etiketter i spelets itemfönster -> våra statnycklar
@@ -92,7 +100,7 @@ async function wiki(path: string): Promise<Response> {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   if (req.method !== "POST") return json({ error: "Endast POST" }, 405);
-  const denied = await requireEditor(req);
+  const denied = await requireMember(req);
   if (denied) return denied;
 
   const { action, q, id } = await req.json().catch(() => ({}));
@@ -111,7 +119,14 @@ Deno.serve(async (req) => {
       if (res.status === 404) return json({ error: "Itemet finns inte på wikin." }, 404);
       if (!res.ok) return json({ error: `Wikin svarade ${res.status}` }, 502);
       const w: WikiItem = await res.json();
-      return json({ item: toParsed(w), wiki: { id: w.id, url: w.url, icon: w.icon, gameLinkId: w.gameLinkId } });
+      return json({
+        item: toParsed(w),
+        wiki: {
+          id: w.id, url: w.url, icon: w.icon, gameLinkId: w.gameLinkId,
+          droppedBy: (w.droppedBy ?? []).map(source),
+          soldBy: (w.soldBy ?? []).map(source),
+        },
+      });
     }
     return json({ error: "Okänd förfrågan" }, 400);
   } catch (e) {

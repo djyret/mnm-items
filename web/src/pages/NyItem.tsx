@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { isEquipSlot, slotLabel } from '../lib/armory'
 import { WikiCredit, WikiSearch } from '../components/Wiki'
-import { fetchWikiItem, findExact, wikiFields, wikiToDraft, type WikiHit } from '../lib/wiki'
+import { fetchWikiItem, findExact, wikiFields, wikiToDraft } from '../lib/wiki'
 import { ItemFields, OwnershipFields } from '../components/ItemForm'
 import { ItemTooltip } from '../components/ItemTooltip'
 import { useI18n } from '../lib/i18n'
@@ -79,11 +79,11 @@ export function NyItem() {
     setPhase('klar')
   }, [t])
 
-  async function pickFromWiki(hit: WikiHit) {
+  async function pickFromWiki(wikiId: string) {
     setError(null)
     setPhase('laser')
     try {
-      const { item, wiki } = await fetchWikiItem(hit.id)
+      const { item, wiki } = await fetchWikiItem(wikiId)
       setDraft((d) => wikiToDraft(item, wiki, d))
       setIcon(null)
       setIconPreview(wiki.icon)
@@ -92,6 +92,15 @@ export function NyItem() {
     }
     setPhase('klar')
   }
+
+  // Från Armorys wikisök: /ny?…&wiki=<id> fyller i direkt (ref: StrictMode kör effekter två gånger)
+  const wikiParam = params.get('wiki')
+  const wikiLoaded = useRef(false)
+  useEffect(() => {
+    if (!wikiParam || wikiLoaded.current) return
+    wikiLoaded.current = true
+    pickFromWiki(wikiParam)
+  }, [wikiParam]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Ctrl+V var som helst på sidan
   useEffect(() => {
@@ -199,7 +208,7 @@ export function NyItem() {
       {phase === 'tom' && (
         <div className="panel">
           <h2 className="panel-title">{t('wiki.orSearch')}</h2>
-          <WikiSearch onPick={pickFromWiki} />
+          <WikiSearch onPick={(h) => pickFromWiki(h.id)} />
         </div>
       )}
 

@@ -14,10 +14,19 @@ export interface WikiHit {
   slot: string[]
 }
 
+export interface WikiSource {
+  npc: string
+  zone: string | null
+  url: string | null
+}
+
 export interface WikiRef {
   id: string
   url: string
   icon: string | null
+  /** Bara i svar från fetchWikiItem */
+  droppedBy?: WikiSource[]
+  soldBy?: WikiSource[]
 }
 
 export async function searchWiki(q: string): Promise<WikiHit[]> {

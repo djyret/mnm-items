@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { WikiSearch } from '../components/Wiki'
 import { StatusBadge } from '../components/Badges'
 import { ClassIcon } from '../components/ClassIcon'
 import { Icon } from '../components/Icon'
@@ -161,6 +162,7 @@ function Portrait({ char }: { char: Character }) {
 function SlotPanel({ char, slot, item, items }: { char: Character; slot: string; item: Item | null; items: Item[] }) {
   const { canEdit } = useAuth()
   const { reload, charById } = useStore()
+  const navigate = useNavigate()
   const { t } = useI18n()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -218,6 +220,14 @@ function SlotPanel({ char, slot, item, items }: { char: Character; slot: string;
         <div className="actions">
           <Link className="btn btn--small btn--primary" to={`/ny?karaktar=${char.id}&slot=${slot}`}>{t('armory.addNew')}</Link>
         </div>
+      )}
+      {canEdit && (
+        <>
+          <h3 className="armory__sub">{t('wiki.inSlot')}</h3>
+          {/* key: ny sökruta per slot så att förra sökningen inte hänger kvar */}
+          <WikiSearch key={slot} slot={slot}
+            onPick={(h) => navigate(`/ny?karaktar=${char.id}&slot=${slot}&wiki=${encodeURIComponent(h.id)}`)} />
+        </>
       )}
 
       {others.length > 0 && (

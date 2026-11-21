@@ -68,6 +68,28 @@ export function ItemCard({ item, own = false, selected, onSelect }: {
           {t('forradet.card.from')} <b>{holder?.name ?? '—'}</b>
         </span>
         <span className="card__tags">
+          {item.wiki_url && (
+            <span
+              role="link"
+              tabIndex={0}
+              className="card__wiki"
+              title={t('wiki.openItem', { name: item.name })}
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                window.open(item.wiki_url!, '_blank', 'noopener')
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  window.open(item.wiki_url!, '_blank', 'noopener')
+                }
+              }}
+            >
+              Wiki
+            </span>
+          )}
           {item.status === 'sald'
             ? item.sold_price_cp != null && <Money cp={item.sold_price_cp} />
             : item.price_cp != null && <span title={t('forradet.price.guide')}><Money cp={item.price_cp} /></span>}

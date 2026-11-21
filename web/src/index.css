@@ -1933,8 +1933,10 @@ html[lang='en'] .hero { background-image: url('/bilder/header-en.webp'); }
 /* Monsters and Memories Wiki: sökning, länk och källhänvisning (wikins villkor) */
 .wiki-credit { display: block; margin-top: 0.6rem; color: var(--text-dim); font-size: 0.82rem; }
 .site-foot .wiki-credit { margin-top: 0.3rem; }
-.wiki-search__form { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.6rem; }
-.wiki-search__form input { flex: 1 1 220px; width: auto; }
+.wiki-search__input { width: 100%; margin-bottom: 0.5rem; }
+.wiki-sources { margin: 0.3rem 0 0; padding-left: 1.1rem; }
+.card__wiki { font-family: var(--font-title); font-size: 0.75rem; color: var(--bronze-light); border: 1px solid var(--bronze-dark); padding: 0 0.35rem; border-radius: 2px; cursor: pointer; }
+.card__wiki:hover { color: #fff6df; border-color: var(--bronze-light); }
 .wiki-search__hits { margin: 0.4rem 0; }
 .wiki-linked { margin: 0 0 0.8rem; }
 .wiki-linked .wiki-credit { display: inline; margin: 0; }

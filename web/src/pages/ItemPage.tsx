@@ -14,7 +14,7 @@ import { imageUrl, supabase } from '../lib/supabase'
 import type { Item, ItemDraft, ItemEvent } from '../lib/types'
 import { Icon } from '../components/Icon'
 import { WikiCredit, WikiSearch } from '../components/Wiki'
-import { fetchWikiItem, fillEmpty, findExact } from '../lib/wiki'
+import { fetchWikiItem, fillEmpty, findExact, type WikiRef } from '../lib/wiki'
 import { equipItem, sameName, slotLabel, slotsFor, unequipItem, useChapters, wearerOf } from '../lib/armory'
 
 /** item_events.kind som har en text; okända koder visas som de är. */
@@ -39,7 +39,7 @@ export function ItemPage() {
   const [equipSlot, setEquipSlot] = useState('')
   const [wikiSearch, setWikiSearch] = useState(false)
   const navigate = useNavigate()
-  const { canEdit } = useAuth()
+  const { canEdit, access } = useAuth()
   const { t, locale } = useI18n()
   const item = items.find((i) => i.id === id)
   const [events, setEvents] = useState<ItemEvent[]>([])
@@ -54,6 +54,19 @@ export function ItemPage() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => setGuide(item?.price_cp ?? null), [item?.price_cp])
+
+  // Var itemet kommer ifrån, live från wikin (bara för medlemmar: nyckeln kräver inloggning)
+  const [sources, setSources] = useState<Pick<WikiRef, 'droppedBy' | 'soldBy'> | null>(null)
+  const wikiId = item?.wiki_id
+  useEffect(() => {
+    setSources(null)
+    if (!wikiId || access === 'visitor') return
+    let stale = false
+    fetchWikiItem(wikiId)
+      .then(({ wiki }) => { if (!stale) setSources({ droppedBy: wiki.droppedBy ?? [], soldBy: wiki.soldBy ?? [] }) })
+      .catch(() => {})
+    return () => { stale = true }
+  }, [wikiId, access])
 
   useEffect(() => {
     if (!id) return
@@ -326,6 +339,19 @@ export function ItemPage() {
                   <a href={item.wiki_url} target="_blank" rel="noreferrer">{t('wiki.openItem', { name: item.name })}</a>
                 </p>
               )}
+              {sources && (['droppedBy', 'soldBy'] as const).map((k) => sources[k]!.length > 0 && (
+                <div key={k}>
+                  <b>{t(`wiki.${k}`)}</b>
+                  <ul className="wiki-sources">
+                    {sources[k]!.map((s) => (
+                      <li key={`${s.zone}-${s.npc}`}>
+                        {s.url ? <a href={s.url} target="_blank" rel="noreferrer">{s.npc}</a> : s.npc}
+                        {s.zone && <small> · {s.zone}</small>}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
               {canEdit && (
                 <div className="actions">
                   <button className="btn btn--small" disabled={busy} onClick={() => linkWiki()}>

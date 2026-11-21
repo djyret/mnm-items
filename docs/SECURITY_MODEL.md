@@ -175,7 +175,7 @@ Nytt (steg 2):
 ### `wiki-item` (2026-11-21)
 
 Proxy mot Monsters and Memories Wikis partner-API. Nyckeln ligger bara i secret `MNM_WIKI_KEY` och skickas
-aldrig till webbläsaren. `requireEditor()` i `_shared/auth.ts` kräver inloggad redaktör (`can_edit()` via RPC)
+aldrig till webbläsaren. `requireMember()` i `_shared/auth.ts` kräver inloggad, godkänd medlem (`is_member()` via RPC)
 men bokar ingen AI-kvot, eftersom uppslag inte kostar AI. Wikins egen gräns är 120 anrop/minut per nyckel.
 Funktionen skriver inget i databasen; webben sparar `wiki_id`/`wiki_url`/`wiki_icon` med användarens rättigheter.
 
