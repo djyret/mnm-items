@@ -2470,7 +2470,10 @@ input:not([type='checkbox']):not([type='radio']):focus, textarea:focus, select:f
   left: 0;
   top: 0;
   z-index: 1000;
-  width: min(340px, calc(100vw - 16px));
+  /* Så bred som namnet kräver, inom rimliga gränser */
+  width: max-content;
+  min-width: 300px;
+  max-width: min(460px, calc(100vw - 16px));
   visibility: hidden; /* tills platsen är uträknad */
   pointer-events: none;
   animation: item-hover-in 0.12s ease-out;
