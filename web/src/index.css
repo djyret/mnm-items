@@ -2461,3 +2461,5 @@ input:not([type='checkbox']):not([type='radio']):focus, textarea:focus, select:f
 .kr-note:nth-child(4n + 3)::after { background-image: url('/ui/lapp-1.webp'); }
 
 .kr-plaque--title { background-image: url('/ui/bred-riven.webp'); padding: 1.4rem 3rem 1.5rem; }
+/* Brända hörnet ner till höger (tomt under texten), så att vaxsigillet uppe till vänster sitter på helt papper */
+.start-note--lead::after { transform: scale(-1, -1); }
