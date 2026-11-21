@@ -1,0 +1,12 @@
+{
+  "derivation": "Cropped the prop-free central horizontal planks from bakgrund-b.webp. Wrapped 160 columns and 15 rows with smooth crossfades, with the vertical wrap located around existing plank joints. Resized the period to 1024 px.",
+  "sourceCrop": {
+    "left": 583,
+    "top": 312,
+    "width": 1184,
+    "height": 933
+  },
+  "width": 1024,
+  "height": 1024,
+  "timestamp": "2026-11-21T14:57:04.216Z"
+}

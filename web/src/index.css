@@ -41,12 +41,11 @@
 html, body { margin: 0; }
 /* Reservera alltid plats för rullisten så sidan inte hoppar i sidled */
 html { scrollbar-gutter: stable; }
-/* Tavernabakgrund bakom hela sidan */
+/* Tavernaväggen bakom hela sidan: plankor i samma skala som bandet överst (40vw per ruta) */
 body {
   overflow-x: hidden;
   background:
-    radial-gradient(ellipse 55% 70% at 50% 45%, rgba(18, 15, 11, 0.55), transparent 80%),
-    url('/bilder/bakgrund.webp') center top / cover fixed,
+    url('/bilder/vagg.webp') center top / 40vw auto repeat,
     var(--bg);
   color: var(--text);
   font-family: var(--font-body);
@@ -54,7 +53,19 @@ body {
   line-height: 1.45;
   min-height: 100vh;
 }
-#root { min-height: 100vh; display: flex; flex-direction: column; }
+/* Timmerstolparna längs kanterna fortsätter bandets stolpar: 192px av bandets 2560 = 7,5vw */
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background:
+    url('/bilder/stolpe-vanster.webp') left top / 7.5vw auto repeat-y,
+    url('/bilder/stolpe-hoger.webp') right top / 7.5vw auto repeat-y;
+}
+@media (max-width: 900px) {
+  /* Där beskärs bandet på höjden och dess stolpar hamnar utanför bild; då inga stolpar nedåt heller */
+  #root { background: none; }
+}
 main { flex: 1; }
 
 a { color: var(--gold); }
@@ -631,38 +642,32 @@ textarea { resize: vertical; }
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
 }
-/* Bilden skalas efter sidbredden men max 1400px; bredare skärmar får mjuka kanter mot
-   tavernabakgrunden. Toppen (takbjälke) beskärs med --lift. Hyllkanten ligger på 57 % av
-   bildhöjden (778px av 2020px bredd). Menyn står sedan 2026-11 i en kolumn till vänster (.nav--rail). */
+/* Tavernans överdel: ett målat band över hela bredden (hylla med lootkista till vänster, böcker
+   och ljus till höger, stolpar i kanterna). Bandet är 2560x640 och skalas med fönsterbredden;
+   stolparna längs sidan (#root) skalas likadant, så att de fortsätter rakt ner. Skylten är en egen
+   bild per språk, urklippt ur de gamla headerbilderna. */
 .hero {
-  --img-w: clamp(780px, 100vw, 1400px);
-  --lift: calc(var(--img-w) * 0.04);
-  /* Procent i gradienterna = elementets bredd (utan rullist), inte fönstrets */
-  --side: max(0px, calc((100% - var(--img-w)) / 2));
-  --fade: min(160px, var(--side));
   position: relative;
-  background: url('/bilder/header.webp') center calc(0px - var(--lift)) / var(--img-w) auto no-repeat;
-  border-bottom: none;
-  box-shadow: none;
-  -webkit-mask-image:
-    linear-gradient(180deg, #000 calc(100% - 2.5rem), transparent 100%),
-    linear-gradient(90deg, transparent var(--side), #000 calc(var(--side) + var(--fade)), #000 calc(100% - var(--side) - var(--fade)), transparent calc(100% - var(--side)));
-  -webkit-mask-composite: source-in;
-  mask-image:
-    linear-gradient(180deg, #000 calc(100% - 2.5rem), transparent 100%),
-    linear-gradient(90deg, transparent var(--side), #000 calc(var(--side) + var(--fade)), #000 calc(100% - var(--side) - var(--fade)), transparent calc(100% - var(--side)));
-  mask-composite: intersect;
+  height: 25vw;
+  background: url('/bilder/taverna-band.webp') center top / 100% auto no-repeat;
 }
-.hero__inner { justify-content: flex-start; padding: calc(var(--img-w) * 0.2385 - var(--lift)) 16px 2.6rem; }
-.brand-link { position: absolute; left: 30%; right: 30%; top: 2%; height: calc(var(--img-w) * 0.17); }
+.hero__inner { height: 100%; padding: 0; }
+.brand-link { position: absolute; left: 50%; top: 3.6vw; width: 27vw; transform: translateX(-50%); display: block; }
+.brand-sign { display: block; width: 100%; height: auto; filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.6)); }
 .nav { margin-top: 0; }
 .class-picker { max-width: 300px; }
 
-@media (max-width: 600px) {
-  .hero { --img-w: 600px; }
-  .hero__inner { padding-bottom: 2.4rem; }
-  .brand-link { left: 5%; right: 5%; }
+/* Smala fönster: bandet får en minsta höjd och beskärs i mitten, skylten blir större relativt */
+@media (max-width: 900px) {
+  .hero { height: max(25vw, 190px); background-size: auto 100%; }
+  .brand-link { top: 14px; width: min(78vw, 380px); }
 }
+/* Telefon: språk- och kontoraden ligger överst, så skylten flyttas ner under den */
+@media (max-width: 600px) {
+  .hero { height: 230px; }
+  .brand-link { top: 54px; width: min(80vw, 340px); }
+}
+
 
 /* ---------- Ikon- och brickval i itemformuläret ---------- */
 .icon-picker { display: grid; grid-template-columns: repeat(auto-fill, minmax(62px, 1fr)); gap: 5px; }
@@ -1061,7 +1066,7 @@ input:not([type='checkbox']), select { min-height: var(--ctl-h); }
   width: 2px;
   background: linear-gradient(180deg, transparent, var(--bronze) 4%, var(--bronze-dark) 96%, transparent);
 }
-.kr-timeline__item { display: grid; grid-template-columns: 132px 1fr; gap: 2.2rem; margin-bottom: 1.6rem; position: relative; }
+.kr-timeline__item { display: grid; grid-template-columns: 132px minmax(0, 1fr); gap: 2.2rem; margin-bottom: 1.6rem; position: relative; }
 .kr-timeline__item::before {
   content: '';
   position: absolute;
@@ -1809,9 +1814,6 @@ blockquote.kr-note { font-family: var(--font-title); font-weight: 700; }
 .account__lang .account__link { color: var(--text-dim); }
 .account__lang .account__link.is-active { color: var(--text); text-decoration: none; cursor: default; }
 
-/* Headern med skylten Loot & Lore: bandet under skylten är på valt språk (header.webp är den gamla Förrådet-skylten) */
-html[lang='sv'] .hero { background-image: url('/bilder/header-sv.webp'); }
-html[lang='en'] .hero { background-image: url('/bilder/header-en.webp'); }
 
 /* ---------- Character Armory ---------- */
 .char__portrait { width: 64px; height: 64px; object-fit: cover; border: 1px solid #111; box-shadow: inset 0 0 0 1px var(--iron); border-radius: 2px; }
@@ -1949,7 +1951,6 @@ html[lang='en'] .hero { background-image: url('/bilder/header-en.webp'); }
 
 /* ---------- Skalet: menyn längs vänsterkanten ---------- */
 /* Headern bär inte längre menyn; den slutar strax under hyllkanten */
-.hero__inner { padding-bottom: 0.4rem; }
 .shell {
   flex: 1;
   display: grid;
@@ -1958,7 +1959,8 @@ html[lang='en'] .hero { background-image: url('/bilder/header-en.webp'); }
   width: 100%;
   max-width: calc(1400px + 220px);
   margin: 0 auto;
-  padding-left: 16px;
+  /* Innehållet håller sig innanför stolparna */
+  padding-inline: max(16px, calc(7.5vw + 8px));
 }
 .nav--rail {
   position: sticky;
@@ -1975,7 +1977,7 @@ html[lang='en'] .hero { background-image: url('/bilder/header-en.webp'); }
 .nav--rail .menu-img { --h: 42px; }
 .nav--rail .menu-img:hover { transform: translateX(2px); }
 @media (max-width: 900px) {
-  .shell { grid-template-columns: minmax(0, 1fr); padding-left: 0; }
+  .shell { grid-template-columns: minmax(0, 1fr); padding-inline: 0; }
   .nav--rail { position: static; flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; margin: 0 auto; padding-top: 0.6rem; }
   .nav--rail .menu-img { --h: 40px; }
   .nav--rail .menu-img:hover { transform: translateY(-1px); }

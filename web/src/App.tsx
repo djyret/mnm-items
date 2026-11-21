@@ -61,8 +61,9 @@ function Shell() {
       <AccountBar />
       <header className="hero">
         <div className="hero__inner">
-          {/* Rubriken är inmålad i headerbilden; texten finns kvar för skärmläsare */}
+          {/* Skylten är en målad bild per språk; rubriken finns kvar som text för skärmläsare */}
           <NavLink to="/" className="brand-link" aria-label={t('app.homeLabel')}>
+            <img className="brand-sign" src={`${import.meta.env.BASE_URL}bilder/skylt-${lang}.webp`} alt="" />
             <h1 className="sr-only">{t('app.headline')}</h1>
           </NavLink>
         </div>

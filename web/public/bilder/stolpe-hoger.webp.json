@@ -1,0 +1,18 @@
+{
+  "derivation": "Sampled the same post in taverna-band.webp below its sconce, varied the sampled grain vertically, and colour-matched to the timber at the bottom of the band. Kept the existing gutter and inner shadow and matched the band at strip row 640. Rows 0 and 1023 match for vertical repeat.",
+  "source": "taverna-band.webp",
+  "width": 192,
+  "height": 1024,
+  "alignedBandColumns": [
+    2368,
+    2559
+  ],
+  "inferredFaceColumns": [
+    2393,
+    2528
+  ],
+  "shadowSide": "left",
+  "bottomJoinY": 640,
+  "stripBackgroundOriginY": 0,
+  "timestamp": "2026-11-21T15:12:35.374Z"
+}

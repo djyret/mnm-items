@@ -1,0 +1,17 @@
+{
+  "derivation": "Preserved the source band and its centre alpha fade. Behind the last 96 rows, ramped in each continuation at its global y phase, restoring the post faces to opaque at the bottom edge.",
+  "source": "header-band-1.webp",
+  "inferredPostFaceColumns": [
+    [
+      31,
+      165
+    ],
+    [
+      2393,
+      2528
+    ]
+  ],
+  "bottomJoinY": 640,
+  "stripBackgroundOriginY": 0,
+  "timestamp": "2026-11-21T14:57:04.216Z"
+}

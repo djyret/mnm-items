@@ -1,0 +1,5 @@
+{
+  "source": "web/public/bilder/header-sv.webp",
+  "method": "Cut from the existing header image at source resolution using a hand-traced feathered alpha mask.",
+  "timestamp": "2026-11-21T14:47:37.530Z"
+}
