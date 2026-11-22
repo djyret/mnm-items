@@ -713,12 +713,13 @@ textarea { resize: vertical; }
   .flame__fire::after {
     animation:
       flame-frames var(--t) steps(8, jump-none) calc(var(--o) - var(--step)) infinite,
-      flame-fade var(--step) linear var(--o) infinite;
+      flame-fade var(--step) ease-in-out var(--o) infinite;
   }
   .flame__glow { animation: flame-glow calc(4.3s * var(--k)) ease-in-out var(--o) infinite; }
 }
 @keyframes flame-frames { from { background-position-x: 0%; } to { background-position-x: 100%; } }
-@keyframes flame-fade { from { opacity: 0; } to { opacity: 1; } }
+/* Övertoningen bara i stegets sista tredjedel: två spetsar syns då så kort att det läses som rörelse */
+@keyframes flame-fade { 0%, 66% { opacity: 0; } 100% { opacity: 1; } }
 @keyframes flame-sway {
   0%, 100% { transform: skewX(0deg); }
   30% { transform: skewX(-4deg); }
