@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ClassIcon, ClassPicker } from '../components/ClassIcon'
+import { RacePicker } from '../components/RacePicker'
 import { CLASSES } from '../lib/constants'
 import { useAuth } from '../lib/auth'
 import { useI18n } from '../lib/i18n'
@@ -38,7 +39,7 @@ function CharForm({ initial, onSave, onCancel }: {
         <span>{d.class ? t('forradet.chars.classIs', { name: CLASSES[d.class] || d.class }) : t('forradet.chars.classPick')}</span>
         <ClassPicker classes={Object.keys(CLASSES)} value={d.class ?? ''} onChange={(v) => set('class', v || null)} wide />
       </div>
-      <label className="field"><span>{t('forradet.chars.race')}</span><input value={d.race ?? ''} onChange={(e) => set('race', e.target.value || null)} placeholder={t('forradet.chars.racePlaceholder')} /></label>
+      <RacePicker value={d.race} onChange={(v) => set('race', v)} />
       <label className="field field--narrow"><span>Level</span><input inputMode="numeric" value={d.level ?? ''} onChange={(e) => set('level', e.target.value ? Number(e.target.value) || null : null)} /></label>
       <label className="check"><input type="checkbox" checked={d.is_main} onChange={(e) => set('is_main', e.target.checked)} /> Main</label>
       <label className="field field--wide"><span>{t('forradet.form.notes')}</span><input value={d.notes ?? ''} onChange={(e) => set('notes', e.target.value || null)} /></label>

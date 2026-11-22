@@ -1949,6 +1949,28 @@ blockquote.kr-note { font-family: var(--font-title); font-weight: 700; }
 .doll--set { box-shadow: inset 0 0 0 1px var(--bronze-dark), inset 0 0 30px rgba(224, 184, 114, 0.06); }
 .gstats__diff { margin-right: 0.45rem; font-size: 0.78em; }
 
+/* Grundstats: ras + klass och bonuspoängen, hopfällda under statsrutan */
+.basestats summary { cursor: pointer; font-family: var(--font-title); display: flex; justify-content: space-between; gap: 0.75rem; align-items: baseline; }
+.basestats summary small { color: var(--text-dim); font-family: var(--font-body); }
+.basestats__table { width: 100%; margin-top: 0.6rem; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.basestats__table th, .basestats__table td { padding: 0.15rem 0.3rem; text-align: center; border-bottom: 1px solid var(--iron-dark); }
+.basestats__table th[scope="row"] { text-align: left; font-family: var(--font-title); }
+.basestats__table thead th { color: var(--text-dim); font-weight: 400; font-size: 0.82rem; }
+.basestats__table small { color: var(--text-dim); }
+.basestats__points { white-space: nowrap; }
+.basestats__points span { display: inline-block; min-width: 1.6em; }
+.basestats__points .btn { min-width: 1.8rem; padding-inline: 0.3rem; }
+
+/* Setbyggaren under dockan */
+.setbuilder { margin-top: 1rem; }
+.setbuilder__weights { display: grid; grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr)); gap: 0.4rem 0.9rem; align-items: end; margin: 0 0 0.8rem; padding: 0.6rem 0.8rem; border: 1px solid var(--iron-dark); }
+.setbuilder__weights legend { padding: 0 0.3rem; font-family: var(--font-title); }
+.setbuilder__weight { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
+.setbuilder__weight input { width: 4.2rem; }
+.setbuilder__options { display: flex; flex-wrap: wrap; gap: 0.5rem 1.2rem; align-items: end; margin-bottom: 0.6rem; }
+.setbuilder__options .field { flex: 1 1 16rem; margin: 0; }
+.setbuilder__result small { margin-left: auto; }
+
 /* ---------- Skalet: menyn längs vänsterkanten ---------- */
 /* Headern bär inte längre menyn; den slutar strax under hyllkanten */
 .shell {

@@ -24,7 +24,7 @@ export function Start() {
   if (loading || authLoading) return <div className="page"><div className="panel empty">{t('common.loading')}</div></div>
   // Karaktärsbladet är gängets (main väljs bland förrådets karaktärer); gästen får sina gästkaraktärer
   const sheet = canView('forradet') && (access === 'reader' || access === 'editor' || access === 'admin')
-  const guest = access === 'guest'
+  const guest = access === 'guest' && canView('gaster')
   const wall = canView('kronikan')
   if (!sheet && !guest && !wall) return <Navigate to="/hjalp" replace />
   return (

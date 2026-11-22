@@ -425,3 +425,6 @@ verify_jwt = false
 
 [functions.wiki-item]
 verify_jwt = false
+
+[functions.wiki-index]
+verify_jwt = false

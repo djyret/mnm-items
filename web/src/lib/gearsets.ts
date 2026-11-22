@@ -6,6 +6,7 @@ import { emptyDraft, itemIconUrl, parsedToDraft } from './items'
 import { supabase } from './supabase'
 import type { Item, ParsedItem } from './types'
 import type { WikiRef } from './wiki'
+import type { WikiIndexItem } from './wikiindex'
 
 export const MAX_SETS = 4
 
@@ -90,6 +91,21 @@ export function rowFromStash(i: Item): Row {
     item_id: i.id, wiki_id: i.wiki_id, wiki_url: i.wiki_url, name: i.name, icon: itemIconUrl(i),
     slots: i.slots, classes: i.classes, ac: i.ac, stats: i.stats, enchant_stats: i.enchant_stats ?? {},
   }
+}
+
+/** Ett item ur wikiindexet (setbyggaren). */
+export function rowFromIndex(w: WikiIndexItem): Row {
+  return {
+    item_id: null, wiki_id: w.id, wiki_url: w.url, name: w.name, icon: w.icon,
+    slots: w.slots, classes: w.classes, ac: w.ac, stats: w.stats, enchant_stats: {},
+  }
+}
+
+/** Flera slots på en gång (setbyggaren). */
+export async function putSetItems(setId: string, rows: { slot: string; row: Row }[]): Promise<string | null> {
+  if (rows.length === 0) return null
+  const { error } = await supabase.from('gear_set_items').upsert(rows.map(({ slot, row }) => ({ set_id: setId, slot, ...row })))
+  return error?.message ?? null
 }
 
 export async function putSetItem(setId: string, slot: string, row: Row): Promise<string | null> {

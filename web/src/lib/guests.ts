@@ -8,6 +8,7 @@ import { blobToBase64, compressImage, cropIcon, emptyDraft, parseImage, parsedTo
 import { supabase } from './supabase'
 import type { Item, ItemDraft, ParsedItem } from './types'
 import { findExact, wikiFields, type WikiRef } from './wiki'
+import type { WikiIndexItem } from './wikiindex'
 
 export const MAX_GUEST_WISHES = 4
 export const MAX_GUEST_CHARS = 6
@@ -19,6 +20,7 @@ export interface GuestCharacter {
   class: string | null
   race: string | null
   level: number | null
+  stat_points: Record<string, number>
   created_at: string
 }
 
@@ -179,6 +181,21 @@ export async function rowFromScreenshot(file: Blob): Promise<Row> {
     if (!icon) icon = hit.icon
   }
   return rowFromDraft(draft, icon)
+}
+
+/** Ett item ur wikiindexet (setbyggaren). */
+export function rowFromIndex(w: WikiIndexItem): Row {
+  return {
+    wiki_id: w.id, wiki_url: w.url, name: w.name, icon: w.icon, slots: w.slots, classes: w.classes,
+    ac: w.ac, stats: w.stats, enchant_stats: {}, detail: { flags: w.flags, races: w.races },
+  }
+}
+
+/** Flera slots på en gång (setbyggaren). */
+export async function putGuestItems(setId: string, rows: { slot: string; row: Row }[]): Promise<string | null> {
+  if (rows.length === 0) return null
+  const { error } = await supabase.from('guest_set_items').upsert(rows.map(({ slot, row }) => ({ set_id: setId, slot, ...row })))
+  return error?.message ?? null
 }
 
 export async function putGuestItem(setId: string, slot: string, row: Row): Promise<string | null> {

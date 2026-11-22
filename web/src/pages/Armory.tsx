@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { WikiSearch } from '../components/Wiki'
-import { MAX_SETS, asItem, putSetItem, removeSetItem, rowFromStash, rowFromWiki, useGearSets } from '../lib/gearsets'
+import { BaseStatsPanel } from '../components/BaseStats'
+import { baseFor } from '../lib/basestats'
+import { SetBuilder } from '../components/SetBuilder'
+import { MAX_SETS, asItem, putSetItem, putSetItems, removeSetItem, rowFromIndex, rowFromStash, rowFromWiki, useGearSets } from '../lib/gearsets'
 import { fetchWikiItem } from '../lib/wiki'
 import { StatusBadge } from '../components/Badges'
 import { ClassIcon } from '../components/ClassIcon'
@@ -45,7 +48,9 @@ export function Armory() {
 function ArmoryFor({ char, items }: { char: Character; items: Item[] }) {
   const { t } = useI18n()
   const { canEdit } = useAuth()
+  const { reload } = useStore()
   const [selected, setSelected] = useState<string | null>(null)
+  const [building, setBuilding] = useState(false)
   const [tab, setTab] = useState<Tab>('equipped')
   // 'now' = det karaktären har på sig, annars id för ett önskeset
   const [view, setView] = useState<string>('now')
@@ -84,6 +89,12 @@ function ArmoryFor({ char, items }: { char: Character; items: Item[] }) {
     if (error) setSetError(error.message)
     setView('now')
     await gear.reload()
+  }
+
+  async function savePoints(points: Record<string, number>) {
+    const { error } = await supabase.from('characters').update({ stat_points: points }).eq('id', char.id)
+    if (!error) await reload()
+    return error?.message ?? null
   }
 
   const slotButton = (slot: string) => (
@@ -125,6 +136,7 @@ function ArmoryFor({ char, items }: { char: Character; items: Item[] }) {
         )}
         {canEdit && activeSet && (
           <span className="armory__setactions">
+            <button type="button" className="btn btn--small" aria-pressed={building} onClick={() => setBuilding(!building)}>{t('builder.open')}</button>
             <button type="button" className="btn btn--small btn--ghost" onClick={renameSet}>{t('armory.sets.rename')}</button>
             <button type="button" className="btn btn--small btn--danger" onClick={deleteSet}>{t('common.delete')}</button>
           </span>
@@ -137,7 +149,9 @@ function ArmoryFor({ char, items }: { char: Character; items: Item[] }) {
 
         <div className="armory__side">
           {/* Stats först: rutan står still när slotpanelen under växer och krymper */}
-          <BonusPanel worn={[...shown.values()]} compare={activeSet ? [...worn.values()] : undefined} />
+          <BonusPanel worn={[...shown.values()]} compare={activeSet ? [...worn.values()] : undefined}
+            base={baseFor(char.race, char.class, char.stat_points)} />
+          <BaseStatsPanel race={char.race} cls={char.class} points={char.stat_points} editable={canEdit} onSave={savePoints} />
           {selected && activeSet && (
             <SetSlotPanel char={char} setId={activeSet.id} slot={selected} item={shown.get(selected) ?? null} items={items} onChange={gear.reload} />
           )}
@@ -145,6 +159,16 @@ function ArmoryFor({ char, items }: { char: Character; items: Item[] }) {
           {!selected && <div className="panel armory__hint">{t(activeSet ? 'armory.sets.pickSlot' : 'armory.pickSlot')}</div>}
         </div>
       </div>
+
+      {building && activeSet && canEdit && (
+        <SetBuilder key={activeSet.id} cls={char.class} race={char.race} setName={activeSet.name} current={shown}
+          onClose={() => setBuilding(false)}
+          onApply={async (picks) => {
+            const err = await putSetItems(activeSet.id, picks.map((p) => ({ slot: p.slot, row: rowFromIndex(p.item) })))
+            await gear.reload()
+            return err
+          }} />
+      )}
 
       <nav className="kr-tabs armory__tabs" aria-label={t('armory.tabsLabel')}>
         {(['equipped', 'stash', 'history'] as const).map((k) => (

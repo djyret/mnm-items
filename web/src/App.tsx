@@ -36,7 +36,7 @@ const NAV: [string, Key, string, Area | null][] = [
   ['/karaktarer', 'nav.characters', 'karaktarer', 'forradet'],
   ['/alt', 'nav.alts', 'alts', 'forradet'],
   ['/salda', 'nav.sales', 'forsaljning', 'forradet'],
-  ['/gaster', 'nav.guests', 'gaster', null],
+  ['/gaster', 'nav.guests', 'gaster', 'gaster'],
   ['/kronikan', 'nav.chronicle', 'kronikan', 'kronikan'],
   ['/hjalp', 'nav.help', 'hjalp', null],
 ]
@@ -47,7 +47,7 @@ const K = (page: ReactNode) => <RequireArea area="kronikan">{page}</RequireArea>
 
 function Shell() {
   const { error } = useStore()
-  const { canEdit, canUseArmory } = useAuth()
+  const { canEdit } = useAuth()
   const { canView } = useAreas()
   const { t, lang } = useI18n()
   return (
@@ -70,7 +70,7 @@ function Shell() {
       {/* Menyn står längs vänsterkanten och följer med när man skrollar; under 900px blir den en rad */}
       <div className="shell">
         <nav className="nav nav--rail" aria-label={t('nav.label')}>
-          {NAV.filter(([to, , , area]) => (to !== '/ny' || canEdit) && (to !== '/gaster' || canUseArmory) && (!area || canView(area))).map(([to, label, icon]) => (
+          {NAV.filter(([to, , , area]) => (to !== '/ny' || canEdit) && (!area || canView(area))).map(([to, label, icon]) => (
             <NavLink key={to} to={to} end={to === '/'} className="menu-item">
               <img className="menu-item__ikon" src={`${UI}ikon-${icon}.webp`} alt="" />
               <span>{t(label)}</span>
@@ -88,8 +88,8 @@ function Shell() {
           <Route path="/karaktar/:id" element={F(<Armory />)} />
           <Route path="/alt" element={F(<AltVy />)} />
           <Route path="/salda" element={F(<Salda />)} />
-          <Route path="/gaster" element={<Gaster />} />
-          <Route path="/gast/:id" element={<GastArmory />} />
+          <Route path="/gaster" element={<RequireArea area="gaster"><Gaster /></RequireArea>} />
+          <Route path="/gast/:id" element={<RequireArea area="gaster"><GastArmory /></RequireArea>} />
           <Route path="/kronikan" element={K(<Kronikan />)} />
           <Route path="/kronikan/stil" element={<RequireArea area="stilbibeln">{K(<Stilbibel />)}</RequireArea>} />
           <Route path="/kronikan/:id" element={K(<KapitelLas />)} />

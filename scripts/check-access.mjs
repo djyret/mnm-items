@@ -11,7 +11,7 @@ const NONE = '00000000-0000-0000-0000-000000000000'
 
 const TABLES = ['characters', 'items', 'item_events', 'gear_sets', 'chronicle_chapters', 'chronicle_entries', 'chronicle_cast', 'chronicle_settings']
 const BUCKETS = ['item-images', 'kronikan']
-const FUNCTIONS = ['parse-item', 'berattelse', 'seriebild', 'wiki-item']
+const FUNCTIONS = ['parse-item', 'berattelse', 'seriebild', 'wiki-item', 'wiki-index']
 
 let failed = 0
 const check = (label, pass, detail = '') => {
@@ -37,14 +37,23 @@ for (const t of TABLES) {
   check(`${t}: delete nekas`, del.ok, del.detail)
 }
 
-// Gästernas armory: utloggade får inte ens läsa (inga grants till anon)
+// Gästernas armory: utloggade läser bara om admin öppnat området Gäster för alla, och skriver aldrig
+const guestArea = (await (await fetch(`${URL_}/rest/v1/area_access?area=eq.gaster&select=min_role`, { headers: H })).json())[0]?.min_role
 for (const t of ['guest_characters', 'guest_sets', 'guest_set_items']) {
   const key = t === 'guest_set_items' ? 'set_id' : 'id'
-  const read = await denied(await fetch(`${URL_}/rest/v1/${t}?select=${key}&limit=1`, { headers: H }))
-  check(`${t}: läsning nekas`, read.ok, read.detail)
+  const res = await fetch(`${URL_}/rest/v1/${t}?select=${key}&limit=1`, { headers: H })
+  const rows = res.ok ? await res.json() : []
+  check(`${t}: läsning ${guestArea === 'visitor' ? 'tillåten (området öppet)' : 'tom för utloggade'}`,
+    guestArea === 'visitor' ? res.ok : rows.length === 0, `${res.status} ${rows.length} rader, området ${guestArea}`)
   const ins = await denied(await fetch(`${URL_}/rest/v1/${t}`, { method: 'POST', headers: H, body: '{}' }))
   check(`${t}: insert nekas`, ins.ok, ins.detail)
 }
+
+// Wikiindexet (setbyggaren): bara inloggade gäster och gänget läser, bara admin skriver
+const wr = await denied(await fetch(`${URL_}/rest/v1/wiki_items?select=id&limit=1`, { headers: H }))
+check('wiki_items: läsning nekas', wr.ok, wr.detail)
+const wi = await denied(await fetch(`${URL_}/rest/v1/wiki_items`, { method: 'POST', headers: H, body: '{}' }))
+check('wiki_items: insert nekas', wi.ok, wi.detail)
 
 for (const b of BUCKETS) {
   const path = `__access-check__/${Date.now()}.txt`

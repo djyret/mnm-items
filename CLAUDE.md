@@ -10,7 +10,8 @@ Läs först:
 ## Struktur
 
 - `web/`: frontend. `src/pages/` sidor, `src/components/`, `src/lib/` (supabase-klient, auth, access, store, i18n, kronikan, items).
-- `supabase/migrations/`: schema och RLS. `supabase/functions/`: `parse-item` (läser item-skärmdump), `berattelse` (krönika/saga), `seriebild`, `wiki-item` (uppslag mot Monsters and Memories Wiki, secret `MNM_WIKI_KEY`); gemensam `_shared/auth.ts`.
+- `supabase/migrations/`: schema och RLS. `supabase/functions/`: `parse-item` (läser item-skärmdump), `berattelse` (krönika/saga), `seriebild`, `wiki-item` (uppslag mot Monsters and Memories Wiki, secret `MNM_WIKI_KEY`), `wiki-index` (admin fyller `wiki_items` för setbyggaren); gemensam `_shared/auth.ts` och `_shared/wiki.ts`.
+- Setbyggaren och grundstats: `web/src/lib/setbuilder.ts` (vikter, uträkning), `lib/wikiindex.ts`, `lib/basestats.ts` (ras, klass, bonuspoäng, tak från wikins Character Planner). Kopian av wikins items är godkänd av Gromple för gängets bruk; den får aldrig bli publik.
 - `scripts/check-access.mjs`: kontrollerar vad en utloggad besökare får göra mot produktion.
 - `web/public/bilder/` (taverna, skylt) och `web/public/ui/` (läder, papper, sigill, menyikoner som 9-slices): målade bilder med `.json` om ursprung.
 
@@ -28,9 +29,9 @@ Publicering: push till `main` bygger och publicerar via GitHub Actions. Edge Fun
 ## Säkerhet och behörighet
 
 - Roller: Visitor (utloggad/ej godkänd), Guest, Reader, Editor, Admin i `memberships`. Nya Discord-konton blir `pending` tills admin godkänner i `#/admin`.
-- Guest (vän utanför gänget) är **inte** medlem: `is_member()` räknar bara reader/editor/admin. Gäster har egna tabeller (`guest_*`) och sidorna `#/gaster`, `#/gast/:id`; deras gear får aldrig hamna i `items`/`characters`. `can_use_armory()` = gäst eller medlem (gästernas armory, wikin).
+- Guest (vän utanför gänget) är **inte** medlem: `is_member()` räknar bara reader/editor/admin. Gäster har egna tabeller (`guest_*`) och sidorna `#/gaster`, `#/gast/:id`; deras gear får aldrig hamna i `items`/`characters`. `can_use_armory()` = gäst eller medlem (wikin). Gästernas armory styrs av området `gaster` i adminpanelen.
 - All behörighet avgörs i databasen (RLS). Frontendens `RequireEditor`, `EditorOnly` och `RequireArea` är bara bekvämlighet.
-- Läsning: `can_view_area()` per område (`area_access`: forradet, kronikan, stilbibeln) och `can_read_chapter()` för kapitlens synlighet (public/group/draft). Skrivning: `can_edit()`.
+- Läsning: `can_view_area()` per område (`area_access`: forradet, kronikan, stilbibeln, gaster; nivåer visitor < guest < reader < editor < admin) och `can_read_chapter()` för kapitlens synlighet (public/group/draft). Skrivning: `can_edit()`.
 - Edge Functions använder anroparens token mot REST/Storage via `authorize()` i `_shared/auth.ts`, aldrig `service_role`. AI-anrop räknas mot `ai_usage_start`/`ai_usage_finish`.
 - Ingen `service_role`-nyckel i frontend. Läs aldrig ut värden ur `.env` i chatten; tokens används bara via skript.
 
@@ -39,7 +40,7 @@ Publicering: push till `main` bygger och publicerar via GitHub Actions. Edge Fun
 - Namn: `ÅÅÅÅMMDDHHMMSS_<namn>.sql`. Ny policy eller tabell ska följa mönstret i `20261120130000_lock_writes.sql` och `20261120150000_area_access.sql`.
 - Körs mot produktion via Management API (`POST /v1/projects/zqdccfjisvkovuikrick/database/query`, `SUPABASE_ACCESS_TOKEN` i `.env`) eller `npx supabase db push --linked`.
 - Torrkör först i `begin; … rollback;` med `set local role anon` och `request.jwt.claims` för att testa policyerna. Kör skarpt bara efter Daniels ja, och registrera sedan raden i `supabase_migrations.schema_migrations`.
-- Facit över körda migrationer: valvet `verktyg/mnm-items-migrationer.md`. Status 2026-11-22: alla 21 filer i `supabase/migrations/` är körda; senaste `20261122120000_guests.sql`.
+- Facit över körda migrationer: valvet `verktyg/mnm-items-migrationer.md`. Status 2026-11-22: alla 23 filer i `supabase/migrations/` är körda; senaste `20261122140000_wiki_index.sql`.
 
 ## Språk (sv/en)
 

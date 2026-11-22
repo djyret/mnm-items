@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { AREAS, useAreas, type Area, type AreaLevel } from '../lib/access'
 import { useAuth } from '../lib/auth'
@@ -6,9 +6,10 @@ import { useI18n } from '../lib/i18n'
 import { VISIBILITY_HINTS, VISIBILITY_LABELS, formatDay } from '../lib/kronikan'
 import { supabase } from '../lib/supabase'
 import type { Chapter, Visibility } from '../lib/types'
+import { syncIndex, useIndexInfo, type SyncProgress } from '../lib/wikiindex'
 import { MembersPanel } from './Medlemmar'
 
-const LEVELS: AreaLevel[] = ['visitor', 'reader', 'editor', 'admin']
+const LEVELS: AreaLevel[] = ['visitor', 'guest', 'reader', 'editor', 'admin']
 
 /** Adminpanelen: vem som ser vilka delar, synlighet per kapitel och medlemmar. */
 export function Admin() {
@@ -28,6 +29,7 @@ export function Admin() {
       <h2 className="page-title">{t('admin.title')}</h2>
       <AreaPanel />
       <ChapterPanel />
+      <WikiIndexPanel />
       <MembersPanel />
     </div>
   )
@@ -72,6 +74,58 @@ function AreaPanel() {
           </li>
         ))}
       </ul>
+    </div>
+  )
+}
+
+/** Wikiindexet som setbyggaren i Armory väljer ur: fylls och uppdateras härifrån. */
+function WikiIndexPanel() {
+  const { t, locale } = useI18n()
+  const { info, reload } = useIndexInfo()
+  const [progress, setProgress] = useState<SyncProgress | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const abort = useRef<AbortController | null>(null)
+  const running = progress !== null && progress.phase !== 'done'
+
+  async function run() {
+    setError(null)
+    abort.current = new AbortController()
+    try {
+      setProgress(await syncIndex(setProgress, abort.current.signal))
+    } catch (e) {
+      setError((e as Error).message)
+      setProgress(null)
+    }
+    abort.current = null
+    await reload()
+  }
+
+  return (
+    <div className="panel">
+      <h3 className="panel-title">{t('admin.wiki.title')}</h3>
+      <p className="members__intro">{t('admin.wiki.intro')}</p>
+      {info && (
+        <p className="note">
+          {t('admin.wiki.status', { gear: info.gear, total: info.total })}
+          {info.lastSync && ` · ${t('admin.wiki.last', { when: new Date(info.lastSync).toLocaleString(locale) })}`}
+        </p>
+      )}
+      {error && <div className="alert" role="alert">{error}</div>}
+      {progress && (
+        <p className="note" role="status">
+          {progress.phase === 'list' && t('admin.wiki.listing', { n: progress.done })}
+          {progress.phase === 'fetch' && t('admin.wiki.fetching', { done: progress.done, todo: progress.todo })}
+          {progress.phase === 'done' && t('admin.wiki.done', { n: progress.done })}
+          {progress.failed > 0 && ` ${t('admin.wiki.failed', { n: progress.failed })}`}
+        </p>
+      )}
+      {running && progress.phase === 'fetch' && <progress max={progress.todo || 1} value={progress.done} />}
+      <div className="actions">
+        {running
+          ? <button type="button" className="btn btn--ghost" onClick={() => abort.current?.abort()}>{t('admin.wiki.stop')}</button>
+          : <button type="button" className="btn btn--primary" onClick={run}>{t('admin.wiki.run')}</button>}
+      </div>
+      {running && <small className="note">{t('admin.wiki.keepOpen')}</small>}
     </div>
   )
 }

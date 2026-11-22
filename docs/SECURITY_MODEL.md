@@ -129,8 +129,13 @@ Att byta `visibility` är en vanlig update för Editors. Med "Editor ändrar all
 | `forradet` | `characters`, `items`, `item_events`, `gear_sets`, `gear_set_items`, listning i `item-images` (även porträtt) |
 | `kronikan` | `chronicle_chapters` (plus kapitlets `visibility`), `chronicle_entries` (via `can_read_chapter`), `chronicle_cast`, listning i `kronikan` |
 | `stilbibeln` | `chronicle_settings` |
+| `gaster` | `guest_characters`, `guest_sets`, `guest_set_items` (läsning **och** skrivning), gästernas skärmdumpsläsning |
 
-Skrivregler (`can_edit()`) påverkas inte. Saknas en rad i `area_access` ser bara admin området.
+Nivåerna (sedan 2026-11-22, `20261122130000_guest_area`): `visitor` (alla, även utloggade) < `guest` (inloggade
+gäster och gänget) < `reader` (gänget) < `editor` < `admin`. Gäst är ett eget steg i stället för det tidigare
+undantaget där gäster släpptes in i krönikan på `reader`. Området `gaster` startar på `guest`.
+
+Skrivregler (`can_edit()`) påverkas inte, utom i `gaster` där även gästernas egna ändringar kräver att området syns. Saknas en rad i `area_access` ser bara admin området.
 Webben döljer menyknappar och sidor via `useAreas()` / `RequireArea`, men det är databasen som spärrar.
 
 ### Armory (migration `20261120160000_armory`)
@@ -148,21 +153,35 @@ Vänner utanför gänget får egna karaktärer och önskeset utan att något ham
 
 - Rollen `guest` i `app_role`. Admin väljer Gäst i Medlemmar innan kontot godkänns.
 - `is_member()` räknar bara `reader`/`editor`/`admin`, så allt som kräver medlem (förrådet, `set_my_main`) är stängt.
-  `can_view_area()` släpper in gästen i `kronikan` när den kräver `reader`; gruppkapitel läses med `is_member() or is_guest()`.
+  Gäster ser de områden som står på `visitor` eller `guest`; gruppkapitel läses med `is_member() or is_guest()`.
+- Området `gaster` styr tabellerna nedan: läsning `can_view_area('gaster')` (även `anon`, som har select-grant men
+  bara ser rader när området står på `visitor`); skrivning kräver dessutom området, och `owns_guest()` bär den kontrollen.
 - Egna tabeller, ingen koppling till `characters`/`items`/`gear_sets`:
 
 | Tabell | SELECT | INSERT | UPDATE / DELETE |
 |---|---|---|---|
-| `guest_characters` | `can_use_armory()` | `owner_id = auth.uid()` och (`is_guest()` eller `can_edit()`) | ägaren eller admin; `owner_id` kan inte ges bort |
-| `guest_sets` | `can_use_armory()` | `owns_guest(guest_id)` | `owns_guest(guest_id)` (även efter ändring) |
-| `guest_set_items` | `can_use_armory()` | `owns_guest_set(set_id)` | `owns_guest_set(set_id)` |
+| `guest_characters` | `can_view_area('gaster')` | området och `owner_id = auth.uid()` och (`is_guest()` eller `can_edit()`) | området och (ägaren eller admin); `owner_id` kan inte ges bort |
+| `guest_sets` | `can_view_area('gaster')` | `owns_guest(guest_id)` | `owns_guest(guest_id)` (även efter ändring) |
+| `guest_set_items` | `can_view_area('gaster')` | `owns_guest_set(set_id)` | `owns_guest_set(set_id)` |
 
-- `anon` har inga grants på tabellerna. Gränser i triggers: 6 karaktärer per konto (admin undantagen), ett `now`-set
+- `anon` har bara select (filtreras av området), aldrig skrivning. Gränser i triggers: 6 karaktärer per konto (admin undantagen), ett `now`-set
   (unikt index) och 4 önskeset per karaktär.
 - `guest_set_items.icon` får bara vara en ikon från `https://monstersandmemories.wiki/` eller en inbäddad
   `data:image/(webp|png|jpeg);base64,` (urklippt ur skärmdumpen), så att gäster inte kan peka ut externa bilder.
   Inga gästfiler i Storage. `detail` (resten av tooltipen) är högst 20 kB; webben tvättar typerna innan visning.
-- `ai_usage_start()` släpper in gäster för `parse-item` (inte `berattelse`/`seriebild`), med 30 anrop per dygn.
+- `ai_usage_start()` släpper in gäster för `parse-item` (inte `berattelse`/`seriebild`) när området `gaster` syns för dem, med 30 anrop per dygn.
+
+### Setbyggaren (migration `20261122140000_wiki_index`)
+
+| Tabell | SELECT | INSERT / UPDATE / DELETE |
+|---|---|---|
+| `wiki_items` | `can_use_armory()` (inloggad gäst eller medlem) | `is_admin()` |
+
+- `anon` har inga rättigheter alls på `wiki_items`. Indexet är en kopia av wikins items som Gromple gav OK till för
+  gängets bruk; det ska inte bli publikt. `url` och `icon` måste ligga på `https://monstersandmemories.wiki/`, `id` är en slug.
+- `stat_points` på `characters` och `guest_characters` följer tabellens vanliga skrivregler (redaktör respektive ägaren)
+  och kontrolleras av `valid_stat_points()`: bara STR/STA/DEX/AGI/INT/WIS/CHA, heltal ≥ 0, högst 10 totalt.
+  Taket per ras och klass kontrolleras bara i webben (siffrorna kommer från wikin och kan ändras).
 
 ## Storage
 
@@ -207,6 +226,14 @@ Proxy mot Monsters and Memories Wikis partner-API. Nyckeln ligger bara i secret 
 aldrig till webbläsaren. `requireArmoryUser()` i `_shared/auth.ts` kräver inloggad, godkänd gäst eller medlem
 (`can_use_armory()` via RPC, sedan 2026-11-22; tidigare `is_member()`) men bokar ingen AI-kvot, eftersom uppslag inte kostar AI. Wikins egen gräns är 120 anrop/minut per nyckel.
 Funktionen skriver inget i databasen; webben sparar `wiki_id`/`wiki_url`/`wiki_icon` med användarens rättigheter.
+
+### `wiki-index` (2026-11-22)
+
+Fyller `wiki_items` för setbyggaren. `requireAdmin()` kräver inloggad admin (`is_admin()` via RPC), och
+skrivningen går med adminens egen token mot PostgREST, så RLS gäller (ingen `service_role`). Webben styr körningen
+i små anrop (`list` en sida av wikins itemlista, `fetch` högst 40 items) och funktionen håller sig runt 90 anrop/minut
+mot wikin, under gränsen på 120, så att wikisöket fortsätter fungera medan indexet fylls. Tolkningen av ett item delas
+med `wiki-item` i `_shared/wiki.ts`.
 
 ## Inloggning (Discord + GitHub Pages)
 

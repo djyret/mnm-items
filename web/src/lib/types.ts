@@ -11,6 +11,8 @@ export interface Character {
   notes: string | null
   /** Porträtt i bucket item-images */
   portrait_path: string | null
+  /** Bonuspoängen vid skapandet, t.ex. { WIS: 6, STA: 4 } (högst 10) */
+  stat_points: Record<string, number>
   created_at: string
 }
 

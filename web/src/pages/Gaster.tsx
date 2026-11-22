@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ClassIcon, ClassPicker } from '../components/ClassIcon'
+import { RacePicker } from '../components/RacePicker'
 import { useAuth } from '../lib/auth'
 import { CLASSES } from '../lib/constants'
 import { MAX_GUEST_CHARS, createGuest, guestInfo, useGuestCharacters, type GuestCharacter, type GuestDraft } from '../lib/guests'
@@ -36,7 +37,7 @@ function GuestForm({ initial, onSave, onCancel }: {
         <span>{d.class ? t('forradet.chars.classIs', { name: CLASSES[d.class] || d.class }) : t('forradet.chars.classPick')}</span>
         <ClassPicker classes={Object.keys(CLASSES)} value={d.class ?? ''} onChange={(v) => set('class', v || null)} wide />
       </div>
-      <label className="field"><span>{t('forradet.chars.race')}</span><input maxLength={40} value={d.race ?? ''} onChange={(e) => set('race', e.target.value || null)} placeholder={t('forradet.chars.racePlaceholder')} /></label>
+      <RacePicker value={d.race} onChange={(v) => set('race', v)} />
       <label className="field field--narrow"><span>Level</span><input inputMode="numeric" value={d.level ?? ''} onChange={(e) => set('level', e.target.value ? Math.min(100, Math.max(1, Number(e.target.value) || 1)) : null)} /></label>
       <div className="actions field--wide">
         <button className="btn btn--primary" disabled={busy}>{t('common.save')}</button>
@@ -47,7 +48,8 @@ function GuestForm({ initial, onSave, onCancel }: {
 }
 
 export function Gaster() {
-  const { session, access, canEdit, isAdmin, canUseArmory, loading, signIn } = useAuth()
+  // Området (RequireArea 'gaster') avgör om sidan syns; utloggade kan bara titta om admin öppnat den
+  const { session, access, canEdit, isAdmin, loading } = useAuth()
   const { list, error: loadError, reload } = useGuestCharacters()
   const { t } = useI18n()
   const [adding, setAdding] = useState(false)
@@ -56,16 +58,6 @@ export function Gaster() {
   const uid = session?.user.id
 
   if (loading) return null
-  if (!canUseArmory) {
-    return (
-      <div className="page">
-        <div className="panel empty">
-          <p>{t('gaster.closed')}</p>
-          {!session && <button className="btn btn--primary" onClick={() => signIn()}>{t('account.signIn')}</button>}
-        </div>
-      </div>
-    )
-  }
 
   const mine = (list ?? []).filter((c) => c.owner_id === uid)
   const canCreate = (access === 'guest' || canEdit) && (isAdmin || mine.length < MAX_GUEST_CHARS)

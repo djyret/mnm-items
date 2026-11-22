@@ -11,9 +11,12 @@ import { ItemTooltip } from '../components/ItemTooltip'
 import { WikiSearch } from '../components/Wiki'
 import { fitsSlot, slotLabel } from '../lib/armory'
 import { useAuth } from '../lib/auth'
+import { BaseStatsPanel } from '../components/BaseStats'
+import { baseFor } from '../lib/basestats'
+import { SetBuilder } from '../components/SetBuilder'
 import {
-  MAX_GUEST_WISHES, asGuestItem, guestInfo, putGuestItem, removeGuestItem, rowFromScreenshot, rowFromWiki,
-  useGuestCharacters, useGuestGear, type GuestCharacter, type GuestSet,
+  MAX_GUEST_WISHES, asGuestItem, guestInfo, putGuestItem, putGuestItems, removeGuestItem, rowFromIndex,
+  rowFromScreenshot, rowFromWiki, useGuestCharacters, useGuestGear, type GuestCharacter, type GuestSet,
 } from '../lib/guests'
 import { useI18n } from '../lib/i18n'
 import { canUse, itemIconUrl } from '../lib/items'
@@ -23,21 +26,11 @@ import { fetchWikiItem } from '../lib/wiki'
 
 export function GastArmory() {
   const { id } = useParams()
-  const { session, isAdmin, canUseArmory, loading, signIn } = useAuth()
-  const { list } = useGuestCharacters()
+  const { session, isAdmin, loading } = useAuth()
+  const { list, reload } = useGuestCharacters()
   const { t } = useI18n()
 
   if (loading) return null
-  if (!canUseArmory) {
-    return (
-      <div className="page">
-        <div className="panel empty">
-          <p>{t('gaster.closed')}</p>
-          {!session && <button className="btn btn--primary" onClick={() => signIn()}>{t('account.signIn')}</button>}
-        </div>
-      </div>
-    )
-  }
   const char = list?.find((c) => c.id === id)
   if (!char) {
     return (
@@ -48,17 +41,24 @@ export function GastArmory() {
       </div>
     )
   }
-  return <GuestArmoryFor key={char.id} char={char} editable={char.owner_id === session?.user.id || isAdmin} />
+  return <GuestArmoryFor key={char.id} char={char} editable={char.owner_id === session?.user.id || isAdmin} onCharChange={reload} />
 }
 
-function GuestArmoryFor({ char, editable }: { char: GuestCharacter; editable: boolean }) {
+function GuestArmoryFor({ char, editable, onCharChange }: { char: GuestCharacter; editable: boolean; onCharChange: () => Promise<void> }) {
   const { t } = useI18n()
   const gear = useGuestGear(char.id)
   const hover = useItemHover()
   // null = "Nu", annars id för ett önskeset
   const [view, setView] = useState<string | null>(null)
   const [selected, setSelected] = useState<string | null>(null)
+  const [building, setBuilding] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  async function savePoints(points: Record<string, number>) {
+    const { error } = await supabase.from('guest_characters').update({ stat_points: points }).eq('id', char.id)
+    if (!error) await onCharChange()
+    return error?.message ?? null
+  }
 
   const nowSet = gear.sets.find((s) => s.kind === 'now') ?? null
   const wishes = gear.sets.filter((s) => s.kind === 'wish')
@@ -138,6 +138,7 @@ function GuestArmoryFor({ char, editable }: { char: GuestCharacter; editable: bo
         )}
         {editable && wish && (
           <span className="armory__setactions">
+            <button type="button" className="btn btn--small" aria-pressed={building} onClick={() => setBuilding(!building)}>{t('builder.open')}</button>
             <button type="button" className="btn btn--small btn--ghost" onClick={renameSet}>{t('armory.sets.rename')}</button>
             <button type="button" className="btn btn--small btn--danger" onClick={deleteSet}>{t('common.delete')}</button>
           </span>
@@ -159,7 +160,9 @@ function GuestArmoryFor({ char, editable }: { char: GuestCharacter; editable: bo
           )}
         />
         <div className="armory__side">
-          <BonusPanel worn={[...shown.values()]} compare={wish ? [...now.values()] : undefined} />
+          <BonusPanel worn={[...shown.values()]} compare={wish ? [...now.values()] : undefined}
+            base={baseFor(char.race, char.class, char.stat_points)} />
+          <BaseStatsPanel race={char.race} cls={char.class} points={char.stat_points} editable={editable} onSave={savePoints} />
           {selected && active ? (
             <GuestSlotPanel key={`${active.id}:${selected}`} char={char} set={active} slot={selected}
               item={shown.get(selected) ?? null} editable={editable} onChange={gear.reload} />
@@ -168,6 +171,16 @@ function GuestArmoryFor({ char, editable }: { char: GuestCharacter; editable: bo
           )}
         </div>
       </div>
+
+      {building && wish && editable && (
+        <SetBuilder key={wish.id} cls={char.class} race={char.race} setName={wish.name} current={shown}
+          onClose={() => setBuilding(false)}
+          onApply={async (picks) => {
+            const err = await putGuestItems(wish.id, picks.map((p) => ({ slot: p.slot, row: rowFromIndex(p.item) })))
+            await gear.reload()
+            return err
+          }} />
+      )}
       {hover.tip}
     </div>
   )

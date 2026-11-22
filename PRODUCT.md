@@ -16,7 +16,7 @@ Loot & Lore (tidigare MnM Förrådet) är gängets gemensamma förråd och minne
 
 - **Förrådet:** items avlästa från skärmdumpar, vem som har vad, lån, försäljning.
 - **Startsidan:** ens main med utrustning och gear-bonus, och gängets senaste kvällar spikade på väggen. Besökare ser bara kvällarna.
-- **Armory:** en sida per karaktär med porträtt, utrustning slot för slot, upp till fyra önskeset att jämföra stats mot och historik över vad som tagits på och av.
+- **Armory:** en sida per karaktär med porträtt, utrustning slot för slot, upp till fyra önskeset att jämföra stats mot och historik över vad som tagits på och av. Grundstats för ras och klass med de 10 bonuspoängen man placerar vid skapandet, så att statsrutan visar grund + gear. **Bygg set** fyller ett önskeset med det bästa från wikin efter vikter per stat som spelaren sätter (klassens förval, bara tomma slots, bara vissa zoner).
 - **Gäster:** egen menyskylt för vänner utanför gänget. Varje gäst har egna karaktärer med samma karaktärsfönster som Armory, "Nu"-utrustning och upp till fyra önskeset, fyllda från wikin eller en avläst skärmdump. Inget av det hamnar i förrådet.
 - **Krönikan:** gängets äventyr, ett kapitel per spelkväll. Under kvällen dumpas skärmdumpar från spelet; efteråt skriver en AI-krönikör berättelsen och föreslår scener, som blir seriebilder i gängets egen stil (genererade i ChatGPT). Målet är att kunna gå tillbaka och minnas tillsammans, som en serietidning om det de upplevt.
 

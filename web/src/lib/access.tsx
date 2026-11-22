@@ -3,19 +3,17 @@ import { useAuth, type Access } from './auth'
 import { supabase } from './supabase'
 
 /** Områden som adminpanelen styr. Databasen spärrar läsningen; det här styr meny och sidor. */
-export type Area = 'forradet' | 'kronikan' | 'stilbibeln'
+export type Area = 'forradet' | 'kronikan' | 'stilbibeln' | 'gaster'
 
 /** Namn och beskrivning slås upp vid rendering så att språkbytet slår igenom:
  *  t(`admin.area.${area}`), t(`admin.area.${area}.covers`) och t(`admin.minRole.${nivå}`). */
-export const AREAS: Area[] = ['forradet', 'kronikan', 'stilbibeln']
+export const AREAS: Area[] = ['forradet', 'kronikan', 'stilbibeln', 'gaster']
 
-// Gästen står utanför stegen: som besökare överallt, utom krönikan där den räknas som läsare
-// (samma regel som can_view_area() i databasen)
-const RANK: Record<Access, number> = { visitor: 0, guest: 0, reader: 1, editor: 2, admin: 3 }
-const rankIn = (access: Access, area: Area) => (access === 'guest' && area === 'kronikan' ? RANK.reader : RANK[access])
+// Samma steg som can_view_area() i databasen: besökare < gäst < läsare < redaktör < admin
+const RANK: Record<Access, number> = { visitor: 0, guest: 1, reader: 2, editor: 3, admin: 4 }
 
-/** Lägsta roll som ser ett område (area_access.min_role). Gäst går inte att välja där. */
-export type AreaLevel = Exclude<Access, 'guest'>
+/** Lägsta roll som ser ett område (area_access.min_role). */
+export type AreaLevel = Access
 
 interface AreaAccess {
   minRole: Record<Area, AreaLevel>
@@ -27,7 +25,7 @@ interface AreaAccess {
 const AreaContext = createContext<AreaAccess | null>(null)
 
 // Tills inställningen laddats visas allt: databasen spärrar ändå det som inte får läsas
-const OPEN: Record<Area, AreaLevel> ={ forradet: 'visitor', kronikan: 'visitor', stilbibeln: 'visitor' }
+const OPEN: Record<Area, AreaLevel> = { forradet: 'visitor', kronikan: 'visitor', stilbibeln: 'visitor', gaster: 'visitor' }
 
 export function AreaProvider({ children }: { children: ReactNode }) {
   const { access } = useAuth()
@@ -49,7 +47,7 @@ export function AreaProvider({ children }: { children: ReactNode }) {
   const value = useMemo<AreaAccess>(() => ({
     minRole,
     loading,
-    canView: (area) => rankIn(access, area) >= RANK[minRole[area]],
+    canView: (area) => RANK[access] >= RANK[minRole[area]],
     reload,
   }), [minRole, loading, access, reload])
 
