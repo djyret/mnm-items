@@ -1816,13 +1816,15 @@ blockquote.kr-note { font-family: var(--font-title); font-weight: 700; }
 }
 .account__link:hover { color: #f0cd7d; text-decoration: underline; }
 /* Visa som (bara admin): liten väljare i raden; lyser när sidan visas som en annan roll */
-.account__viewas { display: inline-flex; align-items: center; gap: 0.35rem; color: var(--text-dim); }
+.account__viewas { display: inline-flex; align-items: baseline; gap: 0.35rem; white-space: nowrap; color: var(--text-dim); }
 .account__viewas select {
   border: 0;
   border-image: none;
-  background: transparent;
+  background: var(--select-arrow) right 0 center / 8px no-repeat;
   min-height: 0;
-  padding: 0 0.1rem;
+  height: auto;
+  line-height: inherit;
+  padding: 0 0.85rem 0 0.1rem;
   font: inherit;
   font-family: var(--font-title);
   letter-spacing: 0.04em;
@@ -2051,7 +2053,7 @@ blockquote.kr-note { font-family: var(--font-title); font-weight: 700; }
 .setbuilder__weights { display: grid; grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr)); gap: 0.4rem 0.9rem; align-items: end; margin: 0 0 0.8rem; padding: 0.6rem 0.8rem; border: 1px solid var(--iron-dark); }
 .setbuilder__weights legend { padding: 0 0.3rem; font-family: var(--font-title); }
 .setbuilder__weight { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
-.setbuilder__weight input { width: 4.2rem; }
+.setbuilder__weight input { width: 4.8rem; text-align: center; padding-inline: 0.1rem; }
 .setbuilder__options { display: flex; flex-wrap: wrap; gap: 0.5rem 1.2rem; align-items: end; margin-bottom: 0.6rem; }
 .setbuilder__options .field { flex: 1 1 16rem; margin: 0; }
 .setbuilder__result small { margin-left: auto; }
@@ -2396,16 +2398,21 @@ main:focus { outline: none; }
 /* ---------- Fält och väljare: infällt läder ---------- */
 input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']), textarea, select {
   border: 10px solid transparent;
-  border-image: url('/ui/falt.webp') 20 fill / 10px stretch;
+  /* Ramen ur falt-rund (kort kantbit som upprepas, så stygnen behåller tätheten i alla bredder);
+     mitten är en egen bild som sträcks, så breda fält och textrutor inte blir randiga */
+  border-image: url('/ui/falt-rund.webp') 20 / 10px round stretch;
   border-radius: 0;
-  background-color: transparent;
+  background: url('/ui/falt-mitt.webp') 0 0 / 100% 100% no-repeat padding-box;
   box-shadow: none;
   padding: 0.18rem 0.35rem;
 }
 select {
   padding-right: 1.8rem;
-  background: var(--select-arrow) right 0.45rem center / 11px no-repeat;
+  background: var(--select-arrow) right 0.45rem center / 11px no-repeat, url('/ui/falt-mitt.webp') 0 0 / 100% 100% no-repeat padding-box;
 }
+/* Sifferfält utan webbläsarens pilar (de passar inte läderfälten); piltangenterna fungerar fortfarande */
+input[type='number'] { -moz-appearance: textfield; appearance: textfield; }
+input[type='number']::-webkit-inner-spin-button, input[type='number']::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 input:not([type='checkbox']):not([type='radio']):focus, textarea:focus, select:focus {
   box-shadow: none;
   outline: 2px solid var(--bronze-light);

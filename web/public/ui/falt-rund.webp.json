@@ -1,0 +1,5 @@
+{
+  "source": "falt.webp",
+  "timestamp": "2026-11-22T16:30:00.000Z",
+  "process": "Derived with Sharp: 20 px corners kept, the middle replaced by a 40 px piece from the centre of the field made seamless (first 10 columns blended with the columns after the piece), so border-image-repeat: round keeps the stitch spacing in any width. Used without fill; the centre comes from falt-mitt.webp."
+}
