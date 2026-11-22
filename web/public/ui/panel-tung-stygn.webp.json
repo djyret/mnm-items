@@ -1,0 +1,5 @@
+{
+  "source": "panel-tung.webp",
+  "timestamp": "2026-11-22T15:20:00.000Z",
+  "process": "Derived with Sharp: only the stitches along the edges, taken from a clean piece in the middle of each edge (two copies), alpha from how far each pixel differs from the leather; corners and centre transparent. Drawn on top with border-image-repeat: round."
+}
