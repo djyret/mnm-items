@@ -1,0 +1,5 @@
+{
+  "source": "knapp-massing.webp",
+  "timestamp": "2026-11-22T16:45:00.000Z",
+  "process": "Derived with Sharp: only the edge stitches (two copies of a clean middle piece per edge, alpha from deviation from the leather), corners and centre transparent. Drawn in ::after with border-image-repeat: round."
+}

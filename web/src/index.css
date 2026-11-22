@@ -1970,7 +1970,6 @@ blockquote.kr-note { font-family: var(--font-title); font-weight: 700; }
 .armory__rowactions { margin-left: auto; display: flex; gap: 0.4rem; }
 .armory__tabs { margin: 1rem 0 0.75rem; flex-wrap: wrap; }
 .armory__tabs .kr-tab { cursor: pointer; font-family: var(--font-title); }
-.armory__tabs .kr-tab:not(.active) { background: none; }
 
 /* Paper doll: slots runt porträttet som karaktärsfönstret i spelet */
 .doll { display: grid; grid-template-columns: 72px minmax(340px, 380px) 72px; grid-template-rows: auto 1fr auto; grid-template-areas: ". top ." "left portrait right" "left bottom right"; gap: 0.6rem 0.75rem; margin: 0; }
@@ -2072,7 +2071,6 @@ blockquote.kr-note { font-family: var(--font-title); font-weight: 700; }
 /* Önskeset: flikraden ovanför dockan och statsrutan (båda börjar i samma höjd under den) */
 .armory__sets { margin: 0 0 0.75rem; flex-wrap: wrap; align-items: center; }
 .armory__sets .kr-tab { cursor: pointer; font-family: var(--font-title); }
-.armory__sets .kr-tab:not(.active) { background: none; }
 .armory__addset { color: var(--bronze-light) !important; }
 .armory__setactions { margin-left: auto; display: flex; gap: 0.4rem; padding-right: 0.2rem; }
 .doll--set { box-shadow: inset 0 0 0 1px var(--bronze-dark), inset 0 0 30px rgba(224, 184, 114, 0.06); }
@@ -2417,10 +2415,11 @@ main:focus { outline: none; }
 .btn {
   --frame-metal: none;
   --face: none;
+  --bw: 12px;
   min-height: 2.6rem;
   padding: 0.15rem 0.95rem 0.2rem;
   border: 12px solid transparent;
-  border-image: url('/ui/knapp-lader.webp') 32 fill / 12px stretch;
+  border-image: url('/ui/knapp-lader-slat.webp') 32 fill / 12px stretch;
   border-radius: 0;
   background: none;
   box-shadow: none;
@@ -2431,10 +2430,23 @@ main:focus { outline: none; }
 .btn:hover { filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.6)) brightness(1.14); }
 .btn:active { filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6)) brightness(0.94); }
 .btn:disabled { opacity: 0.45; filter: none; }
-.btn--primary { border-image-source: url('/ui/knapp-massing.webp'); color: var(--ink-on-brass); text-shadow: 0 1px 0 rgba(255, 236, 190, 0.5); }
-.btn--danger { border-image-source: url('/ui/knapp-fara.webp'); color: #ffe9df; }
+.btn--primary { border-image-source: url('/ui/knapp-massing-slat.webp'); --stygn: url('/ui/knapp-massing-stygn.webp'); color: var(--ink-on-brass); text-shadow: 0 1px 0 rgba(255, 236, 190, 0.5); }
+.btn--danger { border-image-source: url('/ui/knapp-fara-slat.webp'); --stygn: url('/ui/knapp-fara-stygn.webp'); color: #ffe9df; }
 .btn--ghost { filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.5)) brightness(0.86); }
-.btn--small { min-height: 2.05rem; padding: 0 0.6rem; border-width: 9px; border-image-width: 9px; font-size: 0.86rem; }
+.btn--small { min-height: 2.05rem; padding: 0 0.6rem; border-width: 9px; border-image-width: 9px; font-size: 0.86rem; --bw: 9px; }
+/* Stygnen på knappar, flikar och statsrubriker: läderbilden sträcks (stygnen bortmålade längs
+   kanterna, *-slat), och stygnen ritas ovanpå ur *-stygn som upprepas, så de behåller tätheten i
+   alla bredder. --bw = ramens bredd, --stygn = stygnbilden för varianten. */
+:where(.btn, .kr-tab, .gstats__head) { position: relative; }
+.btn, .kr-tab, .gstats__head { --stygn: url('/ui/knapp-lader-stygn.webp'); }
+.btn::after, .kr-tab::after, .gstats__head::after {
+  content: '';
+  position: absolute;
+  inset: calc(-1 * var(--bw));
+  border: var(--bw) solid transparent;
+  border-image: var(--stygn) 32 / var(--bw) round;
+  pointer-events: none;
+}
 .btn:focus-visible { outline: 2px solid var(--bronze-light); outline-offset: 3px; }
 
 /* ---------- Fält och väljare: infällt läder ---------- */
@@ -2465,13 +2477,14 @@ input:not([type='checkbox']):not([type='radio']):focus, textarea:focus, select:f
 .kr-tabs { background: none; border: 0; box-shadow: none; padding: 0; gap: 6px; }
 .kr-tab {
   border: 10px solid transparent;
-  border-image: url('/ui/knapp-lader.webp') 32 fill / 10px stretch;
+  border-image: url('/ui/knapp-lader-slat.webp') 32 fill / 10px stretch;
   background: none;
+  --bw: 10px;
   box-shadow: none;
   color: #e9dcc0;
   padding: 0.05rem 0.7rem;
 }
-.kr-tab.active { border-image-source: url('/ui/knapp-massing.webp'); background: none; color: var(--ink-on-brass); text-shadow: 0 1px 0 rgba(255, 236, 190, 0.5); box-shadow: none; }
+.kr-tab.active { border-image-source: url('/ui/knapp-massing-slat.webp'); --stygn: url('/ui/knapp-massing-stygn.webp'); background: none; color: var(--ink-on-brass); text-shadow: 0 1px 0 rgba(255, 236, 190, 0.5); box-shadow: none; }
 
 /* ---------- Papper: rivet, fläckigt, med hundöron; sigill för det särskilda ---------- */
 .start-note__horn {
@@ -2553,7 +2566,8 @@ input:not([type='checkbox']):not([type='radio']):focus, textarea:focus, select:f
   background: none;
   box-shadow: none;
   border: 9px solid transparent;
-  border-image: url('/ui/knapp-lader.webp') 32 fill / 9px stretch;
+  border-image: url('/ui/knapp-lader-slat.webp') 32 fill / 9px stretch;
+  --bw: 9px;
   padding: 0 0 0.05rem;
   color: #f3e6c8;
   text-shadow: 0 1px 2px #000;
