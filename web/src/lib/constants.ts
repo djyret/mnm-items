@@ -105,7 +105,7 @@ export function normalizeStatKey(key: string): string {
   const k = key.trim().toUpperCase().replace(/[\s:]+/g, '_')
   const aliases: Record<string, string> = {
     ENDURANCE: 'END', HITPOINTS: 'HP', HIT_POINTS: 'HP', DAMAGE: 'DMG', DELAY: 'DLY',
-    SV_ELECTRIC: 'SV_ELEC', SV_CORR: 'SV_CORRUPTION', SV_DIS: 'SV_DISEASE', SV_POI: 'SV_POISON',
+    SV_ELECTRIC: 'SV_ELEC', SV_ELECTRICITY: 'SV_ELEC', SV_CORR: 'SV_CORRUPTION', SV_DIS: 'SV_DISEASE', SV_POI: 'SV_POISON',
   }
   return aliases[k] ?? k
 }
