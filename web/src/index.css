@@ -687,20 +687,38 @@ textarea { resize: vertical; }
   top: calc(-46 * var(--s));
   width: calc(28 * var(--s));
   height: calc(48 * var(--s));
-  background: url('/bilder/flamma-ark.webp') 0 0 / 800% 100% no-repeat;
   mix-blend-mode: screen;
   transform-origin: 50% 96%;
+  /* Ett varv genom arkets 8 rutor, och tiden per ruta */
+  --t: calc(1.3s * var(--k));
+  --step: calc(var(--t) / 8);
 }
+/* Övertoning mellan rutorna: ::before visar ruta n, ::after ruta n+1 och tonar in under varje
+   steg; när den är helt synlig hoppar båda ett steg, så bytet syns inte. Lagren blandas normalt
+   inom lågan (jämn ljusstyrka) och hela lågan läggs på med screen. */
+.flame__fire::before, .flame__fire::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('/bilder/flamma-ark.webp') 0 0 / 800% 100% no-repeat;
+}
+.flame__fire::after { opacity: 0; }
 @media (prefers-reduced-motion: no-preference) {
   .flame__fire {
     animation:
-      flame-frames calc(1.2s * var(--k)) steps(8, jump-none) var(--o) infinite,
       flame-sway calc(3.3s * var(--k)) ease-in-out var(--o) infinite,
       flame-stretch calc(2.1s * var(--k)) ease-in-out var(--o) infinite;
+  }
+  .flame__fire::before { animation: flame-frames var(--t) steps(8, jump-none) var(--o) infinite; }
+  .flame__fire::after {
+    animation:
+      flame-frames var(--t) steps(8, jump-none) calc(var(--o) - var(--step)) infinite,
+      flame-fade var(--step) linear var(--o) infinite;
   }
   .flame__glow { animation: flame-glow calc(4.3s * var(--k)) ease-in-out var(--o) infinite; }
 }
 @keyframes flame-frames { from { background-position-x: 0%; } to { background-position-x: 100%; } }
+@keyframes flame-fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes flame-sway {
   0%, 100% { transform: skewX(0deg); }
   30% { transform: skewX(-4deg); }
