@@ -78,6 +78,8 @@ const rpc = await denied(await fetch(`${URL_}/rest/v1/rpc/ai_usage_start`, { met
 check('ai_usage_start: nekas', rpc.ok, rpc.detail)
 const equip = await denied(await fetch(`${URL_}/rest/v1/rpc/equip_item`, { method: 'POST', headers: H, body: JSON.stringify({ p_item: NONE, p_slot: 'HEAD' }) }))
 check('equip_item: nekas', equip.ok, equip.detail)
+const viewAs = await denied(await fetch(`${URL_}/rest/v1/rpc/set_view_as`, { method: 'POST', headers: H, body: '{"r":"editor"}' }))
+check('set_view_as: nekas', viewAs.ok, viewAs.detail)
 const area = await denied(await fetch(`${URL_}/rest/v1/area_access?area=eq.forradet`, { method: 'PATCH', headers: H, body: '{"min_role":"visitor"}' }))
 check('area_access: ändring nekas', area.ok, area.detail)
 const mem = await denied(await fetch(`${URL_}/rest/v1/memberships?select=user_id`, { headers: H }))

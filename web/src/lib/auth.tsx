@@ -1,7 +1,7 @@
 import type { Session } from '@supabase/supabase-js'
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { supabase } from './supabase'
-import type { AppRole, Membership } from './types'
+import type { AppRole, Membership, ViewAs } from './types'
 
 /** Visitor = ej inloggad, eller inloggad utan aktivt medlemskap. */
 export type Access = 'visitor' | AppRole
@@ -12,6 +12,11 @@ interface Auth {
   access: Access
   canEdit: boolean
   isAdmin: boolean
+  /** Riktig admin, även när sidan visas som en annan roll (för väljaren Visa som) */
+  realAdmin: boolean
+  /** Rollen sidan visas som, eller null för den egna */
+  viewAs: ViewAs | null
+  setViewAs: (r: ViewAs | null) => Promise<string | null>
   loading: boolean
   signIn: () => Promise<void>
   signOut: () => Promise<void>
@@ -77,20 +82,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     window.location.reload()
   }, [])
 
+  // Visa som: databasens my_role() ger den valda rollen, så all behörighet följer med. Sidan laddas
+  // om efter bytet, så att det som redan hämtats med den gamla rollen försvinner.
+  const setViewAs = useCallback(async (r: ViewAs | null) => {
+    const { error } = await supabase.rpc('set_view_as', { r })
+    if (error) return error.message
+    window.location.reload()
+    return null
+  }, [])
+
   const value = useMemo<Auth>(() => {
-    const access: Access = membership?.status === 'active' ? membership.role : 'visitor'
+    const own: Access = membership?.status === 'active' ? membership.role : 'visitor'
+    const realAdmin = own === 'admin'
+    const viewAs = realAdmin ? membership?.view_as ?? null : null
+    const access: Access = viewAs ?? own
     return {
       session,
       membership,
       access,
       canEdit: access === 'editor' || access === 'admin',
       isAdmin: access === 'admin',
+      realAdmin,
+      viewAs,
+      setViewAs,
       loading,
       signIn,
       signOut,
       reloadMembership,
     }
-  }, [session, membership, loading, signIn, signOut, reloadMembership])
+  }, [session, membership, loading, signIn, signOut, reloadMembership, setViewAs])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

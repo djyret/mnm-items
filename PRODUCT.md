@@ -28,7 +28,7 @@ Byggt för just det här gänget och det här spelet: läser spelets egna skärm
 
 - Läses oftast tillsammans på Discord (någon delar skärmen efter en kväll) och var för sig på datorn i efterhand.
 - Alla i gänget laddar upp, skriver och skapar seriebilder; det finns ingen enskild redaktör. Alla godkända redaktörer får ändra allt delat innehåll.
-- Alla med länken kan läsa. För att skriva, ladda upp och använda AI-funktionerna loggar man in med Discord och godkänns av en admin (roller: gäst, läsare, redaktör, admin; se `docs/SECURITY_MODEL.md`).
+- Alla med länken kan läsa. För att skriva, ladda upp och använda AI-funktionerna loggar man in med Discord och godkänns av en admin (roller: gäst, läsare, redaktör, admin; se `docs/SECURITY_MODEL.md`). En admin kan välja **Visa som** i kontoraden och se sidan precis som en besökare, gäst, läsare eller redaktör.
 - Seriebilder görs utanför appen (ChatGPT) från en prompt appen bygger, och klistras sedan in.
 
 ## Capabilities and Constraints

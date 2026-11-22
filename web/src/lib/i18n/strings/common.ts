@@ -28,6 +28,8 @@ export const sv = {
   'account.pending': 'väntar på godkännande',
   'account.suspended': 'spärrad',
   'account.language': 'Språk',
+  'account.viewAs': 'Visa som',
+  'account.viewAsHelp': 'Se sidan som en annan roll. Databasen behandlar ditt konto som den rollen tills du väljer Admin igen.',
 
   'role.visitor': 'Besökare',
   'role.guest': 'Gäst',
@@ -70,6 +72,8 @@ export const en: { [K in keyof typeof sv]: string } = {
   'account.pending': 'awaiting approval',
   'account.suspended': 'suspended',
   'account.language': 'Language',
+  'account.viewAs': 'View as',
+  'account.viewAsHelp': 'See the site as another role. The database treats your account as that role until you pick Admin again.',
 
   'role.visitor': 'Visitor',
   'role.guest': 'Guest',

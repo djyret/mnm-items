@@ -62,7 +62,7 @@ create table public.membership_audit (   -- vem ändrade vems roll/status och n�
 
 | Funktion | Sann när |
 |---|---|
-| `my_role()` | Returnerar roll om aktivt medlemskap, annars `null` |
+| `my_role()` | Returnerar roll om aktivt medlemskap, annars `null`. För en admin med **Visa som** (`view_as`) den valda rollen; `visitor` ger `null` |
 | `is_member()` | Aktiv, `reader`, `editor` eller `admin` (sedan 2026-11-22 **inte** `guest`) |
 | `is_guest()` | Aktiv, `guest` |
 | `can_use_armory()` | `is_member()` eller `is_guest()`: gästernas armory och wikin |
@@ -182,6 +182,16 @@ Vänner utanför gänget får egna karaktärer och önskeset utan att något ham
 - `stat_points` på `characters` och `guest_characters` följer tabellens vanliga skrivregler (redaktör respektive ägaren)
   och kontrolleras av `valid_stat_points()`: bara STR/STA/DEX/AGI/INT/WIS/CHA, heltal ≥ 0, högst 10 totalt.
   Taket per ras och klass kontrolleras bara i webben (siffrorna kommer från wikin och kan ändras).
+
+### Visa som (migration `20261122150000_view_as`)
+
+- `memberships.view_as` (`visitor`, `guest`, `reader`, `editor` eller `null`). Läses av `my_role()` bara när den riktiga rollen är
+  `admin`; ett kvarglömt läge hos någon som inte längre är admin gör ingenting.
+- All behörighet går via `my_role()`, så en admin som visar sidan som läsare får läsarens rättigheter i RLS, RPC:er och
+  edge-funktionerna (även `requireAdmin`). Adminpanelen syns alltså inte i det läget.
+- `set_view_as(r)` (`security definer`) kontrollerar den **riktiga** rollen i `memberships`, så admin kommer alltid tillbaka,
+  även från besökarläget. Användare har ingen update-rätt på `memberships`; kolumnen ändras bara via RPC:n. `anon` får inte anropa den.
+- Webben laddar om sidan efter bytet. Väljaren finns i kontoraden och syns bara för riktiga admins.
 
 ## Storage
 
