@@ -653,10 +653,11 @@ textarea { resize: vertical; }
 }
 .hero__inner { height: 100%; padding: 0; }
 
-/* Levande ljus: tre lågor i bandet (lampetterna på stolparna och ljuset på hyllan). Varje låga
-   får ett sken som pulserar på väggen och en kopia av den målade lågan (samma bit av bandet som
-   bakgrund) som fladdrar ovanpå originalet. Allt räknas i bandets pixlar (2560x640) gånger --s,
-   med --ox som förskjutning när bandet beskärs i mitten (smala fönster). */
+/* Levande ljus: tre lågor (lampetterna på stolparna och ljuset på hyllan). Lågorna är bortmålade
+   ur bandet; här ritas de som en målad flipbok (flamma-ark.webp, 8 rutor på svart) som läggs på
+   med screen, så det svarta runt lågan inte syns. Flipboken bläddras, lågan svajar lugnt och
+   skenet på väggen andas. Allt räknas i bandets pixlar (2560x640) gånger --s, med --ox som
+   förskjutning när bandet beskärs i mitten (smala fönster). */
 .hero { container-type: inline-size; --s: calc(100cqw / 2560); --ox: 0px; }
 .flames { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
 .flame {
@@ -666,96 +667,55 @@ textarea { resize: vertical; }
   top: calc(var(--y) * var(--s));
 }
 /* --k sprider tempot per låga, --o förskjuter startläget så att de aldrig går i takt */
-.flame--vanster { --x: 103; --y: 196; --k: 1; --o: -0.4s; }
-.flame--hoger { --x: 2463; --y: 198; --k: 1.17; --o: -1.3s; }
-.flame--hylla { --x: 2316; --y: 417; --k: 0.89; --o: -2.2s; }
-.flames__defs { position: absolute; width: 0; height: 0; }
+.flame--vanster { --x: 103; --y: 194; --k: 1; --o: -0.4s; }
+.flame--hoger { --x: 2463; --y: 196; --k: 1.13; --o: -1.3s; }
+.flame--hylla { --x: 2316; --y: 414; --k: 0.91; --o: -2.2s; }
 .flame__glow {
   position: absolute;
-  left: calc(-130 * var(--s));
-  top: calc(-150 * var(--s));
-  width: calc(260 * var(--s));
-  height: calc(260 * var(--s));
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 170, 70, 0.32), rgba(255, 130, 40, 0.12) 40%, transparent 70%);
+  left: calc(-170 * var(--s));
+  top: calc(-200 * var(--s));
+  width: calc(340 * var(--s));
+  height: calc(340 * var(--s));
+  background: radial-gradient(closest-side, rgba(255, 165, 70, 0.2), rgba(255, 130, 40, 0.08) 45%, rgba(255, 120, 30, 0) 100%);
   mix-blend-mode: screen;
-  opacity: 0.7;
-}
-.flame__wave {
-  /* 28x58 bandpixlar runt lågan, med foten i mitten av underkanten; brusfiltret vrider formen */
-  position: absolute;
-  left: calc(-14 * var(--s));
-  top: calc(-56 * var(--s));
-  width: calc(28 * var(--s));
-  height: calc(58 * var(--s));
+  opacity: 0.85;
 }
 .flame__fire {
+  /* En ruta i arket (96x192) ritas som 28x48 bandpixlar, foten 2 px över underkanten */
   position: absolute;
-  inset: 0;
-  background: url('/bilder/taverna-band.webp') no-repeat;
-  background-size: calc(2560 * var(--s)) auto;
-  background-position: calc((14 - var(--x)) * var(--s)) calc((56 - var(--y)) * var(--s));
-  -webkit-mask-image: radial-gradient(ellipse 50% 55% at 50% 55%, #000 60%, transparent 100%);
-  mask-image: radial-gradient(ellipse 50% 55% at 50% 55%, #000 60%, transparent 100%);
+  left: calc(-14 * var(--s));
+  top: calc(-46 * var(--s));
+  width: calc(28 * var(--s));
+  height: calc(48 * var(--s));
+  background: url('/bilder/flamma-ark.webp') 0 0 / 800% 100% no-repeat;
+  mix-blend-mode: screen;
   transform-origin: 50% 96%;
 }
-/* Fyra rörelser med olika längd (höjd, svaj, drift, ljus) läggs på varandra, så mönstret
-   aldrig upprepas; lågan växer bara (aldrig under 1), så originalet under syns inte bredvid */
 @media (prefers-reduced-motion: no-preference) {
-  .flame__wave { filter: url(#flame-wave); }
   .flame__fire {
     animation:
-      flame-stretch calc(1.31s * var(--k)) ease-in-out var(--o) infinite,
-      flame-sway calc(2.93s * var(--k)) ease-in-out var(--o) infinite,
-      flame-drift calc(1.73s * var(--k)) ease-in-out var(--o) infinite,
-      flame-bright calc(0.71s * var(--k)) linear var(--o) infinite;
+      flame-frames calc(1.2s * var(--k)) steps(8, jump-none) var(--o) infinite,
+      flame-sway calc(3.3s * var(--k)) ease-in-out var(--o) infinite,
+      flame-stretch calc(2.1s * var(--k)) ease-in-out var(--o) infinite;
   }
-  .flame__glow {
-    animation:
-      flame-glow calc(0.53s * var(--k)) linear var(--o) infinite,
-      flame-swell calc(3.1s * var(--k)) ease-in-out var(--o) infinite;
-  }
+  .flame__glow { animation: flame-glow calc(4.3s * var(--k)) ease-in-out var(--o) infinite; }
+}
+@keyframes flame-frames { from { background-position-x: 0%; } to { background-position-x: 100%; } }
+@keyframes flame-sway {
+  0%, 100% { transform: skewX(0deg); }
+  30% { transform: skewX(-4deg); }
+  55% { transform: skewX(1.5deg); }
+  80% { transform: skewX(3.5deg); }
 }
 @keyframes flame-stretch {
   0%, 100% { scale: 1 1; }
-  17% { scale: 1.02 1.12; }
-  31% { scale: 1 1.04; }
-  52% { scale: 1.03 1.18; }
-  64% { scale: 1.01 1.06; }
-  81% { scale: 1.02 1.13; }
-}
-@keyframes flame-sway {
-  0%, 100% { transform: skewX(0deg); }
-  23% { transform: skewX(-3deg); }
-  41% { transform: skewX(1.5deg); }
-  58% { transform: skewX(-1deg); }
-  77% { transform: skewX(3.5deg); }
-}
-@keyframes flame-drift {
-  0%, 100% { translate: 0 0; }
-  29% { translate: -4% 0; }
-  63% { translate: 3% -1%; }
-}
-@keyframes flame-bright {
-  0%, 100% { filter: brightness(1.05); }
-  13% { filter: brightness(1.2); }
-  27% { filter: brightness(0.98); }
-  38% { filter: brightness(1.12); }
-  56% { filter: brightness(1.02); }
-  71% { filter: brightness(1.22); }
-  86% { filter: brightness(1); }
+  35% { scale: 0.97 1.06; }
+  70% { scale: 1.02 0.96; }
 }
 @keyframes flame-glow {
-  0%, 100% { opacity: 0.72; }
-  21% { opacity: 0.86; }
-  37% { opacity: 0.64; }
-  58% { opacity: 0.9; }
-  79% { opacity: 0.7; }
-}
-@keyframes flame-swell {
-  0%, 100% { scale: 1; }
-  40% { scale: 1.05; }
-  70% { scale: 0.97; }
+  0%, 100% { opacity: 0.85; }
+  40% { opacity: 0.95; }
+  70% { opacity: 0.78; }
 }
 .brand-link { position: absolute; left: 50%; top: 3.6vw; width: 27vw; transform: translateX(-50%); display: block; }
 .brand-sign { display: block; width: 100%; height: auto; filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.6)); }

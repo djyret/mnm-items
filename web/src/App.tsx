@@ -59,24 +59,13 @@ function Shell() {
       {/* Utanför headern men ovanpå den: headerbildens mask skulle annars tona ut hörnet */}
       <AccountBar />
       <header className="hero">
-        {/* Ljusen i bandet fladdrar: ett sken på väggen och den målade lågan själv, se .flame i CSS */}
+        {/* Ljusen i bandet lever: lågorna är bortmålade ur bandet och ritas här som en målad
+            flipbok (flamma-ark.webp) med ett sken på väggen, se .flame i CSS */}
         <div className="flames" aria-hidden="true">
-          {/* Brus som vrider lågans form (värmedallring); frekvens och förskjutning i px */}
-          <svg className="flames__defs" width="0" height="0" focusable="false">
-            <filter id="flame-wave" x="-0.5" y="-0.5" width="2" height="2" colorInterpolationFilters="sRGB">
-              <feTurbulence type="fractalNoise" baseFrequency="0.045 0.07" numOctaves="1" seed="7" result="noise">
-                <animate attributeName="baseFrequency" dur="3.7s" repeatCount="indefinite"
-                  values="0.045 0.07; 0.055 0.09; 0.04 0.08; 0.05 0.06; 0.045 0.07" />
-              </feTurbulence>
-              <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G">
-                <animate attributeName="scale" dur="2.9s" repeatCount="indefinite" values="2.5; 4; 2; 3.5; 2.5" />
-              </feDisplacementMap>
-            </filter>
-          </svg>
           {['vanster', 'hoger', 'hylla'].map((f) => (
             <span key={f} className={`flame flame--${f}`}>
               <span className="flame__glow" />
-              <span className="flame__wave"><span className="flame__fire" /></span>
+              <span className="flame__fire" />
             </span>
           ))}
         </div>

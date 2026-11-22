@@ -59,5 +59,9 @@
       "height": 170,
       "knee": 0.765
     }
-  ]
+  ],
+  "flamesRemoved": {
+    "timestamp": "2026-11-22T16:50:00.000Z",
+    "process": "The three candle flames (both wall sconces and the shelf candle) painted out with Sharp so they can be drawn live from flamma-ark.webp: on the sconce posts each flame pixel is mirrored from the wall beside it (keeps the wood grain), on the shelf wall each row is blended between its sides; wicks and candles untouched. Re-encoded as WebP quality 98."
+  }
 }
