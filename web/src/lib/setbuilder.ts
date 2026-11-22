@@ -78,41 +78,72 @@ export interface BuildOptions {
   knownSource: boolean
   /** Bara items som droppar i någon av zonerna (tom = alla) */
   zones: string[]
+  /** Spelarens egna val i förslaget: slot -> wiki-id, eller null för att lämna sloten tom */
+  fixed?: Map<string, string | null>
 }
 
 export interface SetPick {
   slot: string
   item: WikiIndexItem
   score: number
+  /** Spelaren valde själv (inte förslagets eget) */
+  fixed?: boolean
 }
+
+export interface BuildResult {
+  picks: SetPick[]
+  /** Alla items som passar varje öppen slot, bäst poäng först (menyn för att byta) */
+  options: Map<string, SetPick[]>
+}
+
+const isLore = (flags: string[]) => flags.includes('LORE')
 
 /**
  * Bästa itemet per slot. Girigt över alla (slot, item)-par i poängordning, vilket räcker eftersom
- * slotarna är oberoende utom för LORE-items och tvåhandsvapen, som hanteras för sig.
+ * slotarna är oberoende utom för LORE-items och tvåhandsvapen, som hanteras för sig. Spelarens egna
+ * val (fixed) läggs först, och resten fylls runt dem.
  */
-export function buildSet(pool: WikiIndexItem[], o: BuildOptions): SetPick[] {
+export function buildSet(pool: WikiIndexItem[], o: BuildOptions): BuildResult {
   const zoneSet = new Set(o.zones.map((z) => z.trim().toLowerCase()).filter(Boolean))
   const usable = pool.filter((i) =>
     raceAllows(i, o.race) &&
     (!o.knownSource || i.sources.length > 0) &&
     (zoneSet.size === 0 || i.zones.some((z) => zoneSet.has(z.toLowerCase()))))
 
-  const open = EQUIP_SLOTS.filter((s) => !o.keep.has(s))
   const dual = canDualWield(o.cls, o.level)
-  const pairs: SetPick[] = []
-  for (const slot of open) {
+  const byName = (a: SetPick, b: SetPick) => b.score - a.score || a.item.name.localeCompare(b.item.name)
+  const slots = EQUIP_SLOTS.filter((s) => !o.keep.has(s))
+  const options = new Map<string, SetPick[]>()
+  for (const slot of slots) {
+    const list: SetPick[] = []
     for (const item of usable) {
       if (!fitsSlot(item, slot)) continue
       if (slot === 'SECONDARY' && !dual && isWeapon(item)) continue
-      const score = scoreOf(item, o.weights, slot)
-      if (score > 0) pairs.push({ slot, item, score })
+      list.push({ slot, item, score: scoreOf(item, o.weights, slot) })
     }
+    options.set(slot, list.sort(byName))
   }
-  pairs.sort((a, b) => b.score - a.score || a.item.name.localeCompare(b.item.name))
 
-  const isLore = (flags: string[]) => flags.includes('LORE')
   const usedLore = new Set([...o.keep.values()].filter((k) => k.wiki_id && isLore(k.flags)).map((k) => k.wiki_id!))
   const chosen = new Map<string, SetPick>()
+  const closed = new Set<string>()
+
+  // Spelarens egna val först. Ett tvåhandsvapen i primär stänger sekundär.
+  const fixed = new Map([...(o.fixed ?? [])].filter(([s]) => options.has(s)))
+  const fixedPrimary = fixed.get('PRIMARY')
+  const primaryItem = fixedPrimary ? options.get('PRIMARY')?.find((p) => p.item.id === fixedPrimary) : undefined
+  if (primaryItem?.item.two_hand) fixed.set('SECONDARY', null)
+  for (const [slot, id] of fixed) {
+    closed.add(slot)
+    if (id === null) continue
+    const pick = options.get(slot)?.find((p) => p.item.id === id)
+    if (!pick) continue
+    chosen.set(slot, { ...pick, fixed: true })
+    if (isLore(pick.item.flags)) usedLore.add(pick.item.id)
+  }
+
+  const open = slots.filter((s) => !closed.has(s))
+  const pairs = open.flatMap((s) => options.get(s)!.filter((p) => p.score > 0)).sort(byName)
   const assign = (list: SetPick[], skip: (p: SetPick) => boolean) => {
     for (const p of list) {
       if (chosen.has(p.slot) || skip(p)) continue
@@ -131,7 +162,9 @@ export function buildSet(pool: WikiIndexItem[], o: BuildOptions): SetPick[] {
       chosen.delete('SECONDARY')
     }
   }
-  return EQUIP_SLOTS.filter((s) => chosen.has(s)).map((s) => chosen.get(s)!)
+  // Tvåhandsvapen i primär (eget val eller förslagets): sekundär är tom
+  if (chosen.get('PRIMARY')?.item.two_hand) chosen.delete('SECONDARY')
+  return { picks: EQUIP_SLOTS.filter((s) => chosen.has(s)).map((s) => chosen.get(s)!), options }
 }
 
 /** Zoner i poolen, flest items först (för förslag i zonfältet). */

@@ -1,7 +1,7 @@
 // Setbyggaren: spelaren sätter vikter per stat, och det bästa itemet per slot väljs ur wikiindexet.
 // Resultatet läggs in i det önskeset som är öppet. Används av både gängets och gästernas Armory.
 import { useEffect, useState } from 'react'
-import { slotBase, slotLabel } from '../lib/armory'
+import { EQUIP_SLOTS, slotBase, slotLabel } from '../lib/armory'
 import { raceCode } from '../lib/basestats'
 import { useI18n } from '../lib/i18n'
 import { WEIGHT_KEYS, buildSet, canDualWield, presetFor, zonesIn, type SetPick, type WeightKey, type Weights } from '../lib/setbuilder'
@@ -12,6 +12,8 @@ import { ItemIcon } from './ItemTooltip'
 import { WikiCredit } from './Wiki'
 
 const storeKey = (cls: string | null) => `mnm:setbuilder:${cls ?? 'any'}`
+/** Så många alternativ per slot visas i menyn (bäst poäng först) */
+const MENU_SIZE = 60
 
 function loadWeights(cls: string | null): Weights {
   const preset = presetFor(cls)
@@ -44,6 +46,8 @@ export function SetBuilder({ cls, race, level, setName, current, onApply, onClos
   const [zones, setZones] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  /** Egna val i förslaget: slot -> wiki-id (null = lämna tom) */
+  const [fixed, setFixed] = useState<Map<string, string | null>>(() => new Map())
 
   useEffect(() => {
     let live = true
@@ -70,9 +74,14 @@ export function SetBuilder({ cls, race, level, setName, current, onApply, onClos
   }
 
   const keep = new Map(onlyEmpty ? [...current].map(([s, i]) => [s, { wiki_id: i.wiki_id, flags: i.flags }]) : [])
-  const picks = pool
-    ? buildSet(pool, { cls, race: raceCode(race), level, weights, keep, knownSource, zones: zones.split(',') })
-    : []
+  const result = pool
+    ? buildSet(pool, { cls, race: raceCode(race), level, weights, keep, knownSource, zones: zones.split(','), fixed })
+    : null
+  const picks = result?.picks ?? []
+  const bySlot = new Map(picks.map((p) => [p.slot, p]))
+  // Rader: varje slot som har något att välja mellan (eller ett eget val)
+  const rows = result ? EQUIP_SLOTS.filter((s) => result.options.has(s) && ((result.options.get(s)?.length ?? 0) > 0 || fixed.has(s))) : []
+  const choose = (slot: string, id: string) => setFixed((f) => new Map(f).set(slot, id || null))
   const suggestions = pool ? zonesIn(pool).slice(0, 200) : []
 
   async function apply() {
@@ -122,18 +131,48 @@ export function SetBuilder({ cls, race, level, setName, current, onApply, onClos
       {pool !== null && pool.length === 0 && <p className="note">{t('builder.emptyIndex')}</p>}
       {pool !== null && pool.length > 0 && (
         <>
-          <h3 className="armory__sub">{t('builder.result', { n: picks.length, total: pool.length })}</h3>
-          {picks.length === 0 ? <p className="note">{t('builder.noPicks')}</p> : (
-            <ul className="armory__list armory__list--wide setbuilder__result">
-              {picks.map((p) => (
-                <li key={p.slot}>
-                  <span className="armory__slotname">{slotLabel(p.slot)}</span>
-                  <ItemIcon src={p.item.icon} slot={slotBase(p.slot)} size="sm" />
-                  <a href={p.item.url} target="_blank" rel="noreferrer" {...hover.bind(indexAsItem(p.item, p.slot))}>{p.item.name}</a>
-                  <small>{[p.item.zones.slice(0, 2).join(', '), t('builder.score', { n: p.score })].filter(Boolean).join(' · ')}</small>
-                </li>
-              ))}
-            </ul>
+          <div className="setbuilder__resulthead">
+            <h3 className="armory__sub">{t('builder.result', { n: picks.length, total: pool.length })}</h3>
+            {fixed.size > 0 && (
+              <button type="button" className="btn btn--small btn--ghost" onClick={() => setFixed(new Map())}>{t('builder.resetPicks')}</button>
+            )}
+          </div>
+          {rows.length === 0 ? <p className="note">{t('builder.noPicks')}</p> : (
+            <>
+              <p className="note">{t('builder.pickHelp')}</p>
+              <ul className="armory__list armory__list--wide setbuilder__result">
+                {rows.map((slot) => {
+                  const p = bySlot.get(slot)
+                  const opts = result!.options.get(slot) ?? []
+                  // Menyn: de bästa först; ett eget val längre ner i listan visas ändå
+                  const shown = opts.slice(0, MENU_SIZE)
+                  if (p && !shown.some((o) => o.item.id === p.item.id)) shown.push(p)
+                  return (
+                    <li key={slot} className={`setbuilder__pick${p?.fixed || fixed.get(slot) === null ? ' is-fixed' : ''}`}>
+                      <span className="armory__slotname">{slotLabel(slot)}</span>
+                      <span {...(p ? hover.bind(indexAsItem(p.item, slot)) : {})}>
+                        <ItemIcon src={p?.item.icon ?? null} slot={slotBase(slot)} size="sm" />
+                      </span>
+                      <select
+                        value={p?.item.id ?? ''}
+                        aria-label={t('builder.pickLabel', { slot: slotLabel(slot) })}
+                        onChange={(e) => choose(slot, e.target.value)}
+                      >
+                        <option value="">{t('builder.none')}</option>
+                        {shown.map((o) => (
+                          <option key={o.item.id} value={o.item.id}>{t('builder.option', { name: o.item.name, n: o.score })}</option>
+                        ))}
+                      </select>
+                      <small>
+                        {p && <a href={p.item.url} target="_blank" rel="noreferrer">{t('builder.wiki')}</a>}
+                        {p ? [p.item.zones.slice(0, 2).join(', '), t('builder.score', { n: p.score })].filter(Boolean).map((s) => ` · ${s}`).join('') : ''}
+                        {(p?.fixed || fixed.get(slot) === null) && <em className="setbuilder__own"> · {t('builder.yourPick')}</em>}
+                      </small>
+                    </li>
+                  )
+                })}
+              </ul>
+            </>
           )}
         </>
       )}

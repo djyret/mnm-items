@@ -171,6 +171,13 @@ export const sv = {
   'builder.score': '{n} p',
   'builder.apply': 'Lägg in i {name}',
   'builder.close': 'Stäng',
+  'builder.pickHelp': 'Byt ut en del i menyn; listan är sorterad på poäng efter dina vikter. Resten av förslaget byggs om runt ditt val.',
+  'builder.pickLabel': 'Item för {slot}',
+  'builder.none': '— Tom —',
+  'builder.option': '{name} · {n} p',
+  'builder.wiki': 'Wiki',
+  'builder.yourPick': 'ditt val',
+  'builder.resetPicks': 'Återställ förslaget',
 } as const
 
 export const en: { [K in keyof typeof sv]: string } = {
@@ -339,4 +346,11 @@ export const en: { [K in keyof typeof sv]: string } = {
   'builder.score': '{n} pts',
   'builder.apply': 'Put into {name}',
   'builder.close': 'Close',
+  'builder.pickHelp': 'Swap a piece in its menu; the list is sorted by score from your weights. The rest of the suggestion is rebuilt around your pick.',
+  'builder.pickLabel': 'Item for {slot}',
+  'builder.none': '— Empty —',
+  'builder.option': '{name} · {n} p',
+  'builder.wiki': 'Wiki',
+  'builder.yourPick': 'your pick',
+  'builder.resetPicks': 'Reset suggestion',
 }

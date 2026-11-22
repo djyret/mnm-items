@@ -2096,7 +2096,13 @@ blockquote.kr-note { font-family: var(--font-title); font-weight: 700; }
 .setbuilder__weight input { width: 4.8rem; text-align: center; padding-inline: 0.1rem; }
 .setbuilder__options { display: flex; flex-wrap: wrap; gap: 0.5rem 1.2rem; align-items: end; margin-bottom: 0.6rem; }
 .setbuilder__options .field { flex: 1 1 16rem; margin: 0; }
-.setbuilder__result small { margin-left: auto; }
+.setbuilder__result small { margin-left: auto; white-space: nowrap; }
+/* Förslaget: en meny per slot (bäst poäng först); egna val markeras med en mässingskant till vänster */
+.setbuilder__resulthead { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap; }
+.setbuilder__pick { flex-wrap: wrap; }
+.setbuilder__pick select { flex: 1 1 16rem; min-width: 0; }
+.setbuilder__pick.is-fixed { box-shadow: inset 3px 0 0 var(--gold); padding-left: 0.4rem; }
+.setbuilder__own { color: var(--gold); font-style: normal; }
 
 /* ---------- Skalet: menyn längs vänsterkanten ---------- */
 /* Headern bär inte längre menyn; den slutar strax under hyllkanten */
