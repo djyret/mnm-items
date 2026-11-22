@@ -10,7 +10,14 @@ export const sv = {
   'admin.notSaved': 'Ändringen sparades inte. Är du fortfarande inloggad som admin?',
 
   'admin.areas.title': 'Vem ser vad',
-  'admin.areas.intro': 'Lägsta nivå som får se varje del. Det spärras i databasen, inte bara i menyn. Admin ser alltid allt.',
+  'admin.areas.intro': 'Rollerna står i rangordning från vänster. Klicka på den lägsta roll som ska se området; alla till höger ser det också. Det spärras i databasen, inte bara i menyn.',
+  'admin.areas.area': 'Område',
+  'admin.areas.legend': '✓ ser området, – ser det inte. Admin ser alltid allt. Håll musen över en roll för att se vad den innebär.',
+  'admin.areas.pick.visitor': 'Öppet för alla, även utloggade',
+  'admin.areas.pick.guest': 'Från Gäst och uppåt',
+  'admin.areas.pick.reader': 'Från Läsare och uppåt',
+  'admin.areas.pick.editor': 'Från Redaktör och uppåt',
+  'admin.areas.pick.admin': 'Bara Admin',
   'admin.areas.selectLabel': 'Vem ser {area}',
 
   'admin.area.forradet': 'Förrådet',
@@ -22,10 +29,10 @@ export const sv = {
   'admin.area.gaster': 'Gäster',
   'admin.area.gaster.covers': 'Gästernas karaktärer, utrustning och önskeset (sidan Gäster)',
 
-  'admin.minRole.visitor': 'Alla, även utloggade',
-  'admin.minRole.guest': 'Gäster och gänget',
-  'admin.minRole.reader': 'Inloggade i gänget',
-  'admin.minRole.editor': 'Redaktörer',
+  'admin.minRole.visitor': 'Besökare och uppåt (alla)',
+  'admin.minRole.guest': 'Gäst och uppåt',
+  'admin.minRole.reader': 'Läsare och uppåt',
+  'admin.minRole.editor': 'Redaktör och uppåt',
   'admin.minRole.admin': 'Bara admin',
 
   'admin.chapters.title': 'Kapitel',
@@ -54,7 +61,7 @@ export const sv = {
   'admin.require.signIn': 'Du behöver vara inloggad som redaktör för att ändra här.',
   'admin.require.pending': 'Ditt konto väntar på att en admin godkänner det.',
   'admin.require.closed.visitor': '{area} är öppet för alla.',
-  'admin.require.closed.guest': '{area} är bara öppet för inloggade gäster och gänget.',
+  'admin.require.closed.guest': '{area} är öppet från rollen Gäst och uppåt.',
   'admin.wiki.title': 'Wikiindex',
   'admin.wiki.intro': 'Setbyggaren i Armory väljer ur en kopia av wikins items (Gromple gav OK till kopian för gängets bruk). Första gången hämtas alla, cirka 8 000 items, och det tar runt 80 minuter. Sedan hämtas bara nya och ändrade.',
   'admin.wiki.status': '{gear} bärbara items av {total} hämtade',
@@ -66,9 +73,9 @@ export const sv = {
   'admin.wiki.done': 'Klart. {n} nya eller ändrade items hämtade.',
   'admin.wiki.failed': '{n} gick inte att hämta och tas nästa gång.',
   'admin.wiki.keepOpen': 'Låt sidan vara öppen tills det är klart. Avbryter du fortsätter nästa körning där den slutade.',
-  'admin.require.closed.reader': '{area} är bara öppet för inloggade i gänget.',
-  'admin.require.closed.editor': '{area} är bara öppet för redaktörer.',
-  'admin.require.closed.admin': '{area} är bara öppet för admin.',
+  'admin.require.closed.reader': '{area} är öppet från rollen Läsare och uppåt.',
+  'admin.require.closed.editor': '{area} är öppet från rollen Redaktör och uppåt.',
+  'admin.require.closed.admin': '{area} är bara öppet för Admin.',
 
   // Edge Functions
   'admin.fn.signIn': 'Logga in med Discord för att använda AI-funktionerna.',
@@ -155,7 +162,7 @@ export const sv = {
   'admin.help.account.intro': 'Du loggar in med Discord uppe till höger. Första gången hamnar kontot i kö tills en admin godkänner det.',
   'admin.help.account.visitor': 'Inte inloggad. Ser bara det som är öppet för alla.',
   'admin.help.account.guest': 'Vän utanför gänget. Bygger egna karaktärer och önskeset under Gäster och läser krönikan, men ser inte förrådet.',
-  'admin.help.account.reader': 'Ser det som admin har öppnat för gänget, men kan inte ändra något.',
+  'admin.help.account.reader': 'Gängets medlemmar. Ser det som är öppnat för Läsare, men kan inte ändra något.',
   'admin.help.account.editor': 'Kan också lägga in, ändra, låna ut och sälja items, skriva i krönikan och använda AI-funktionerna, till exempel att läsa av bilder.',
   'admin.help.account.admin': 'Godkänner nya konton, sätter roller och bestämmer vem som ser vilka delar och vilka kapitel.',
 
@@ -194,7 +201,14 @@ export const en: { [K in keyof typeof sv]: string } = {
   'admin.notSaved': 'The change wasn’t saved. Are you still signed in as admin?',
 
   'admin.areas.title': 'Who sees what',
-  'admin.areas.intro': 'The lowest role that can see each part. It’s locked in the database, not just hidden from the menu. Admins always see everything.',
+  'admin.areas.intro': 'The roles are ranked from the left. Click the lowest role that should see the area; every role to the right sees it too. It’s locked in the database, not just hidden from the menu.',
+  'admin.areas.area': 'Area',
+  'admin.areas.legend': '✓ sees the area, – doesn’t. Admins always see everything. Hover a role to see what it means.',
+  'admin.areas.pick.visitor': 'Open to everyone, even signed out',
+  'admin.areas.pick.guest': 'Guest and up',
+  'admin.areas.pick.reader': 'Reader and up',
+  'admin.areas.pick.editor': 'Editor and up',
+  'admin.areas.pick.admin': 'Admins only',
   'admin.areas.selectLabel': 'Who sees {area}',
 
   'admin.area.forradet': 'Stash',
@@ -206,10 +220,10 @@ export const en: { [K in keyof typeof sv]: string } = {
   'admin.area.gaster': 'Guests',
   'admin.area.gaster.covers': 'Guest characters, gear and wish sets (the Guests page)',
 
-  'admin.minRole.visitor': 'Everyone, even signed out',
-  'admin.minRole.guest': 'Guests and the gang',
-  'admin.minRole.reader': 'Signed-in gang members',
-  'admin.minRole.editor': 'Editors',
+  'admin.minRole.visitor': 'Visitor and up (everyone)',
+  'admin.minRole.guest': 'Guest and up',
+  'admin.minRole.reader': 'Reader and up',
+  'admin.minRole.editor': 'Editor and up',
   'admin.minRole.admin': 'Admins only',
 
   'admin.chapters.title': 'Chapters',
@@ -238,7 +252,7 @@ export const en: { [K in keyof typeof sv]: string } = {
   'admin.require.signIn': 'You need to be signed in as an editor to make changes here.',
   'admin.require.pending': 'Your account is waiting for an admin to approve it.',
   'admin.require.closed.visitor': 'The {area} is open to everyone.',
-  'admin.require.closed.guest': 'The {area} is only open to signed-in guests and the gang.',
+  'admin.require.closed.guest': 'The {area} is open to the Guest role and up.',
   'admin.wiki.title': 'Wiki index',
   'admin.wiki.intro': 'The set builder in the Armory picks from a copy of the wiki’s items (Gromple OK’d the copy for the gang’s use). The first run fetches all of them, about 8,000 items, which takes around 80 minutes. After that only new and changed items are fetched.',
   'admin.wiki.status': '{gear} wearable items out of {total} fetched',
@@ -250,9 +264,9 @@ export const en: { [K in keyof typeof sv]: string } = {
   'admin.wiki.done': 'Done. {n} new or changed items fetched.',
   'admin.wiki.failed': '{n} could not be fetched and will be retried next time.',
   'admin.wiki.keepOpen': 'Keep the page open until it is done. If you stop, the next run carries on where it left off.',
-  'admin.require.closed.reader': 'The {area} is only open to signed-in gang members.',
-  'admin.require.closed.editor': 'The {area} is only open to editors.',
-  'admin.require.closed.admin': 'The {area} is only open to admins.',
+  'admin.require.closed.reader': 'The {area} is open to the Reader role and up.',
+  'admin.require.closed.editor': 'The {area} is open to the Editor role and up.',
+  'admin.require.closed.admin': 'The {area} is only open to Admins.',
 
   // Edge Functions
   'admin.fn.signIn': 'Sign in with Discord to use the AI features.',
@@ -339,7 +353,7 @@ export const en: { [K in keyof typeof sv]: string } = {
   'admin.help.account.intro': 'Sign in with Discord at the top right. The first time, your account waits in line until an admin approves it.',
   'admin.help.account.visitor': 'Not signed in. Only sees what’s open to everyone.',
   'admin.help.account.guest': 'A friend outside the gang. Builds their own characters and wish sets under Guests and reads the chronicle, but can’t see the stash.',
-  'admin.help.account.reader': 'Sees what the admins have opened to the gang, but can’t change anything.',
+  'admin.help.account.reader': 'The gang’s members. Sees what’s open to Readers, but can’t change anything.',
   'admin.help.account.editor': 'Can also add, edit, lend and sell items, write in the chronicle and use the AI features, like reading screenshots.',
   'admin.help.account.admin': 'Approves new accounts, sets roles and decides who sees which parts and which chapters.',
 

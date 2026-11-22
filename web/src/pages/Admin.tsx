@@ -51,29 +51,56 @@ function AreaPanel() {
     setBusy(null)
   }
 
+  // Tabell: ett område per rad, rollerna i rangordning som kolumner. Man klickar på den lägsta roll
+  // som ska se området; den och alla till höger markeras. Varje rad är en radiogrupp.
   return (
     <div className="panel">
       <h3 className="panel-title">{t('admin.areas.title')}</h3>
       <p className="members__intro">{t('admin.areas.intro')}</p>
       {error && <div className="alert">{error}</div>}
-      <ul className="admin-list">
-        {AREAS.map((area) => (
-          <li key={area} className="admin-list__row">
-            <div className="members__who">
-              <strong>{t(`admin.area.${area}`)}</strong>
-              <small>{t(`admin.area.${area}.covers`)}</small>
+      <div className="access-grid">
+        <div className="access-grid__row access-grid__row--head" aria-hidden="true">
+          <span>{t('admin.areas.area')}</span>
+          <div className="access-grid__levels">
+            {LEVELS.map((l) => (
+              <span key={l} className="access-grid__role" title={t(`admin.help.account.${l}`)}>{t(`role.${l}`)}</span>
+            ))}
+          </div>
+        </div>
+        {AREAS.map((area) => {
+          const min = LEVELS.indexOf(minRole[area])
+          return (
+            <div key={area} className="access-grid__row">
+              <div className="members__who">
+                <strong>{t(`admin.area.${area}`)}</strong>
+                <small>{t(`admin.area.${area}.covers`)}</small>
+              </div>
+              <div className="access-grid__levels" role="radiogroup" aria-label={t('admin.areas.selectLabel', { area: t(`admin.area.${area}`) })}>
+                {LEVELS.map((l, i) => {
+                  const sees = i >= min
+                  return (
+                    <button
+                      key={l}
+                      type="button"
+                      role="radio"
+                      aria-checked={i === min}
+                      aria-label={t(`role.${l}`)}
+                      title={t(`admin.areas.pick.${l}`)}
+                      className={`access-grid__cell${sees ? ' is-on' : ''}${i === min ? ' is-min' : ''}`}
+                      disabled={busy === area}
+                      onClick={() => i !== min && change(area, l)}
+                    >
+                      <span className="access-grid__mark" aria-hidden="true">{sees ? '✓' : '–'}</span>
+                      <span className="access-grid__name" aria-hidden="true">{t(`role.${l}`)}</span>
+                    </button>
+                  )
+                })}
+              </div>
             </div>
-            <select
-              aria-label={t('admin.areas.selectLabel', { area: t(`admin.area.${area}`) })}
-              value={minRole[area]}
-              disabled={busy === area}
-              onChange={(e) => change(area, e.target.value as AreaLevel)}
-            >
-              {LEVELS.map((l) => <option key={l} value={l}>{t(`admin.minRole.${l}`)}</option>)}
-            </select>
-          </li>
-        ))}
-      </ul>
+          )
+        })}
+      </div>
+      <p className="note">{t('admin.areas.legend')}</p>
     </div>
   )
 }
