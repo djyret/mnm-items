@@ -59,6 +59,12 @@ function Shell() {
       {/* Utanför headern men ovanpå den: headerbildens mask skulle annars tona ut hörnet */}
       <AccountBar />
       <header className="hero">
+        {/* Ljusen i bandet fladdrar: ett sken på väggen och den målade lågan själv, se .flame i CSS */}
+        <div className="flames" aria-hidden="true">
+          {['vanster', 'hoger', 'hylla'].map((f) => (
+            <span key={f} className={`flame flame--${f}`}><span className="flame__glow" /><span className="flame__fire" /></span>
+          ))}
+        </div>
         <div className="hero__inner">
           {/* Skylten är en målad bild per språk; rubriken finns kvar som text för skärmläsare */}
           <NavLink to="/" className="brand-link" aria-label={t('app.homeLabel')}>

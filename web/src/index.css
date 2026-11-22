@@ -652,6 +652,69 @@ textarea { resize: vertical; }
   background: url('/bilder/taverna-band.webp') center top / 100% auto no-repeat;
 }
 .hero__inner { height: 100%; padding: 0; }
+
+/* Levande ljus: tre lågor i bandet (lampetterna på stolparna och ljuset på hyllan). Varje låga
+   får ett sken som pulserar på väggen och en kopia av den målade lågan (samma bit av bandet som
+   bakgrund) som fladdrar ovanpå originalet. Allt räknas i bandets pixlar (2560x640) gånger --s,
+   med --ox som förskjutning när bandet beskärs i mitten (smala fönster). */
+.hero { container-type: inline-size; --s: calc(100cqw / 2560); --ox: 0px; }
+.flames { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.flame {
+  /* --x, --y: lågans fot i bandets pixlar */
+  position: absolute;
+  left: calc(var(--ox) + var(--x) * var(--s));
+  top: calc(var(--y) * var(--s));
+}
+.flame--vanster { --x: 103; --y: 196; --d: 2.3s; --g: 3.1s; }
+.flame--hoger { --x: 2463; --y: 198; --d: 2.7s; --g: 3.7s; }
+.flame--hylla { --x: 2316; --y: 417; --d: 2.1s; --g: 2.9s; }
+.flame__glow {
+  position: absolute;
+  left: calc(-130 * var(--s));
+  top: calc(-150 * var(--s));
+  width: calc(260 * var(--s));
+  height: calc(260 * var(--s));
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 170, 70, 0.32), rgba(255, 130, 40, 0.12) 40%, transparent 70%);
+  mix-blend-mode: screen;
+  opacity: 0.7;
+}
+.flame__fire {
+  /* 28x58 bandpixlar runt lågan, med foten i mitten av underkanten */
+  position: absolute;
+  left: calc(-14 * var(--s));
+  top: calc(-56 * var(--s));
+  width: calc(28 * var(--s));
+  height: calc(58 * var(--s));
+  background: url('/bilder/taverna-band.webp') no-repeat;
+  background-size: calc(2560 * var(--s)) auto;
+  background-position: calc((14 - var(--x)) * var(--s)) calc((56 - var(--y)) * var(--s));
+  -webkit-mask-image: radial-gradient(ellipse 50% 55% at 50% 55%, #000 60%, transparent 100%);
+  mask-image: radial-gradient(ellipse 50% 55% at 50% 55%, #000 60%, transparent 100%);
+  transform-origin: 50% 96%;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .flame__fire { animation: flame-flicker var(--d) ease-in-out infinite; }
+  .flame__glow { animation: flame-glow var(--g) ease-in-out infinite; }
+}
+/* Lågan växer bara (aldrig under 1), så originalet under syns inte bredvid */
+@keyframes flame-flicker {
+  0%, 100% { transform: scale(1, 1) skewX(0deg); filter: brightness(1); }
+  12% { transform: scale(1.02, 1.1) skewX(-2deg); filter: brightness(1.12); }
+  27% { transform: scale(1, 1.03) skewX(1.5deg); filter: brightness(1.02); }
+  41% { transform: scale(1.03, 1.14) skewX(-1deg); filter: brightness(1.18); }
+  55% { transform: scale(1.01, 1.05) skewX(2.5deg); filter: brightness(1.05); }
+  68% { transform: scale(1, 1.01) skewX(-0.5deg); filter: brightness(0.98); }
+  83% { transform: scale(1.02, 1.09) skewX(1deg); filter: brightness(1.1); }
+}
+@keyframes flame-glow {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  18% { opacity: 0.85; transform: scale(1.04); }
+  33% { opacity: 0.6; transform: scale(0.98); }
+  52% { opacity: 0.9; transform: scale(1.05); }
+  71% { opacity: 0.65; transform: scale(1); }
+  86% { opacity: 0.8; transform: scale(1.03); }
+}
 .brand-link { position: absolute; left: 50%; top: 3.6vw; width: 27vw; transform: translateX(-50%); display: block; }
 .brand-sign { display: block; width: 100%; height: auto; filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.6)); }
 .nav { margin-top: 0; }
@@ -659,12 +722,12 @@ textarea { resize: vertical; }
 
 /* Smala fönster: bandet får en minsta höjd och beskärs i mitten, skylten blir större relativt */
 @media (max-width: 900px) {
-  .hero { height: max(25vw, 190px); background-size: auto 100%; }
+  .hero { height: max(25vw, 190px); background-size: auto 100%; --s: calc(max(25vw, 190px) / 640); --ox: calc(50cqw - 1280 * var(--s)); }
   .brand-link { top: 14px; width: min(78vw, 380px); }
 }
 /* Telefon: språk- och kontoraden ligger överst, så skylten flyttas ner under den */
 @media (max-width: 600px) {
-  .hero { height: 230px; }
+  .hero { height: 230px; --s: calc(230px / 640); }
   .brand-link { top: 54px; width: min(80vw, 340px); }
 }
 
