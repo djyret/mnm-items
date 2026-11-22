@@ -1,0 +1,5 @@
+{
+  "source": "panel-tyst.webp",
+  "timestamp": "2026-11-22T15:10:00.000Z",
+  "process": "Derived with Sharp: corners kept, each edge rebuilt from two copies of a clean piece from the middle of that edge, centre transparent. Drawn on top of panel-tyst.webp with border-image-repeat: round so the stitches keep their spacing on wide panels."
+}

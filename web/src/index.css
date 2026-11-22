@@ -2222,6 +2222,22 @@ main:focus { outline: none; }
   border-image: url('/ui/panel-tung.webp') 96 fill / 40px stretch;
   padding: 0;
 }
+/* Stygnen: ramen ovan sträcks, så på breda paneler blev stygnen långa streck. Ett lager ovanpå
+   ritar kanterna igen ur en kantbild (*-kant.webp, ren bit från kantens mitt) som upprepas
+   (round), så stygnen behåller sin täthet. Mitten sträcks som förut. --pb = ramens bredd.
+   :where ger noll specificitet, så paneler som är sticky (filtren) förblir det. */
+:where(.frame, .panel) { position: relative; }
+.frame, .panel { --pb: 20px; }
+.panel--tung { --pb: 40px; }
+.frame::after, .panel::after {
+  content: '';
+  position: absolute;
+  inset: calc(-1 * var(--pb));
+  border: var(--pb) solid transparent;
+  border-image: url('/ui/panel-tyst-kant.webp') 40 / var(--pb) round;
+  pointer-events: none;
+}
+.panel--tung::after { border-image-source: url('/ui/panel-tung-kant.webp'); border-image-slice: 96; }
 .panel-title { border-image: none; }
 
 /* ---------- Menyn: rundade läderskyltar med nitar och stygn, ikon och text i HTML ---------- */
@@ -2376,7 +2392,7 @@ input:not([type='checkbox']):not([type='radio']):focus, textarea:focus, select:f
 /* Bladet: tunt nog lädersom för att dockans rader ska rymmas */
 .start { grid-template-columns: minmax(320px, 360px) minmax(0, 1fr); }
 .start--single { grid-template-columns: minmax(0, 1fr); }
-.start-sheet__card.panel--tung { border-width: 30px; border-image-width: 30px; padding: 0.2rem; }
+.start-sheet__card.panel--tung { --pb: 30px; border-width: 30px; border-image-width: 30px; padding: 0.2rem; }
 
 /* ---------- Justeringar efter genomgång live (2026-11-21) ---------- */
 /* Mörk text på mässing: kraftigare och mörkare, utan ljus kant som suddar ut versalerna */
