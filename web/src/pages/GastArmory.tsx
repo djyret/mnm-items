@@ -173,7 +173,7 @@ function GuestArmoryFor({ char, editable, onCharChange }: { char: GuestCharacter
       </div>
 
       {building && wish && editable && (
-        <SetBuilder key={wish.id} cls={char.class} race={char.race} setName={wish.name} current={shown}
+        <SetBuilder key={wish.id} cls={char.class} race={char.race} level={char.level} setName={wish.name} current={shown}
           onClose={() => setBuilding(false)}
           onApply={async (picks) => {
             const err = await putGuestItems(wish.id, picks.map((p) => ({ slot: p.slot, row: rowFromIndex(p.item) })))

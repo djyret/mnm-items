@@ -1,6 +1,7 @@
 // Setbyggaren: väljer det bästa itemet per slot ur wikiindexet efter vikter som spelaren sätter.
 // Ren uträkning i webben (ingen AI): poäng = summan av stat × vikt. Hänsyn till klass och ras,
-// LORE (bara ett av samma), de dubbla platserna (öron, handleder, fingrar) och tvåhandsvapen.
+// LORE (bara ett av samma), de dubbla platserna (öron, handleder, fingrar), tvåhandsvapen och
+// Dual Wield (vapen i sekundärhanden bara för klasser som har den).
 import { EQUIP_SLOTS, fitsSlot } from './armory'
 import { raceAllows, type WikiIndexItem } from './wikiindex'
 
@@ -42,6 +43,20 @@ export function presetFor(cls: string | null | undefined): Weights {
 
 const WEAPON_SLOTS = new Set(['PRIMARY', 'SECONDARY', 'RANGE'])
 
+// Klasser med Dual Wield och nivån där den låses upp, från wikins klassidor (2026-11-22).
+// Övriga klasser får bara sköld eller hållet föremål i sekundärhanden.
+const DUAL_WIELD: Record<string, number> = { MNK: 1, ARC: 10, BST: 10, FTR: 10, RNG: 10, ROG: 10, SPB: 10, WIZ: 20 }
+
+/** Okänd klass begränsas inte; okänd nivå räknas som tillräcklig. */
+export function canDualWield(cls: string | null | undefined, level: number | null | undefined): boolean {
+  const c = cls?.toUpperCase()
+  if (!c || !(c in PRESETS)) return true
+  const at = DUAL_WIELD[c]
+  return at !== undefined && (level == null || level >= at)
+}
+
+const isWeapon = (i: Pick<WikiIndexItem, 'stats'>) => (i.stats.DMG ?? 0) > 0
+
 export function scoreOf(item: Pick<WikiIndexItem, 'stats' | 'ac'>, weights: Weights, slot: string): number {
   const s = item.stats
   let score = (item.ac ?? 0) * weights.AC + (s.HP ?? 0) * weights.HP + (s.MANA ?? 0) * weights.MANA
@@ -55,6 +70,7 @@ export function scoreOf(item: Pick<WikiIndexItem, 'stats' | 'ac'>, weights: Weig
 export interface BuildOptions {
   cls: string | null
   race: string | null
+  level: number | null
   weights: Weights
   /** Slots som redan har något och ska stå kvar (fyll bara tomma) */
   keep: Map<string, { wiki_id: string | null; flags: string[] }>
@@ -82,10 +98,12 @@ export function buildSet(pool: WikiIndexItem[], o: BuildOptions): SetPick[] {
     (zoneSet.size === 0 || i.zones.some((z) => zoneSet.has(z.toLowerCase()))))
 
   const open = EQUIP_SLOTS.filter((s) => !o.keep.has(s))
+  const dual = canDualWield(o.cls, o.level)
   const pairs: SetPick[] = []
   for (const slot of open) {
     for (const item of usable) {
       if (!fitsSlot(item, slot)) continue
+      if (slot === 'SECONDARY' && !dual && isWeapon(item)) continue
       const score = scoreOf(item, o.weights, slot)
       if (score > 0) pairs.push({ slot, item, score })
     }

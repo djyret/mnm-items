@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { slotBase, slotLabel } from '../lib/armory'
 import { raceCode } from '../lib/basestats'
 import { useI18n } from '../lib/i18n'
-import { WEIGHT_KEYS, buildSet, presetFor, zonesIn, type SetPick, type WeightKey, type Weights } from '../lib/setbuilder'
+import { WEIGHT_KEYS, buildSet, canDualWield, presetFor, zonesIn, type SetPick, type WeightKey, type Weights } from '../lib/setbuilder'
 import type { Item } from '../lib/types'
 import { indexAsItem, loadGear, type WikiIndexItem } from '../lib/wikiindex'
 import { useItemHover } from './ItemHover'
@@ -24,9 +24,10 @@ function loadWeights(cls: string | null): Weights {
   return preset
 }
 
-export function SetBuilder({ cls, race, setName, current, onApply, onClose }: {
+export function SetBuilder({ cls, race, level, setName, current, onApply, onClose }: {
   cls: string | null
   race: string | null
+  level: number | null
   setName: string
   /** Det som redan ligger i settet, per slot */
   current: Map<string, Item>
@@ -70,7 +71,7 @@ export function SetBuilder({ cls, race, setName, current, onApply, onClose }: {
 
   const keep = new Map(onlyEmpty ? [...current].map(([s, i]) => [s, { wiki_id: i.wiki_id, flags: i.flags }]) : [])
   const picks = pool
-    ? buildSet(pool, { cls, race: raceCode(race), weights, keep, knownSource, zones: zones.split(',') })
+    ? buildSet(pool, { cls, race: raceCode(race), level, weights, keep, knownSource, zones: zones.split(',') })
     : []
   const suggestions = pool ? zonesIn(pool).slice(0, 200) : []
 
@@ -88,6 +89,7 @@ export function SetBuilder({ cls, race, setName, current, onApply, onClose }: {
       {hover.tip}
       <h2 className="panel-title" id="setbuilder-title">{t('builder.title')}</h2>
       <p className="note">{t('builder.intro')}</p>
+      {!canDualWield(cls, level) && <p className="note">{t('builder.noDual')}</p>}
 
       <fieldset className="setbuilder__weights">
         <legend>{t('builder.weights')}</legend>

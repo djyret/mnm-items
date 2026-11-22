@@ -161,7 +161,7 @@ function ArmoryFor({ char, items }: { char: Character; items: Item[] }) {
       </div>
 
       {building && activeSet && canEdit && (
-        <SetBuilder key={activeSet.id} cls={char.class} race={char.race} setName={activeSet.name} current={shown}
+        <SetBuilder key={activeSet.id} cls={char.class} race={char.race} level={char.level} setName={activeSet.name} current={shown}
           onClose={() => setBuilding(false)}
           onApply={async (picks) => {
             const err = await putSetItems(activeSet.id, picks.map((p) => ({ slot: p.slot, row: rowFromIndex(p.item) })))
