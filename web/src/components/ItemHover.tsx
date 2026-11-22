@@ -64,8 +64,10 @@ function FloatingItem({ item, anchor }: { item: Item; anchor: DOMRect }) {
     if (left + width > window.innerWidth - EDGE) left = anchor.left - GAP - width
     left = Math.max(EDGE, Math.min(left, window.innerWidth - width - EDGE))
     const top = Math.max(EDGE, Math.min(anchor.top, window.innerHeight - height - EDGE))
-    el.style.left = `${left}px`
-    el.style.top = `${top}px`
+    // Rutan zoomas som innehållet på breda skärmar (--z); left/top räknas då i zoomade pixlar
+    const z = Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--z')) || 1
+    el.style.left = `${left / z}px`
+    el.style.top = `${top / z}px`
     el.style.visibility = 'visible'
   }, [anchor])
 

@@ -1251,7 +1251,7 @@ input[type='color'] { padding: 2px; height: var(--ctl-h, 2.4rem); cursor: pointe
 .kr-scroll {
   position: sticky;
   top: 16px;
-  max-height: calc(100vh - 32px);
+  max-height: calc(100vh / var(--z) - 32px);
   overflow: auto;
   padding: 10px 6px 8px 10px;
   border: 26px solid transparent;
@@ -1408,10 +1408,10 @@ blockquote.kr-note { font-family: var(--font-title); font-weight: 700; }
 .kr-board--empty .kr-note { width: 280px; min-height: 150px; font-family: var(--font-title); font-size: 1.2rem; }
 
 /* Stor bild för skärmdelning */
-.kr-viewer { max-width: 96vw; max-height: 96vh; overflow: hidden; outline: none; padding: 0; border: 1px solid var(--bronze-dark); background: #0c0a08; color: var(--text); box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8); }
+.kr-viewer { max-width: calc(96vw / var(--z)); max-height: calc(96vh / var(--z)); overflow: hidden; outline: none; padding: 0; border: 1px solid var(--bronze-dark); background: #0c0a08; color: var(--text); box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8); }
 .kr-viewer::backdrop { background: rgba(6, 5, 4, 0.88); }
 .kr-viewer figure { margin: 0; }
-.kr-viewer img { display: block; max-width: 96vw; max-height: calc(96vh - 64px); width: auto; height: auto; margin: 0 auto; }
+.kr-viewer img { display: block; max-width: calc(96vw / var(--z)); max-height: calc(96vh / var(--z) - 64px); width: auto; height: auto; margin: 0 auto; }
 .kr-viewer figcaption { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 10px 14px; min-height: 64px; font-size: 1.05rem; }
 .kr-viewer__nav { display: flex; align-items: center; gap: 0.5rem; flex: 0 0 auto; }
 .kr-viewer__nav b { font-family: var(--font-title); color: var(--gold); font-variant-numeric: tabular-nums; min-width: 4.5ch; text-align: center; }
@@ -1480,7 +1480,7 @@ blockquote.kr-note { font-family: var(--font-title); font-weight: 700; }
 .kr-bench__panel {
   position: sticky;
   top: 16px;
-  max-height: calc(100vh - 32px);
+  max-height: calc(100vh / var(--z) - 32px);
   overflow: auto;
   padding: 16px 18px;
   scrollbar-color: #5d5a54 transparent;
@@ -1732,6 +1732,7 @@ blockquote.kr-note { font-family: var(--font-title); font-weight: 700; }
   border: 1px solid var(--bronze-dark);
   border-radius: var(--radius);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+  zoom: var(--z);
 }
 .account__who { color: var(--text); }
 .account__role { color: var(--text-dim); }
@@ -1982,8 +1983,18 @@ blockquote.kr-note { font-family: var(--font-title); font-weight: 700; }
   max-width: calc(1400px + 220px);
   margin: 0 auto;
   /* Innehållet håller sig innanför stolparna */
-  padding-inline: max(16px, calc(7.5vw + 8px));
+  padding-inline: max(16px, calc((7.5vw + 8px) / var(--z)));
+  zoom: var(--z);
 }
+/*
+ * Breda skärmar: innehållet (menyn och sidan, inte väggen) förstoras stegvis så att det ser ut som
+ * på en 1920-skärm. --z används också där innehållet räknar med vw/vh, eftersom zoom skalar dem.
+ */
+:root { --z: 1; }
+@media (min-width: 2240px) { :root { --z: 1.25; } }
+@media (min-width: 2720px) { :root { --z: 1.5; } }
+@media (min-width: 3200px) { :root { --z: 1.75; } }
+@media (min-width: 3680px) { :root { --z: 2; } }
 .nav--rail {
   position: sticky;
   top: 16px;
@@ -2495,7 +2506,9 @@ input:not([type='checkbox']):not([type='radio']):focus, textarea:focus, select:f
   /* Så bred som namnet kräver, inom rimliga gränser */
   width: max-content;
   min-width: 300px;
-  max-width: min(460px, calc(100vw - 16px));
+  max-width: min(460px, calc(100vw / var(--z) - 16px));
+  /* Samma skala som innehållet på breda skärmar */
+  zoom: var(--z);
   visibility: hidden; /* tills platsen är uträknad */
   pointer-events: none;
   animation: item-hover-in 0.12s ease-out;
