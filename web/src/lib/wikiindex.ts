@@ -133,7 +133,9 @@ export async function syncIndex(onProgress: (p: SyncProgress) => void, signal: A
       supabase.from('wiki_items').select('id, wiki_updated_at').order('id').range(from, to)))
       .map((r) => [r.id, r.wiki_updated_at]),
   )
-  const todo = entries.filter((e) => {
+  // Wikins lista kan ge samma item på två sidor; en batch med dubbletter nekas av databasen
+  const unique = [...new Map(entries.map((e) => [e.id, e])).values()]
+  const todo = unique.filter((e) => {
     if (!have.has(e.id)) return true
     const stored = have.get(e.id)
     return !!e.updatedAt && (!stored || new Date(e.updatedAt) > new Date(stored))

@@ -96,28 +96,30 @@ Deno.serve(async (req) => {
         .filter((x) => typeof x?.id === "string" && /^[a-z0-9][a-z0-9-]*$/.test(x.id))
         .slice(0, MAX_IDS)
         .map((x) => ({ id: x.id as string, updatedAt: typeof x.updatedAt === "string" ? x.updatedAt : null }));
-      const rows = [];
+      // Nyckel på wikins id: ett omdöpt item kan svara med samma id som ett annat i batchen,
+      // och Postgres vägrar uppdatera samma rad två gånger i ett kommando
+      const rows = new Map<string, ReturnType<typeof toRow>>();
       const failed: string[] = [];
       for (const { id, updatedAt } of wanted) {
         const started = Date.now();
         try {
           const w = await getItem(id);
-          if (w) rows.push(toRow(w, updatedAt));
+          if (w && /^[a-z0-9][a-z0-9-]*$/.test(w.id)) rows.set(w.id, toRow(w, updatedAt));
         } catch {
           failed.push(id);
         }
         const left = GAP_MS - (Date.now() - started);
         if (left > 0) await sleep(left);
       }
-      if (rows.length > 0) {
+      if (rows.size > 0) {
         const res = await fetch(`${caller.base}/rest/v1/wiki_items?on_conflict=id`, {
           method: "POST",
           headers: { ...caller.headers, Prefer: "resolution=merge-duplicates,return=minimal" },
-          body: JSON.stringify(rows),
+          body: JSON.stringify([...rows.values()]),
         });
         if (!res.ok) return json({ error: `Databasen svarade ${res.status}: ${await res.text()}` }, 500);
       }
-      return json({ saved: rows.length, failed });
+      return json({ saved: rows.size, failed });
     }
 
     return json({ error: "Okänd förfrågan" }, 400);
